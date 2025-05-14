@@ -1,5 +1,6 @@
 package com.example.resiapp;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -13,7 +14,8 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnLogin;
+    Button btnGetStarted;
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,8 +27,8 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        btnLogin = findViewById(R.id.btnLogin);
-        btnLogin.setOnClickListener(new View.OnClickListener(){
+        btnGetStarted = findViewById(R.id.btnGetStarted);
+        btnGetStarted.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 startActivity(new Intent(getApplicationContext(), LoginActivity.class));

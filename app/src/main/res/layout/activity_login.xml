@@ -10,7 +10,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="1000dp"
         android:background="@color/primary_color"
         android:alpha="0.9">
     </RelativeLayout>
@@ -91,7 +91,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:text="Login"
-                app:cornerRadius="32dp">
+                app:cornerRadius="32dp"
+                android:id="@+id/btnLogin"
+                >
             </com.google.android.material.button.MaterialButton>
         </LinearLayout>
     </androidx.cardview.widget.CardView>

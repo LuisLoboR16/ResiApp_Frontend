@@ -10,7 +10,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="2000dp"
         android:background="@color/primary_color"
         android:alpha="0.9">
 
@@ -36,11 +36,11 @@
         </ImageView>
 
         <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="112dp"
+            android:id="@+id/btnGetStarted"
+            android:layout_width="122dp"
             android:layout_height="74dp"
             android:layout_centerHorizontal="true"
             android:layout_alignBottom="@id/imageView"
-            android:text="Enter" />
+            android:text="Get Started" />
     </RelativeLayout>
 </RelativeLayout>
