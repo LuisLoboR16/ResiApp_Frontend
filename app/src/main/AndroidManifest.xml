@@ -13,7 +13,10 @@
         android:theme="@style/Theme.ResiApp"
         tools:targetApi="31">
         <activity
-            android:name=".AdminDashboard"
+            android:name=".NotificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminDashboardActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"
@@ -23,7 +26,7 @@
             android:exported="false"
             android:label="@string/title_activity_login" />
         <activity
-            android:name=".ResidentDashboard"
+            android:name=".ResidentDashboardActivity"
             android:exported="false" />
         <activity
             android:name=".SpaceActivity"

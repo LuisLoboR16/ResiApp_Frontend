@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ResidentDashboard"
+    tools:context=".ResidentDashboardActivity"
     android:background="@drawable/ic_apartments_resident">
 
     <RelativeLayout
@@ -168,17 +168,20 @@
                 app:cardCornerRadius="12dp"
                 android:layout_margin="12dp">
                 <LinearLayout
+                    android:id="@+id/layoutNotifications"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:gravity="center">
                     <ImageView
+                        android:id="@+id/imgNotifications"
                         android:src="@drawable/ic_notifications"
                         android:layout_width="80dp"
                         android:layout_height="80dp">
                     </ImageView>
                     <TextView
+                        android:id="@+id/txtNotifications"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
