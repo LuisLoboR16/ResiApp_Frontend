@@ -17,17 +17,18 @@ import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
-    private static List<Users> listaUsuarios = Collections.emptyList();
+    private static List<Users> userList = Collections.emptyList();
 
     public interface OnUserActionListener {
-        void onActualizar(Users user);
-        void onEliminar(Users user);
+        void onUpdate(Users user);
+
+        void onDelete(Users user);
     }
 
     private final OnUserActionListener listener;
 
-    public UserAdapter(List<Users> listaUsuarios, OnUserActionListener listener) {
-        this.listaUsuarios = listaUsuarios;
+    public UserAdapter(List<Users> userList, OnUserActionListener listener) {
+        this.userList = userList;
         this.listener = listener;
     }
 
@@ -41,42 +42,37 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        Users usuario = listaUsuarios.get(position);
-        holder.tvNombre.setText(usuario.getResidentName());
-        holder.tvEmail.setText(usuario.getEmail());
-        holder.tvApartamento.setText(usuario.getAparment());
-        holder.tvRol.setText(usuario.getRole());
+        Users user = userList.get(position);
+        holder.tvName.setText(user.getResidentName());
+        holder.tvEmail.setText(user.getEmail());
+        holder.tvPassword.setText(user.getPassword());
+        holder.tvApartment.setText(user.getApartmentInformation());
+        holder.tvRole.setText(user.getRole());
 
-        // Acciones
-        holder.btnActualizar.setOnClickListener(v -> listener.onActualizar(usuario));
-        holder.btnEliminar.setOnClickListener(v -> listener.onEliminar(usuario));
+        holder.btnUpdate.setOnClickListener(v -> listener.onUpdate(user));
+        holder.btnDelete.setOnClickListener(v -> listener.onDelete(user));
     }
 
     @Override
     public int getItemCount() {
-        return listaUsuarios.size();
+        return userList.size();
     }
 
     public class UserViewHolder extends RecyclerView.ViewHolder {
-        TextView tvNombre, tvEmail, tvApartamento, tvRol, tvInfo;
-        Button btnActualizar, btnEliminar;
+        TextView tvName, tvEmail, tvApartment, tvRole, tvPassword;
+        Button btnUpdate, btnDelete;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvNombre = itemView.findViewById(R.id.tvNombre);
-            tvEmail = itemView.findViewById(R.id.tvEmail);
-            tvApartamento = itemView.findViewById(R.id.tvApartamento);
-            tvRol = itemView.findViewById(R.id.tvRol);
-            btnActualizar = itemView.findViewById(R.id.btnActualizar);
-            btnEliminar = itemView.findViewById(R.id.btnEliminar);
-        }
 
-        public void eliminarItem(Users user) {
-            int position = listaUsuarios.indexOf(user);
-            if (position != -1) {
-                listaUsuarios.remove(position);
-                notifyItemRemoved(position);
-            }
+            tvName = itemView.findViewById(R.id.tvNombre);
+            tvEmail = itemView.findViewById(R.id.tvEmail);
+            tvPassword = itemView.findViewById(R.id.tvPassword);
+            tvApartment = itemView.findViewById(R.id.tvApartmentInformation);
+            tvRole = itemView.findViewById(R.id.tvRole);
+
+            btnUpdate = itemView.findViewById(R.id.btnUpdate);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
         }
     }
 }

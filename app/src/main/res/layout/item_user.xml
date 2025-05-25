@@ -25,13 +25,18 @@
             android:textSize="14sp"/>
 
         <TextView
-            android:id="@+id/tvApartamento"
+            android:id="@+id/tvPassword"
+            android:layout_height="0dp"
+            android:layout_width="0dp"/>
+
+        <TextView
+            android:id="@+id/tvApartmentInformation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"/>
 
         <TextView
-            android:id="@+id/tvRol"
+            android:id="@+id/tvRole"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"/>
@@ -43,15 +48,15 @@
             android:layout_height="wrap_content">
 
             <Button
-                android:id="@+id/btnActualizar"
-                android:text="Actualizar"
+                android:id="@+id/btnUpdate"
+                android:text="Update"
                 android:layout_marginEnd="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <Button
-                android:id="@+id/btnEliminar"
-                android:text="Eliminar"
+                android:id="@+id/btnDelete"
+                android:text="Delete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>

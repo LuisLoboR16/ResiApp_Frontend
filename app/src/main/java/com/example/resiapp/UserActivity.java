@@ -1,9 +1,13 @@
 package com.example.resiapp;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,15 +35,15 @@ import java.util.List;
 import Adapters.UserAdapter;
 
 public class UserActivity extends AppCompatActivity {
-    static final String URL = "http://10.0.2.2:5069/api/Api/";
-    static final String GET = "GetResident";
-    static final String DELETE = "DeleteResident/";
-    static final String CREATE = "GetResident";
-    static final String UPDATE = "GetResident";
+    static final String URL = "http://10.0.2.2:5069/api/";
+    static final String GET = "User";
+    static final String DELETE = "User/";
+    static final String CREATE = "User";
+    static final String UPDATE = "User/";
     static final String LOG_TAG = "ResiApp" ;
-    private RequestQueue colaPeticiones;
+    private RequestQueue requestQueues;
     Gson gson;
-    private List<Users> listaUsuarios;
+    private List<Users> usersList;
     private UserAdapter adapter;
 
     @SuppressLint("MissingInflatedId")
@@ -51,16 +55,41 @@ public class UserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerUsuarios);
-        listaUsuarios = new ArrayList<>();
-        adapter = new UserAdapter(listaUsuarios, new UserAdapter.OnUserActionListener(){
+        usersList = new ArrayList<>();
+        adapter = new UserAdapter(usersList, new UserAdapter.OnUserActionListener(){
             @Override
-            public void onActualizar(Users user) {
-                // Aquí podrías abrir un formulario o mostrar un diálogo para editar
-                Toast.makeText(UserActivity.this, "Actualizar: " + user.getResidentName(), Toast.LENGTH_SHORT).show();
+            public void onUpdate(Users user) {
+                ShowUpdateForm(user);
             }
 
             @Override
-            public void onEliminar(Users user) {
+            public void onDelete(Users user) {
+                AlertDialog dialog = new AlertDialog.Builder(UserActivity.this)
+                        .setTitle("🗑 Confirm action")
+                        .setMessage("¿Are you sure to delete" + "\n\n" + "*" + user.getResidentName() + "*?" + "\n" +"\nThis action can't be undone.")
+                        .setPositiveButton("Delete", null)
+                        .setNegativeButton("Cancel", null)
+                        .create();
+
+                dialog.setOnShowListener(dialogInterface -> {
+                    Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+                    positive.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                    negative.setTextColor(getResources().getColor(android.R.color.darker_gray));
+
+                    positive.setOnClickListener(v -> {
+                        deleteUser(user);
+                        dialog.dismiss();
+                    });
+
+                    negative.setOnClickListener(v -> dialog.dismiss());
+                });
+
+                dialog.show();
+            }
+
+            public void deleteUser(Users user) {
                 String urlDelete = URL + DELETE + user.getId();
                 ProgressDialog progressDialog = new ProgressDialog(UserActivity.this);
                 progressDialog.setMessage("Deleting user...");
@@ -71,13 +100,13 @@ public class UserActivity extends AppCompatActivity {
                         urlDelete,
                         null,
                         response -> {
-                            Toast.makeText(UserActivity.this, "Usuario eliminado correctamente", Toast.LENGTH_SHORT).show();
-                            listaUsuarios.remove(user); // Quita el usuario de la lista local
-                            adapter.notifyDataSetChanged(); // Refresca la vista
+                            Toast.makeText(UserActivity.this, "User deleted sucessfully", Toast.LENGTH_SHORT).show();
+                            usersList.remove(user);
+                            adapter.notifyDataSetChanged();
                             progressDialog.dismiss();
                         },
                         error -> {
-                            Toast.makeText(UserActivity.this, "Error al eliminar: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(UserActivity.this, "Error deleting user: " + error.getMessage(), Toast.LENGTH_LONG).show();
                             progressDialog.dismiss();
                         }
                 );
@@ -88,21 +117,63 @@ public class UserActivity extends AppCompatActivity {
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
                 ));
 
-                colaPeticiones.add(deleteRequest);
+                requestQueues.add(deleteRequest);
             }
 
+            private void ShowUpdateForm(Users user) {
+                View dialogView = getLayoutInflater().inflate(R.layout.activity_update_user, null);
+                EditText editName = dialogView.findViewById(R.id.editName);
+                EditText editEmail = dialogView.findViewById(R.id.editEmail);
+                EditText editPassword = dialogView.findViewById(R.id.editPassword);
+                EditText editApartmentInformation = dialogView.findViewById(R.id.editApartmentInformation);
+                EditText editRole = dialogView.findViewById(R.id.editRole);
+
+                Button btnUpdate= dialogView.findViewById(R.id.btnUpdate);
+                Button btnCancel= dialogView.findViewById(R.id.btnCancel);
+
+                editName.setText(user.getResidentName());
+                editEmail.setText(user.getEmail());
+                editPassword.setText("");
+                editApartmentInformation.setText(user.getApartmentInformation());
+                editRole.setText(user.getRole());
+
+                AlertDialog dialog = new AlertDialog.Builder(UserActivity.this)
+                        .setView(dialogView)
+                        .create();
+
+                btnUpdate.setOnClickListener(view -> {
+                    user.setResidentName(editName.getText().toString());
+                    user.setEmail(editEmail.getText().toString());
+
+                    String newPassword = editPassword.getText().toString();
+                    if(!newPassword.isEmpty()){
+                        user.setPassword(newPassword);
+                    }else{
+                        user.setPassword(null);
+                    }
+
+                    user.setApartmentInformation(editApartmentInformation.getText().toString());
+                    user.setRole(editRole.getText().toString());
+                    updateUser(user);
+                    dialog.dismiss();
+                });
+
+                btnCancel.setOnClickListener(view -> {
+                    dialog.dismiss();
+                });
+
+                dialog.show();
+            }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
         gson = new Gson();
 
-        // acceder instancia volley y obtener cola peticiones
         volley = SingleVolley.getInstance(getApplicationContext());
-        colaPeticiones = volley.getRequestQueue();
+        requestQueues = volley.getRequestQueue();
 
-        hacerPeticionUsuarios(URL + GET);
+        createUserRequest(URL + GET);
 
-        // Establece las inserciones de recortes de pantalla
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -110,32 +181,88 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
+    public void updateUser(Users user) {
+        String urlUpdate = URL + UPDATE + user.getId();
+        ProgressDialog progressDialog = new ProgressDialog(UserActivity.this);
+        progressDialog.setMessage("Updating users...");
+        progressDialog.show();
+
+        try {
+            JSONObject json = new JSONObject();
+            json.put("residentName", user.getResidentName());
+            json.put("email", user.getEmail());
+            json.put("password", user.getPassword());
+            json.put("apartmentInformation", user.getApartmentInformation());
+            json.put("role", user.getRole());
+
+            JsonObjectRequest request = new JsonObjectRequest(
+                    Request.Method.PUT,
+                    urlUpdate,
+                    json,
+                    response -> {
+                        Toast.makeText(this, "User updated sucessfully", Toast.LENGTH_SHORT).show();
+                        createUserRequest(URL + GET);
+                        progressDialog.dismiss();
+                    },
+                    error ->
+                    { Log.e(LOG_TAG, "VolleyError: " + error.toString());
+                        if (error.networkResponse != null) {
+                            Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
+                            if (error.networkResponse.data != null) {
+                                String errorBody = new String(error.networkResponse.data);
+                                Log.e(LOG_TAG, "Error body: " + errorBody);
+                            }
+                        }
+                        Toast.makeText(this, "Error updating", Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                    }
+            ) {
+                @Override
+                public String getBodyContentType() {
+                    return "application/json; charset=utf-8";
+                }
+            };
+
+            request.setRetryPolicy(new DefaultRetryPolicy(
+                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
+                    3,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
+
+            requestQueues.add(request);
+
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Excepction JSON: " + e.getMessage());
+            progressDialog.dismiss();
+        }
+    }
+
     /**
      * Genera una petición y la encola
      *
-     * @param urlRecurso URL del recurso solicitado
+     * @param urlRequest URL del recurso solicitado
      */
-    public void hacerPeticionUsuarios(String urlRecurso) {
+    public void createUserRequest(String urlRequest) {
         ProgressDialog pDialog = new ProgressDialog(this);
         pDialog.setMessage("Loading users...");
         pDialog.show();
 
-        JsonObjectRequest nuevaPeticion = new JsonObjectRequest(
+        JsonObjectRequest newRequest = new JsonObjectRequest(
                 Request.Method.GET,
-                urlRecurso,
+                urlRequest,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray jsonArray = response.getJSONArray("data");
-                            listaUsuarios.clear();
+                            usersList.clear();
                             for (int c = 0; c < jsonArray.length(); c++) {
                                 JSONObject userJson = jsonArray.getJSONObject(c);
                                 Users user = gson.fromJson(userJson.toString(), Users.class);
-                                listaUsuarios.add(user);
+                                usersList.add(user);
                             }
-                            adapter.notifyDataSetChanged();  // Actualiza la vista
+                            adapter.notifyDataSetChanged();
 
 
                         } catch (Exception e) {
@@ -154,8 +281,8 @@ public class UserActivity extends AppCompatActivity {
                 }
         );
 
-        nuevaPeticion.setTag(LOG_TAG);
-        nuevaPeticion.setRetryPolicy(
+        newRequest.setTag(LOG_TAG);
+        newRequest.setRetryPolicy(
                 new DefaultRetryPolicy(
                         DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
                         3,
@@ -163,34 +290,15 @@ public class UserActivity extends AppCompatActivity {
                 )
         );
 
-        colaPeticiones.add(nuevaPeticion);
+        requestQueues.add(newRequest);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (colaPeticiones != null) {
-            colaPeticiones.cancelAll(LOG_TAG);
+        if (requestQueues != null) {
+            requestQueues.cancelAll(LOG_TAG);
         }
         Log.i(LOG_TAG, "onStop() - Requests canceled");
-    }
-
-    /**
-     * Encola la petición
-     *
-     * @param peticion petición JsonArrayRequest
-     */
-    public void encolarPeticion(JsonArrayRequest peticion) {
-        if (peticion != null) {
-            peticion.setTag(LOG_TAG);  // Tag for this request. Can be used to cancel all requests with this tag
-            peticion.setRetryPolicy(
-                    new DefaultRetryPolicy(
-                            DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,  // initial timeout for the policy.
-                            3,      // maximum number of retries
-                            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-                    )
-            );
-            colaPeticiones.add(peticion);
-        }
     }
 }
