@@ -1,25 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:layout_margin="5dp"
-    android:background="@drawable/dialog_background"
+    android:layout_height="match_parent"
     tools:context=".NotificationActivity">
 
-    <LinearLayout
+    <ImageView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_apartments"
+        android:alpha="0.2"
+        android:contentDescription="@null">
+    </ImageView>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp">
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvTitulo"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Enviar Correo"
-            android:textSize="24dp"
-            android:layout_marginTop="30dp">
+            android:text="Envio de notificaciones"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:gravity="center"
+            android:layout_marginBottom="24dp">
         </TextView>
     </LinearLayout>
 
@@ -28,17 +39,16 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
         android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+
             <EditText
                 android:id="@+id/lblEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Enviar a:"
-                android:textSize="17dp">
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000">
             </EditText>
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,7 +57,9 @@
                 android:id="@+id/txtEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Ejemplo: correo@correo.com">
+                android:hint="Ejemplo: correo@correo.com"
+                android:inputType="textEmailAddress"
+                android:layout_marginBottom="16dp">
             </EditText>
         </LinearLayout>
     </LinearLayout>
@@ -61,11 +73,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <EditText
-                android:id="@+id/lblAsunto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Asunto:"
-                android:textSize="17dp">
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000">
             </EditText>
         </LinearLayout>
 
@@ -76,7 +89,8 @@
                 android:id="@+id/txtAsunto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Digite asunto">
+                android:hint="Digite el asunto"
+                android:layout_marginBottom="16dp">
             </EditText>
         </LinearLayout>
     </LinearLayout>
@@ -90,11 +104,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <EditText
-                android:id="@+id/lblComentarios"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Comentarios:"
-                android:textSize="17dp">
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#000000">
             </EditText>
         </LinearLayout>
 
@@ -104,8 +119,11 @@
             <EditText
                 android:id="@+id/txtComentarios"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Digite sus comentarios">
+                android:layout_height="120dp"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:hint="Digite sus comentarios"
+                android:layout_marginBottom="24dp">
             </EditText>
         </LinearLayout>
     </LinearLayout>
@@ -119,18 +137,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <Button
+                android:id="@+id/btnEnviarEmail"
+                android:layout_marginTop="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/btnEnviarEmail"
-                android:text="Enviar">
+                android:text="Enviar"
+                android:layout_marginEnd="16dp">
             </Button>
             <Button
+                android:id="@+id/btnVolver"
+                android:layout_marginTop="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/btnVolver"
                 android:text="Volver">
             </Button>
         </LinearLayout>
-
     </LinearLayout>
-</RelativeLayout>
+</FrameLayout>

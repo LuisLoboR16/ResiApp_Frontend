@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -30,7 +31,11 @@ import java.util.List;
 import Adapters.UserAdapter;
 
 public class UserActivity extends AppCompatActivity {
-    static final String URL = "http://10.0.2.2:5069/api/Api/GetResident";
+    static final String URL = "http://10.0.2.2:5069/api/Api/";
+    static final String GET = "GetResident";
+    static final String DELETE = "DeleteResident/";
+    static final String CREATE = "GetResident";
+    static final String UPDATE = "GetResident";
     static final String LOG_TAG = "ResiApp" ;
     private RequestQueue colaPeticiones;
     Gson gson;
@@ -47,7 +52,46 @@ public class UserActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.recyclerUsuarios);
         listaUsuarios = new ArrayList<>();
-        adapter = new UserAdapter(listaUsuarios);
+        adapter = new UserAdapter(listaUsuarios, new UserAdapter.OnUserActionListener(){
+            @Override
+            public void onActualizar(Users user) {
+                // Aquí podrías abrir un formulario o mostrar un diálogo para editar
+                Toast.makeText(UserActivity.this, "Actualizar: " + user.getResidentName(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onEliminar(Users user) {
+                String urlDelete = URL + DELETE + user.getId();
+                ProgressDialog progressDialog = new ProgressDialog(UserActivity.this);
+                progressDialog.setMessage("Deleting user...");
+                progressDialog.show();
+
+                JsonObjectRequest deleteRequest = new JsonObjectRequest(
+                        Request.Method.DELETE,
+                        urlDelete,
+                        null,
+                        response -> {
+                            Toast.makeText(UserActivity.this, "Usuario eliminado correctamente", Toast.LENGTH_SHORT).show();
+                            listaUsuarios.remove(user); // Quita el usuario de la lista local
+                            adapter.notifyDataSetChanged(); // Refresca la vista
+                            progressDialog.dismiss();
+                        },
+                        error -> {
+                            Toast.makeText(UserActivity.this, "Error al eliminar: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                            progressDialog.dismiss();
+                        }
+                );
+
+                deleteRequest.setRetryPolicy(new DefaultRetryPolicy(
+                        DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
+                        3,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+                ));
+
+                colaPeticiones.add(deleteRequest);
+            }
+
+        });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
         gson = new Gson();
@@ -56,7 +100,7 @@ public class UserActivity extends AppCompatActivity {
         volley = SingleVolley.getInstance(getApplicationContext());
         colaPeticiones = volley.getRequestQueue();
 
-        hacerPeticionCentros(URL);
+        hacerPeticionUsuarios(URL + GET);
 
         // Establece las inserciones de recortes de pantalla
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
@@ -71,7 +115,7 @@ public class UserActivity extends AppCompatActivity {
      *
      * @param urlRecurso URL del recurso solicitado
      */
-    public void hacerPeticionCentros(String urlRecurso) {
+    public void hacerPeticionUsuarios(String urlRecurso) {
         ProgressDialog pDialog = new ProgressDialog(this);
         pDialog.setMessage("Loading users...");
         pDialog.show();
