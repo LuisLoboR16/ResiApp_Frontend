@@ -78,8 +78,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <TextView
+                    android:id="@+id/txtCreateUser"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="Join us!">
+                </TextView>
+                <TextView
+                    android:id="@+id/txtForgotPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
                     android:text="I forgot my password">
                 </TextView>
             </RelativeLayout>

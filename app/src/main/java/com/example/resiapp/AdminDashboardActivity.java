@@ -16,9 +16,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
-    LinearLayout layoutNotifications;
-    TextView txtNotifications;
-    ImageView imgNotifications;
+    LinearLayout layoutNotifications, layoutUsers;
+    TextView txtNotifications, txtUsers;
+    ImageView imgNotifications, imgUsers;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -56,5 +56,37 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
             }
         });
+
+
+
+
+        layoutUsers = findViewById(R.id.layoutUsers);
+        layoutUsers.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), UserActivity.class));
+            }
+        });
+
+
+        txtUsers = findViewById(R.id.txtUsers);
+        txtUsers.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), UserActivity.class));
+            }
+        });
+
+        imgUsers = findViewById(R.id.imgUsers);
+        imgUsers.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), UserActivity.class));
+            }
+        });
+
+
+
+
     }
-        }
+}
