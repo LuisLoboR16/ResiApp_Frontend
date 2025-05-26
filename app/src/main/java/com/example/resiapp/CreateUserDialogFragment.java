@@ -25,9 +25,7 @@ import org.json.JSONObject;
 public class CreateUserDialogFragment extends DialogFragment {
     static final String URL = "http://10.0.2.2:5069/api/";
     static final String CREATE = "User";
-    static final String LOG_TAG = "ResiApp" ;
-
-
+    static final String LOG_TAG = "ResiApp";
 
     @NonNull
     @Override
@@ -83,9 +81,28 @@ public class CreateUserDialogFragment extends DialogFragment {
                         },
                         error ->
                         {
+                            int statusCode = error.networkResponse.statusCode;
+                            String errorMessage;
+                            switch (statusCode) {
+                                case 400:
+                                    errorMessage = "Verify your data, something it's wrong.";
+                                    break;
+                                case 401:
+                                    errorMessage = "Not authorized, check your credentials.";
+                                    break;
+                                case 409:
+                                    errorMessage = "Email already exits.";
+                                    break;
+                                case 500:
+                                    errorMessage = "Error from server, please try again later.";
+                                    break;
+                                default:
+                                    errorMessage = "Unknown error.";
+                            }
+
                             Log.e(LOG_TAG, "VolleyError: " + error.toString());
                             progressDialog.dismiss();
-                            Toast.makeText(getContext(), "Error creating user", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "Error creating user, " + errorMessage, Toast.LENGTH_LONG).show();
                             Log.e(LOG_TAG, "Volley error: " + error.toString());
                             if (error.networkResponse != null) {
                                 Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);

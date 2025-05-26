@@ -57,9 +57,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 dialog.show(getSupportFragmentManager(), "NotificationDialog");            }
         });
 
-
-
-
         layoutUsers = findViewById(R.id.layoutUsers);
         layoutUsers.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -67,7 +64,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), UserActivity.class));
             }
         });
-
 
         txtUsers = findViewById(R.id.txtUsers);
         txtUsers.setOnClickListener(new View.OnClickListener(){

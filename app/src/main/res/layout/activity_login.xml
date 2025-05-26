@@ -52,9 +52,11 @@
                 android:textStyle="bold">
             </TextView>
             <EditText
+                android:id="@+id/editEmailLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
+                android:hint="Email"
                 android:drawableEnd="@drawable/done_icon">
             </EditText>
             <View
@@ -68,12 +70,28 @@
                 android:alpha="0.7"
                 android:textStyle="bold">
             </TextView>
-            <EditText
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                android:drawableEnd="@drawable/password_icon">
-            </EditText>
+                tools:ignore="ExtraText">
+                <EditText
+                    android:id="@+id/editPasswordLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:paddingEnd="28dp"
+                    android:hint="Password"
+                    android:layout_alignParentStart="true" />
+                <ImageView
+                    android:id="@+id/ivTogglePassword"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/password_icon"
+                android:contentDescription="Toggle password visibility" />
+            </RelativeLayout>
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">

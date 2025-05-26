@@ -15,24 +15,34 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 public class NotificationDialogFragment extends DialogFragment {
-
-    EditText txtEmail, txtSubject, txtComents;
+    static String email = "";
+    static String adminEmail = "Admin@Resiapp.es";
+    EditText txtEmail, txtSubject, txtComments;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_notification, null);
 
+        String invokedClass = requireActivity().getClass().getSimpleName();
+
         txtEmail = view.findViewById(R.id.editEmail);
         txtSubject= view.findViewById(R.id.editSubject);
-        txtComents = view.findViewById(R.id.editComment);
+        txtComments = view.findViewById(R.id.editComment);
         Button btnSend = view.findViewById(R.id.btnSend);
         Button btnCancel = view.findViewById(R.id.btnCancel);
 
+        if (invokedClass.trim().equals("LoginActivity")) {
+            txtEmail.setText(adminEmail);
+            txtEmail.setEnabled(false);
+            email = adminEmail;
+        } else {
+            email = txtEmail.getText().toString();
+        }
+
         btnSend.setOnClickListener(v -> {
-            String email = txtEmail.getText().toString();
             String subject = txtSubject.getText().toString();
-            String comments = txtComents.getText().toString();
+            String comments = txtComments.getText().toString();
 
             if (!TextUtils.isEmpty(email)) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
