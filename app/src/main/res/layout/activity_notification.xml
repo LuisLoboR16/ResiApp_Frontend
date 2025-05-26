@@ -1,156 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".NotificationActivity">
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_apartments"
-        android:alpha="0.2"
-        android:contentDescription="@null">
-    </ImageView>
+    android:layout_height="wrap_content"
+    android:padding="20dp">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:layout_height="wrap_content">
+
         <TextView
-            android:id="@+id/tvTitulo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Envio de notificaciones"
-            android:textSize="22sp"
+            android:text="Send Notification"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#000000"
             android:gravity="center"
-            android:layout_marginBottom="24dp">
-        </TextView>
-    </LinearLayout>
+            android:layout_marginBottom="24dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:orientation="vertical">
-
-            <EditText
-                android:id="@+id/lblEmail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Enviar a:"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#000000">
-            </EditText>
-
-        <LinearLayout
+        <EditText
+            android:id="@+id/editEmail"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:id="@+id/txtEmail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Ejemplo: correo@correo.com"
-                android:inputType="textEmailAddress"
-                android:layout_marginBottom="16dp">
-            </EditText>
-        </LinearLayout>
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:hint="To"
+            android:layout_marginBottom="16dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="190dp"
-        android:orientation="vertical">
+        <EditText
+            android:id="@+id/editSubject"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Subject"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
+            android:id="@+id/editComment"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:gravity="top|start"
+            android:inputType="textMultiLine"
+            android:hint="Comments"
+            android:layout_marginBottom="24dp"/>
+
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Asunto:"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#000000">
-            </EditText>
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:gravity="center">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:id="@+id/txtAsunto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Digite el asunto"
-                android:layout_marginBottom="16dp">
-            </EditText>
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="280dp"
-        android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Comentarios:"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#000000">
-            </EditText>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <EditText
-                android:id="@+id/txtComentarios"
-                android:layout_width="match_parent"
-                android:layout_height="120dp"
-                android:gravity="top|start"
-                android:inputType="textMultiLine"
-                android:hint="Digite sus comentarios"
-                android:layout_marginBottom="24dp">
-            </EditText>
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="430dp"
-        android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
             <Button
-                android:id="@+id/btnEnviarEmail"
-                android:layout_marginTop="10dp"
+                android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Enviar"
-                android:layout_marginEnd="16dp">
-            </Button>
+                android:text="Cancel"
+                android:layout_gravity="center"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#D32F2F"
+                android:layout_marginEnd="16dp"/>
+
             <Button
-                android:id="@+id/btnVolver"
-                android:layout_marginTop="10dp"
+                android:id="@+id/btnSend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Volver">
-            </Button>
+                android:text="Send"
+                android:layout_gravity="center" />
+
+
         </LinearLayout>
     </LinearLayout>
-</FrameLayout>
+</ScrollView>
