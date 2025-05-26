@@ -2,7 +2,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Imagen de fondo en toda la pantalla -->
     <ImageView
         android:id="@+id/bgImage"
         android:layout_width="match_parent"
@@ -12,7 +11,6 @@
         android:alpha="0.2"
         android:contentDescription="@null" />
 
-    <!-- Contenido sobre la imagen -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerUsuarios"
         android:layout_width="match_parent"

@@ -12,16 +12,21 @@ public class Users {
     @Expose
     private int id;
 
+    @SerializedName("residentName")
+    @Expose
+    private String residentName;
+
     @SerializedName("email")
     @Expose
     private String email;
 
-    @SerializedName("residentName")
+    @SerializedName("passwordHash")
     @Expose
-    private String residentName;
+    private String password;
+
     @SerializedName("apartmentInformation")
     @Expose
-    private String aparment;
+    private String apartmentInformation;
 
     @SerializedName("role")
     @Expose
@@ -43,6 +48,14 @@ public class Users {
         this.email = email;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getResidentName() {
         return residentName;
     }
@@ -51,12 +64,12 @@ public class Users {
         this.residentName = residentName;
     }
 
-    public String getAparment() {
-        return aparment;
+    public String getApartmentInformation() {
+        return apartmentInformation;
     }
 
-    public void setAparment(String aparment) {
-        this.aparment = aparment;
+    public void setApartmentInformation(String apartmentInformation) {
+        this.apartmentInformation = apartmentInformation;
     }
 
     public String getRole() {

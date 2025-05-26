@@ -36,8 +36,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
         layoutNotifications.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
-            }
+                NotificationDialogFragment dialog = new NotificationDialogFragment();
+                dialog.show(getSupportFragmentManager(), "NotificationDialog");            }
         });
 
 
@@ -45,20 +45,17 @@ public class AdminDashboardActivity extends AppCompatActivity {
         txtNotifications.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
-            }
+                NotificationDialogFragment dialog = new NotificationDialogFragment();
+                dialog.show(getSupportFragmentManager(), "NotificationDialog");            }
         });
 
         imgNotifications = findViewById(R.id.imgNotifications);
         imgNotifications.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), NotificationActivity.class));
-            }
+                NotificationDialogFragment dialog = new NotificationDialogFragment();
+                dialog.show(getSupportFragmentManager(), "NotificationDialog");            }
         });
-
-
-
 
         layoutUsers = findViewById(R.id.layoutUsers);
         layoutUsers.setOnClickListener(new View.OnClickListener(){
@@ -67,7 +64,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), UserActivity.class));
             }
         });
-
 
         txtUsers = findViewById(R.id.txtUsers);
         txtUsers.setOnClickListener(new View.OnClickListener(){
@@ -84,9 +80,5 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), UserActivity.class));
             }
         });
-
-
-
-
     }
 }

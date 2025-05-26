@@ -9,26 +9,24 @@ import com.android.volley.toolbox.Volley;
 
 public class SingleVolley {
 
-    private static SingleVolley instanciaVolley = null;
+        private static SingleVolley volleyInstance = null;
 
-    // cola de peticiones
-    private final RequestQueue colaPeticiones;
+    private final RequestQueue requestQueues;
 
-    // Instancia la cola de peticiones
     private SingleVolley(Context context) {
-        colaPeticiones = Volley.newRequestQueue(context);
+        requestQueues = Volley.newRequestQueue(context);
     }
 
     public static SingleVolley getInstance(Context context) {
-        if (instanciaVolley == null) {
-            instanciaVolley = new SingleVolley(context);
+        if (volleyInstance == null) {
+            volleyInstance = new SingleVolley(context);
         }
 
-        return instanciaVolley;
+        return volleyInstance;
     }
 
     public RequestQueue getRequestQueue() {
-        return colaPeticiones;
+        return requestQueues;
     }
 
     @NonNull
