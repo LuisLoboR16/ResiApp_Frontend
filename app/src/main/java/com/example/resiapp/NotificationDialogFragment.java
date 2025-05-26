@@ -16,7 +16,7 @@ import androidx.fragment.app.DialogFragment;
 
 public class NotificationDialogFragment extends DialogFragment {
 
-    EditText txtEmail, txtAsunto, txtComentarios;
+    EditText txtEmail, txtSubject, txtComents;
 
     @NonNull
     @Override
@@ -24,28 +24,28 @@ public class NotificationDialogFragment extends DialogFragment {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_notification, null);
 
         txtEmail = view.findViewById(R.id.editEmail);
-        txtAsunto = view.findViewById(R.id.editSubject);
-        txtComentarios = view.findViewById(R.id.editComment);
-        Button btnEnviar = view.findViewById(R.id.btnSend);
-        Button btnCancelar = view.findViewById(R.id.btnCancel);
+        txtSubject= view.findViewById(R.id.editSubject);
+        txtComents = view.findViewById(R.id.editComment);
+        Button btnSend = view.findViewById(R.id.btnSend);
+        Button btnCancel = view.findViewById(R.id.btnCancel);
 
-        btnEnviar.setOnClickListener(v -> {
-            String correo = txtEmail.getText().toString();
-            String asunto = txtAsunto.getText().toString();
-            String comentario = txtComentarios.getText().toString();
+        btnSend.setOnClickListener(v -> {
+            String email = txtEmail.getText().toString();
+            String subject = txtSubject.getText().toString();
+            String comments = txtComents.getText().toString();
 
-            if (!TextUtils.isEmpty(correo)) {
+            if (!TextUtils.isEmpty(email)) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{correo});
-                intent.putExtra(Intent.EXTRA_SUBJECT, asunto);
-                intent.putExtra(Intent.EXTRA_TEXT, comentario);
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
+                intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+                intent.putExtra(Intent.EXTRA_TEXT, comments);
                 intent.setType("message/rfc822");
-                startActivity(Intent.createChooser(intent, "Selecciona un cliente de correo electrónico"));
+                startActivity(Intent.createChooser(intent, "Select a client for emails"));
                 dismiss();
             }
         });
 
-        btnCancelar.setOnClickListener(v -> dismiss());
+        btnCancel.setOnClickListener(v -> dismiss());
 
         return new AlertDialog.Builder(requireContext())
                 .setView(view)

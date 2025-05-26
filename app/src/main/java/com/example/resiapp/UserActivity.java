@@ -22,7 +22,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.gson.Gson;
 
@@ -38,7 +37,6 @@ public class UserActivity extends AppCompatActivity {
     static final String URL = "http://10.0.2.2:5069/api/";
     static final String GET = "User";
     static final String DELETE = "User/";
-    static final String CREATE = "User";
     static final String UPDATE = "User/";
     static final String LOG_TAG = "ResiApp" ;
     private RequestQueue requestQueues;
@@ -59,7 +57,7 @@ public class UserActivity extends AppCompatActivity {
         adapter = new UserAdapter(usersList, new UserAdapter.OnUserActionListener(){
             @Override
             public void onUpdate(Users user) {
-                ShowUpdateForm(user);
+                showUpdateForm(user);
             }
 
             @Override
@@ -120,7 +118,7 @@ public class UserActivity extends AppCompatActivity {
                 requestQueues.add(deleteRequest);
             }
 
-            private void ShowUpdateForm(Users user) {
+            private void showUpdateForm(Users user) {
                 View dialogView = getLayoutInflater().inflate(R.layout.activity_update_user, null);
                 EditText editName = dialogView.findViewById(R.id.editName);
                 EditText editEmail = dialogView.findViewById(R.id.editEmail);
@@ -184,7 +182,7 @@ public class UserActivity extends AppCompatActivity {
     public void updateUser(Users user) {
         String urlUpdate = URL + UPDATE + user.getId();
         ProgressDialog progressDialog = new ProgressDialog(UserActivity.this);
-        progressDialog.setMessage("Updating users...");
+        progressDialog.setMessage("Updating user...");
         progressDialog.show();
 
         try {

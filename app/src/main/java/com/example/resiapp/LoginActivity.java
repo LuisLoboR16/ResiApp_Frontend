@@ -1,9 +1,11 @@
 package com.example.resiapp;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,10 +13,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+
 public class LoginActivity extends AppCompatActivity {
 
     Button btnLogin;
+    TextView txtJoinUs;
 
+    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,5 +38,12 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), AdminDashboardActivity.class));
             }
         });
+
+        txtJoinUs = findViewById(R.id.txtCreateUser);
+        txtJoinUs.setOnClickListener(v -> {
+            CreateUserDialogFragment dialog = new CreateUserDialogFragment();
+            dialog.show(getSupportFragmentManager(), "CreateUserDialog");
+        });
+
     }
 }
