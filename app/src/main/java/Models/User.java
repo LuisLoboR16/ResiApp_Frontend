@@ -1,4 +1,4 @@
-package com.example.resiapp;
+package Models;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import javax.annotation.processing.Generated;
 
 @Generated("jsonschema2pojo")
-public class Users {
+public class User {
 
     @SerializedName("id")
     @Expose

@@ -1,4 +1,4 @@
-package com.example.resiapp;
+package Fragments;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -13,6 +13,8 @@ import android.app.AlertDialog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
+import com.example.resiapp.R;
 
 public class NotificationDialogFragment extends DialogFragment {
     static String email = "";

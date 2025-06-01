@@ -1,4 +1,4 @@
-package com.example.resiapp;
+package Fragments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -19,8 +19,11 @@ import androidx.fragment.app.DialogFragment;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.resiapp.R;
 
 import org.json.JSONObject;
+
+import API.SingleVolley;
 
 public class CreateUserDialogFragment extends DialogFragment {
     static final String URL = "http://10.0.2.2:5069/api/";

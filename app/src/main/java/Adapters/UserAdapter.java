@@ -10,24 +10,24 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.resiapp.R;
-import com.example.resiapp.Users;
+import Models.User;
 
 import java.util.Collections;
 import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
-    private static List<Users> userList = Collections.emptyList();
+    private static List<User> userList = Collections.emptyList();
 
     public interface OnUserActionListener {
-        void onUpdate(Users user);
+        void onUpdate(User user);
 
-        void onDelete(Users user);
+        void onDelete(User user);
     }
 
     private final OnUserActionListener listener;
 
-    public UserAdapter(List<Users> userList, OnUserActionListener listener) {
+    public UserAdapter(List<User> userList, OnUserActionListener listener) {
         this.userList = userList;
         this.listener = listener;
     }
@@ -35,14 +35,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View vista = LayoutInflater.from(parent.getContext())
+        View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_user, parent, false);
-        return new UserViewHolder(vista);
+        return new UserViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        Users user = userList.get(position);
+        User user = userList.get(position);
         holder.tvName.setText(user.getResidentName());
         holder.tvEmail.setText(user.getEmail());
         holder.tvPassword.setText(user.getPassword());

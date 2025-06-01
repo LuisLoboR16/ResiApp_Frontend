@@ -1,4 +1,4 @@
-package com.example.resiapp;
+package API;
 
 import android.content.Context;
 
