@@ -123,11 +123,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
             }
         });
     }
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        Toast.makeText(this, "Usa el botón de cerrar sesión para salir", Toast.LENGTH_SHORT).show();
-    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
