@@ -1,4 +1,4 @@
-package com.example.resiapp;
+package Activities;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
@@ -21,8 +21,13 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.resiapp.R;
 
 import org.json.JSONObject;
+
+import API.SingleVolley;
+import Fragments.CreateUserDialogFragment;
+import Fragments.NotificationDialogFragment;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -90,8 +95,12 @@ public class LoginActivity extends AppCompatActivity {
                             progressDialog.dismiss();
                             String token = response.optString("token");
                             String role = response.optString("role");
-                            Toast.makeText(this, "Logging successfully: " + role, Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(this, AdminDashboardActivity.class));
+                            Toast.makeText(this, "Logging successfully: ", Toast.LENGTH_SHORT).show();
+                            if(role.trim().equals("Resident")){
+                                startActivity(new Intent(this, ResidentDashboardActivity.class));
+                            } else{
+                                startActivity(new Intent(this, AdminDashboardActivity.class));
+                            }
                         },
                         error -> {
                             progressDialog.dismiss();

@@ -1,4 +1,4 @@
-package com.example.resiapp;
+package Activities;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -23,6 +23,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.resiapp.R;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -31,7 +32,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import API.SingleVolley;
 import Adapters.UserAdapter;
+import Models.User;
 
 public class UserActivity extends AppCompatActivity {
     static final String URL = "http://10.0.2.2:5069/api/";
@@ -41,7 +44,7 @@ public class UserActivity extends AppCompatActivity {
     static final String LOG_TAG = "ResiApp" ;
     private RequestQueue requestQueues;
     Gson gson;
-    private List<Users> usersList;
+    private List<User> userList;
     private UserAdapter adapter;
 
     @SuppressLint("MissingInflatedId")
@@ -53,15 +56,15 @@ public class UserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerUsuarios);
-        usersList = new ArrayList<>();
-        adapter = new UserAdapter(usersList, new UserAdapter.OnUserActionListener(){
+        userList = new ArrayList<>();
+        adapter = new UserAdapter(userList, new UserAdapter.OnUserActionListener(){
             @Override
-            public void onUpdate(Users user) {
+            public void onUpdate(User user) {
                 showUpdateForm(user);
             }
 
             @Override
-            public void onDelete(Users user) {
+            public void onDelete(User user) {
                 AlertDialog dialog = new AlertDialog.Builder(UserActivity.this)
                         .setTitle("🗑 Confirm action")
                         .setMessage("¿Are you sure to delete" + "\n\n" + "*" + user.getResidentName() + "*?" + "\n" +"\nThis action can't be undone.")
@@ -87,7 +90,7 @@ public class UserActivity extends AppCompatActivity {
                 dialog.show();
             }
 
-            public void deleteUser(Users user) {
+            public void deleteUser(User user) {
                 String urlDelete = URL + DELETE + user.getId();
                 ProgressDialog progressDialog = new ProgressDialog(UserActivity.this);
                 progressDialog.setMessage("Deleting user...");
@@ -99,7 +102,7 @@ public class UserActivity extends AppCompatActivity {
                         null,
                         response -> {
                             Toast.makeText(UserActivity.this, "User deleted sucessfully", Toast.LENGTH_SHORT).show();
-                            usersList.remove(user);
+                            userList.remove(user);
                             adapter.notifyDataSetChanged();
                             progressDialog.dismiss();
                         },
@@ -118,7 +121,7 @@ public class UserActivity extends AppCompatActivity {
                 requestQueues.add(deleteRequest);
             }
 
-            private void showUpdateForm(Users user) {
+            private void showUpdateForm(User user) {
                 View dialogView = getLayoutInflater().inflate(R.layout.activity_update_user, null);
                 EditText editName = dialogView.findViewById(R.id.editName);
                 EditText editEmail = dialogView.findViewById(R.id.editEmail);
@@ -179,7 +182,7 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
-    public void updateUser(Users user) {
+    public void updateUser(User user) {
         String urlUpdate = URL + UPDATE + user.getId();
         ProgressDialog progressDialog = new ProgressDialog(UserActivity.this);
         progressDialog.setMessage("Updating user...");
@@ -254,11 +257,11 @@ public class UserActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray jsonArray = response.getJSONArray("data");
-                            usersList.clear();
+                            userList.clear();
                             for (int c = 0; c < jsonArray.length(); c++) {
                                 JSONObject userJson = jsonArray.getJSONObject(c);
-                                Users user = gson.fromJson(userJson.toString(), Users.class);
-                                usersList.add(user);
+                                User user = gson.fromJson(userJson.toString(), User.class);
+                                userList.add(user);
                             }
                             adapter.notifyDataSetChanged();
 
