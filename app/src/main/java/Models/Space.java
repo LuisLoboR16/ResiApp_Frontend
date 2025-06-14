@@ -3,6 +3,8 @@ package Models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 import javax.annotation.processing.Generated;
 
 @Generated("jsonschema2pojo")
@@ -19,6 +21,10 @@ public class Space {
     @SerializedName("capacity")
     @Expose
     private int capacity;
+
+    @SerializedName("spaceRules")
+    @Expose
+    private List<SpaceRule> spaceRules;
 
     @SerializedName("availability")
     @Expose
@@ -46,6 +52,14 @@ public class Space {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public List<SpaceRule> getSpaceRule() {
+        return spaceRules;
+    }
+
+    public void setSpaceRules(List<SpaceRule> spaceRules){
+        this.spaceRules = spaceRules;
     }
 
     public boolean isAvailability() {

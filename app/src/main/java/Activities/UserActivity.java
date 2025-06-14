@@ -38,7 +38,7 @@ import Models.User;
 
 public class UserActivity extends AppCompatActivity {
     static final String URL = "http://10.0.2.2:5069/api/";
-    static final String GET = "User";
+    static final String GET = "User/User";
     static final String DELETE = "User/";
     static final String UPDATE = "User/";
     static final String LOG_TAG = "ResiApp" ;

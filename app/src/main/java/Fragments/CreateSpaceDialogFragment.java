@@ -9,9 +9,12 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import androidx.appcompat.widget.SwitchCompat;
+
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,12 +28,21 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import API.SingleVolley;
+import Models.SpaceRule;
 
 public class CreateSpaceDialogFragment extends DialogFragment {
     static final String URL = "http://10.0.2.2:5069/api/";
     static final String CREATE = "Space";
     static final String LOG_TAG = "ResiApp";
+
+    private List<SpaceRule> spaceRuleList = new ArrayList<>();
+    public void setSpaceRuleList(List<SpaceRule> spaceRuleList) {
+        this.spaceRuleList = spaceRuleList;
+    }
 
     @NonNull
     @Override
@@ -39,10 +51,21 @@ public class CreateSpaceDialogFragment extends DialogFragment {
 
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editSpaceName = view.findViewById(R.id.editSpaceNameC);
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editCapacity = view.findViewById(R.id.editCapacityC);
+        Spinner editSpaceRules = view.findViewById(R.id.editSpinnerSpaceRules);
         SwitchCompat editAvailability = view.findViewById(R.id.swAvailabilityC);
 
         Button btnCreate = view.findViewById(R.id.btnCreate);
         Button btnCancel = view.findViewById(R.id.btnCancel);
+
+        List<String> ruleNames = new ArrayList<>();
+        for (SpaceRule rule : spaceRuleList) {
+            ruleNames.add(rule.getRule());
+        }
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                requireContext(), android.R.layout.simple_spinner_item, ruleNames);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        editSpaceRules.setAdapter(spinnerAdapter);
 
         btnCreate.setOnClickListener(v -> {
             String spaceName = editSpaceName.getText().toString().trim();
@@ -54,6 +77,14 @@ public class CreateSpaceDialogFragment extends DialogFragment {
                 Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            int selectedIndex = editSpaceRules.getSelectedItemPosition();
+            if (selectedIndex < 0 || selectedIndex >= spaceRuleList.size()) {
+                Toast.makeText(getContext(), "Please select a valid rule", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int selectedRuleId = spaceRuleList.get(selectedIndex).getId();
 
             int capacity;
             try {
@@ -71,6 +102,7 @@ public class CreateSpaceDialogFragment extends DialogFragment {
                 JSONObject json = new JSONObject();
                 json.put("SpaceName", spaceName);
                 json.put("Capacity", capacity);
+                json.put("spaceRuleId", selectedRuleId);
                 json.put("Availability", availability);
 
                 JsonObjectRequest request = getJsonObjectRequest(json, progressDialog);

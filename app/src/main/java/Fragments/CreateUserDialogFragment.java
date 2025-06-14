@@ -27,7 +27,7 @@ import API.SingleVolley;
 
 public class CreateUserDialogFragment extends DialogFragment {
     static final String URL = "http://10.0.2.2:5069/api/";
-    static final String CREATE = "User";
+    static final String CREATE = "User/User";
     static final String LOG_TAG = "ResiApp";
 
     @NonNull
