@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
@@ -25,9 +24,9 @@ import Fragments.NotificationDialogFragment;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
-    LinearLayout layoutNotifications, layoutUsers, layoutSpaces;
-    TextView txtNotifications, txtUsers, txtSpaces;
-    ImageView imgNotifications, imgUsers, imgSpaces;
+    LinearLayout layoutNotifications, layoutUsers, layoutSpaces, layoutSpaceRules;
+    TextView txtNotifications, txtUsers, txtSpaces, txtSpaceRules;
+    ImageView imgNotifications, imgUsers, imgSpaces, imgSpaceRules;
     Button btnLogout;
 
     @SuppressLint({"MissingInflatedId", "ResourceType"})
@@ -120,6 +119,30 @@ public class AdminDashboardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 startActivity(new Intent(getApplicationContext(), SpaceActivity.class));
+            }
+        });
+
+        layoutSpaceRules = findViewById(R.id.layoutSpaceRules);
+        layoutSpaceRules.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), SpaceRuleActivity.class));
+            }
+        });
+
+        txtSpaceRules = findViewById(R.id.txtSpaceRule);
+        txtSpaceRules.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), SpaceRuleActivity.class));
+            }
+        });
+
+        imgSpaceRules = findViewById(R.id.imgSpaceRule);
+        imgSpaceRules.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), SpaceRuleActivity.class));
             }
         });
     }

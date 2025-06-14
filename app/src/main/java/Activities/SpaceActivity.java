@@ -63,7 +63,7 @@ public class SpaceActivity extends AppCompatActivity {
         FloatingActionButton btnCreateSpace = findViewById(R.id.btnCreateSpace);
         btnCreateSpace.setOnClickListener(v -> {
             CreateSpaceDialogFragment dialog = new CreateSpaceDialogFragment();
-            dialog.setSpaceRuleList(spaceRuleList); // 💥 Aquí está la magia
+            dialog.setSpaceRuleList(spaceRuleList);
             dialog.setOnSpaceCreated(() -> createSpaceRequest(URL + GET));
             dialog.show(getSupportFragmentManager(), "CreateSpaceDialog");
         });
