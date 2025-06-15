@@ -155,17 +155,21 @@
                 app:cardCornerRadius="12dp"
                 android:layout_margin="12dp">
                 <LinearLayout
+                    android:id="@+id/layoutReviews"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:gravity="center">
                     <ImageView
+                        android:id="@+id/imgReviews"
+                        android:contentDescription="Reviews"
                         android:src="@drawable/ic_reviews"
                         android:layout_width="80dp"
                         android:layout_height="80dp">
                     </ImageView>
                     <TextView
+                        android:id="@+id/txtReviews"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
