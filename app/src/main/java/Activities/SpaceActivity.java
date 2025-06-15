@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import API.Constants;
 import API.SingleVolley;
 import Adapters.SpaceAdapter;
 import Fragments.CreateSpaceDialogFragment;
@@ -42,12 +43,12 @@ import Models.Space;
 import Models.SpaceRule;
 
 public class SpaceActivity extends AppCompatActivity {
-    static final String URL = "http://10.0.2.2:5069/api/";
-    static final String GET = "Space";
-    static final String DELETE = "Space/";
-    static final String UPDATE = "Space/";
-    static final String GET_RULES = "SpaceRule";
-    static final String LOG_TAG = "ResiApp";
+    static final String URL = Constants.URL;
+    static final String GET = Constants.SPACES_ENDPOINT;
+    static final String DELETE = Constants.SPACES_ENDPOINT+"/";
+    static final String UPDATE = Constants.SPACES_ENDPOINT+"/";
+    static final String GET_RULES = Constants.SPACE_RULES_ENDPOINT;
+    static final String LOG_TAG = Constants.LOG_TAG;
     private RequestQueue requestQueues;
     Gson gson;
     private List<Space> spaceList;

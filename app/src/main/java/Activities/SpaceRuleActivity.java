@@ -31,17 +31,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import API.Constants;
 import API.SingleVolley;
 import Adapters.SpaceRuleAdapter;
 import Fragments.CreateSpaceRuleDialogFragment;
 import Models.SpaceRule;
 
 public class SpaceRuleActivity extends AppCompatActivity {
-    static final String URL = "http://10.0.2.2:5069/api/";
-    static final String GET = "SpaceRule";
-    static final String DELETE = "SpaceRule/";
-    static final String UPDATE = "SpaceRule/";
-    static final String LOG_TAG = "ResiApp" ;
+    static final String URL = Constants.URL;
+    static final String GET = Constants.SPACE_RULES_ENDPOINT;
+    static final String DELETE = Constants.SPACE_RULES_ENDPOINT+"/";
+    static final String UPDATE = Constants.SPACE_RULES_ENDPOINT+"/";
+    static final String LOG_TAG = Constants.LOG_TAG;
     private RequestQueue requestQueues;
     Gson gson;
     private List<SpaceRule> spaceRulesList;
