@@ -24,9 +24,9 @@ import Fragments.NotificationDialogFragment;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
-    LinearLayout layoutNotifications, layoutUsers, layoutSpaces, layoutSpaceRules;
-    TextView txtNotifications, txtUsers, txtSpaces, txtSpaceRules;
-    ImageView imgNotifications, imgUsers, imgSpaces, imgSpaceRules;
+    LinearLayout layoutNotifications, layoutUsers, layoutSpaces, layoutSpaceRules, layoutReviews;
+    TextView txtNotifications, txtUsers, txtSpaces, txtSpaceRules, txtReviews;
+    ImageView imgNotifications, imgUsers, imgSpaces, imgSpaceRules, imgReviews;
     Button btnLogout;
 
     @SuppressLint({"MissingInflatedId", "ResourceType"})
@@ -143,6 +143,30 @@ public class AdminDashboardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 startActivity(new Intent(getApplicationContext(), SpaceRuleActivity.class));
+            }
+        });
+
+        layoutReviews = findViewById(R.id.layoutReviews);
+        layoutReviews.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), ReviewActivity.class));
+            }
+        });
+
+        txtReviews = findViewById(R.id.txtReviews);
+        txtReviews.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), ReviewActivity.class));
+            }
+        });
+
+        imgReviews = findViewById(R.id.imgReviews);
+        imgReviews.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), ReviewActivity.class));
             }
         });
     }

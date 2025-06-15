@@ -13,7 +13,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -32,65 +31,69 @@ import com.google.gson.Gson;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import API.Constants;
 import API.SingleVolley;
-import Adapters.SpaceAdapter;
-import Fragments.CreateSpaceDialogFragment;
+import API.Constants;
+import Adapters.ReviewAdapter;
+import Fragments.CreateReviewDialogFragment;
+import Models.Review;
 import Models.Space;
-import Models.SpaceRule;
+import Models.User;
 
-public class SpaceActivity extends AppCompatActivity {
+public class ReviewActivity extends AppCompatActivity {
     static final String URL = Constants.URL;
-    static final String GET = Constants.SPACES_ENDPOINT;
-    static final String DELETE = Constants.SPACES_ENDPOINT+"/";
-    static final String UPDATE = Constants.SPACES_ENDPOINT+"/";
-    static final String GET_RULES = Constants.SPACE_RULES_ENDPOINT;
+    static final String GET = Constants.REVIEWS_ENDPOINT;
+    static final String DELETE = Constants.REVIEWS_ENDPOINT+"/";
+    static final String UPDATE = Constants.REVIEWS_ENDPOINT+"/";
+    static final String GET_SPACE = Constants.SPACES_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
     private RequestQueue requestQueues;
     Gson gson;
+    private List<Review> reviewList;
     private List<Space> spaceList;
-    private List<SpaceRule> spaceRuleList;
-    private SpaceAdapter adapter;
+    private List<User> userList;
+    private User currentUser;
+
+    private ReviewAdapter adapter;
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_space);
+        setContentView(R.layout.activity_review);
 
-        FloatingActionButton btnCreateSpace = findViewById(R.id.btnCreateSpace);
+
+        FloatingActionButton btnCreateSpace = findViewById(R.id.btnCreateReview);
         btnCreateSpace.setOnClickListener(v -> {
-            CreateSpaceDialogFragment dialog = new CreateSpaceDialogFragment();
-            dialog.setSpaceRuleList(spaceRuleList);
-            dialog.setOnSpaceCreated(() -> createSpaceRequest(URL + GET));
-            dialog.show(getSupportFragmentManager(), "CreateSpaceDialog");
+            CreateReviewDialogFragment dialog = new CreateReviewDialogFragment();
+            dialog.setUser(currentUser);
+            dialog.setSpaceList(spaceList);
+            dialog.setOnReviewCreated(() -> createReviewRequest(URL + GET));
+            dialog.show(getSupportFragmentManager(), "CreateReviewDialog");
         });
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerSpaces);
+        RecyclerView recyclerView = findViewById(R.id.recyclerReviews);
+        reviewList = new ArrayList<>();
         spaceList = new ArrayList<>();
-        spaceRuleList = new ArrayList<>();
         gson = new Gson();
 
         SingleVolley volley = SingleVolley.getInstance(getApplicationContext());
         requestQueues = volley.getRequestQueue();
 
-
-        createSpaceRulesRequest(URL + GET_RULES);
-        adapter = new SpaceAdapter(spaceList, spaceRuleList,new SpaceAdapter.onSpaceActionListener() {
+        createSpaceRequest(URL + GET_SPACE);
+        adapter = new ReviewAdapter(reviewList,userList,spaceList,new ReviewAdapter.onReviewActionListener() {
 
             @Override
-            public void onUpdate(Space space, List<SpaceRule> spaceRulesList) {
-                showUpdateForm(space, spaceRulesList);
+            public void onUpdate(Review review, List<User> userList,List<Space> spaceList) {
+                showUpdateForm(review,spaceList);
             }
 
             @Override
-            public void onDelete(Space space) {
-                AlertDialog dialog = new AlertDialog.Builder(SpaceActivity.this)
+            public void onDelete(Review review) {
+                AlertDialog dialog = new AlertDialog.Builder(ReviewActivity.this)
                         .setTitle("\uD83D\uDDD1 Confirm action")
-                        .setMessage("¿Are you sure to delete\n\n*" + space.getSpaceName() + "*?\n\nThis action can't be undone.")
+                        .setMessage("¿Are you sure to delete\n\n*" + review.getComment() + "*?\n\nThis action can't be undone.")
                         .setPositiveButton("Delete", null)
                         .setNegativeButton("Cancel", null)
                         .create();
@@ -103,7 +106,7 @@ public class SpaceActivity extends AppCompatActivity {
                     negative.setTextColor(getResources().getColor(android.R.color.darker_gray));
 
                     positive.setOnClickListener(v -> {
-                        deleteSpace(space);
+                        deleteReview(review);
                         dialog.dismiss();
                     });
 
@@ -112,23 +115,23 @@ public class SpaceActivity extends AppCompatActivity {
                 dialog.show();
             }
 
-            public void deleteSpace(Space space) {
-                String urlDelete = URL + DELETE + space.getId();
-                ProgressDialog progressDialog = new ProgressDialog(SpaceActivity.this);
-                progressDialog.setMessage("Deleting space...");
+            public void deleteReview(Review review) {
+                String urlDelete = URL + DELETE + review.getId();
+                ProgressDialog progressDialog = new ProgressDialog(ReviewActivity.this);
+                progressDialog.setMessage("Deleting review...");
                 progressDialog.show();
 
                 @SuppressLint("NotifyDataSetChanged") StringRequest deleteRequest = new StringRequest(
                         Request.Method.DELETE,
                         urlDelete,
                         response -> {
-                            Toast.makeText(SpaceActivity.this, "Space deleted successfully", Toast.LENGTH_SHORT).show();
-                            spaceList.remove(space);
+                            Toast.makeText(ReviewActivity.this, "Review deleted successfully", Toast.LENGTH_SHORT).show();
+                            reviewList.remove(review);
                             adapter.notifyDataSetChanged();
                             progressDialog.dismiss();
                         },
                         error -> {
-                            Toast.makeText(SpaceActivity.this, "Error deleting space: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(ReviewActivity.this, "Error deleting review: " + error.getMessage(), Toast.LENGTH_LONG).show();
                             progressDialog.dismiss();
                         }
                 );
@@ -142,62 +145,61 @@ public class SpaceActivity extends AppCompatActivity {
                 requestQueues.add(deleteRequest);
             }
 
-            private void showUpdateForm(Space space, List<SpaceRule> spaceRulesList) {
-                View dialogView = getLayoutInflater().inflate(R.layout.activity_update_space, null);
-                EditText editSpaceName = dialogView.findViewById(R.id.editSpaceName);
-                EditText editCapacity = dialogView.findViewById(R.id.editCapacity);
-                Spinner spinnerSpaceRules = dialogView.findViewById(R.id.spinnerSpaceRules);
-                SwitchCompat editSwAvailability = dialogView.findViewById(R.id.swAvailability);
+            private void showUpdateForm(Review review, List<Space> spaceList) {
+                View dialogView = getLayoutInflater().inflate(R.layout.activity_update_review, null);
+                EditText editRating = dialogView.findViewById(R.id.editRating);
+                EditText editComment = dialogView.findViewById(R.id.editComment);
+                Spinner spinnerSpaces = dialogView.findViewById(R.id.spinnerSpaces);
 
                 Button btnUpdate = dialogView.findViewById(R.id.btnUpdate);
                 Button btnCancel = dialogView.findViewById(R.id.btnCancel);
 
-                editSpaceName.setText(space.getSpaceName());
-                editCapacity.setText(String.valueOf(space.getCapacity()));
-                editSwAvailability.setChecked(space.isAvailability());
+                editRating.setText(String.valueOf(review.getRating()));
+                editComment.setText(review.getComment());
 
-                List<String> ruleNames = new ArrayList<>();
-                for (SpaceRule rule: spaceRulesList){
-                    ruleNames.add(rule.getRule());
+                List<String> spaceNames = new ArrayList<>();
+                for (Space spaces: spaceList){
+                    spaceNames.add(spaces.getSpaceName());
                 }
 
-                Log.d(LOG_TAG, "Loading spinner with " + ruleNames.size() + " rules");
+                Log.d(LOG_TAG, "Loading spinner with " + spaceNames.size() + " rules");
                 ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
-                        SpaceActivity.this,
+                        ReviewActivity.this,
                         android.R.layout.simple_spinner_item,
-                        ruleNames
+                        spaceNames
                 );
                 spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinnerSpaceRules.setAdapter(spinnerAdapter);
+                spinnerSpaces.setAdapter(spinnerAdapter);
 
                 int selectedIndex = 0;
-                    int currentRuleId = space.getSpaceRule().get(0).getId();
-                    for (int i = 0; i < spaceRulesList.size(); i++) {
-                        if (spaceRulesList.get(i).getId() == currentRuleId) {
-                            selectedIndex = i;
-                            break;
+                int currentSpaceId = review.getSpace().getId();
+                for (int i = 0; i < spaceList.size(); i++) {
+                    if (spaceList.get(i).getId() == currentSpaceId) {
+                        selectedIndex = i;
+                        break;
                     }
                 }
-                spinnerSpaceRules.setSelection(selectedIndex);
+                spinnerSpaces.setSelection(selectedIndex);
 
-                AlertDialog dialog = new AlertDialog.Builder(SpaceActivity.this)
+                AlertDialog dialog = new AlertDialog.Builder(ReviewActivity.this)
                         .setView(dialogView)
                         .create();
 
                 btnUpdate.setOnClickListener(view -> {
-                    space.setSpaceName(editSpaceName.getText().toString());
                     try {
-                        space.setCapacity(Integer.parseInt(editCapacity.getText().toString()));
+                        review.setRating(Integer.parseInt(editRating.getText().toString()));
                     } catch (NumberFormatException e) {
-                        Toast.makeText(SpaceActivity.this, "Invalid capacity value", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ReviewActivity.this, "Invalid rating value", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    space.setAvailability(editSwAvailability.isChecked());
+                    review.setComment(editComment.getText().toString());
 
-                    int selectedPosition = spinnerSpaceRules.getSelectedItemPosition();
-                    space.setSpaceRules(Collections.singletonList(spaceRulesList.get(selectedPosition)));
+                    int selectedPosition = spinnerSpaces.getSelectedItemPosition();
+                    Space selectedSpace = spaceList.get(selectedPosition);
+                    Log.d(LOG_TAG, "Selected space: " + selectedSpace.getId());
+                    review.setSpace(selectedSpace);
 
-                    updateSpace(space);
+                    updateReview(review);
                     dialog.dismiss();
                 });
 
@@ -209,7 +211,7 @@ public class SpaceActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        createSpaceRequest(URL + GET);
+        createReviewRequest(URL + GET);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -218,25 +220,25 @@ public class SpaceActivity extends AppCompatActivity {
         });
     }
 
-    public void updateSpace(Space space) {
-        String urlUpdate = URL + UPDATE + space.getId();
-        ProgressDialog progressDialog = new ProgressDialog(SpaceActivity.this);
-        progressDialog.setMessage("Updating space...");
+    public void updateReview(Review review) {
+        String urlUpdate = URL + UPDATE + review.getId();
+        ProgressDialog progressDialog = new ProgressDialog(ReviewActivity.this);
+        progressDialog.setMessage("Updating review...");
         progressDialog.show();
 
         try {
             JSONObject json = new JSONObject();
-            json.put("spaceName", space.getSpaceName());
-            json.put("capacity", space.getCapacity());
-            json.put("spaceRuleId", space.getSpaceRule().get(0).getId());
-            json.put("availability", space.isAvailability());
+            json.put("rating", review.getRating());
+            json.put("comment", review.getComment());
+            json.put("residentId", review.getUser().getId());
+            json.put("spaceId", review.getSpace().getId());
 
             StringRequest request = new StringRequest(
                     Request.Method.PUT,
                     urlUpdate,
                     response -> {
-                        Toast.makeText(this, "Space updated successfully", Toast.LENGTH_SHORT).show();
-                        createSpaceRequest(URL + GET);
+                        Toast.makeText(this, "Review updated successfully", Toast.LENGTH_SHORT).show();
+                        createReviewRequest(URL + GET);
                         progressDialog.dismiss();
                     },
                     error -> {
@@ -277,23 +279,23 @@ public class SpaceActivity extends AppCompatActivity {
         }
     }
 
-    public void createSpaceRulesRequest(String urlRequest) {
+    public void createSpaceRequest(String urlRequest) {
         JsonArrayRequest rulesRequest = new JsonArrayRequest(
                 Request.Method.GET,
                 urlRequest,
                 null,
                 response -> {
                     try {
-                        spaceRuleList.clear();
+                        spaceList.clear();
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject ruleJson = response.getJSONObject(i);
-                            SpaceRule rule = gson.fromJson(ruleJson.toString(), SpaceRule.class);
-                            spaceRuleList.add(rule);
+                            Space spaceName = gson.fromJson(ruleJson.toString(), Space.class);
+                            spaceList.add(spaceName);
                         }
-                        Log.d(LOG_TAG, "Space rules loaded: " + spaceRuleList.size());
+                        Log.d(LOG_TAG, "Space loaded: " + spaceList.size());
 
                     } catch (Exception e) {
-                        Log.e(LOG_TAG, "Error parsing space rules: " + e.getMessage());
+                        Log.e(LOG_TAG, "Error parsing space: " + e.getMessage());
                     }
                 },
                 error -> {
@@ -312,9 +314,9 @@ public class SpaceActivity extends AppCompatActivity {
         requestQueues.add(rulesRequest);
     }
 
-    public void createSpaceRequest(String urlRequest) {
+    public void createReviewRequest(String urlRequest) {
         ProgressDialog pDialog = new ProgressDialog(this);
-        pDialog.setMessage("Loading spaces...");
+        pDialog.setMessage("Loading reviews...");
         pDialog.show();
 
         @SuppressLint("NotifyDataSetChanged") JsonArrayRequest newRequest = new JsonArrayRequest(
@@ -324,23 +326,29 @@ public class SpaceActivity extends AppCompatActivity {
                 response -> {
                     try {
 
-                        spaceList.clear();
+                        reviewList.clear();
                         for (int c = 0; c < response.length(); c++) {
                             JSONObject userJson = response.getJSONObject(c);
-                            Space space = gson.fromJson(userJson.toString(), Space.class);
-                            spaceList.add(space);
+                            Review review = gson.fromJson(userJson.toString(), Review.class);
+
+                            if (review.getUser() == null) {
+                                Log.e(LOG_TAG, "¡Review con ID " + review.getId() + " no tiene usuario!");
+                            }
+
+                            reviewList.add(review);
                         }
+                        Log.d(LOG_TAG, "Reviews loaded: " + reviewList.size());
                         adapter.notifyDataSetChanged();
                     } catch (Exception e) {
                         Log.e(LOG_TAG, "Error processing response: " + e.getMessage());
-                        Toast.makeText(SpaceActivity.this, "Error loading data", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ReviewActivity.this, "Error loading data", Toast.LENGTH_SHORT).show();
                     } finally {
                         pDialog.dismiss();
                     }
                 },
                 error -> {
                     Log.e(LOG_TAG, "Error with request: " + error.toString());
-                    Toast.makeText(SpaceActivity.this, "Failed to retrieve data", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ReviewActivity.this, "Failed to retrieve data", Toast.LENGTH_LONG).show();
                     pDialog.dismiss();
                 }
         );

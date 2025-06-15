@@ -32,16 +32,17 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import API.Constants;
 import API.SingleVolley;
 import Adapters.UserAdapter;
 import Models.User;
 
 public class UserActivity extends AppCompatActivity {
-    static final String URL = "http://10.0.2.2:5069/api/";
-    static final String GET = "User/User";
-    static final String DELETE = "User/";
-    static final String UPDATE = "User/";
-    static final String LOG_TAG = "ResiApp" ;
+    static final String URL = Constants.URL;
+    static final String GET = Constants.USERS_ENDPOINT;
+    static final String DELETE = Constants.USERS_ENDPOINT+"/";
+    static final String UPDATE = Constants.USERS_ENDPOINT+"/";
+    static final String LOG_TAG = Constants.LOG_TAG;
     private RequestQueue requestQueues;
     Gson gson;
     private List<User> userList;

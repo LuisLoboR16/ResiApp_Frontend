@@ -3,6 +3,7 @@ package Activities;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -25,15 +26,16 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
+import API.Constants;
 import API.SingleVolley;
 import Fragments.CreateUserDialogFragment;
 import Fragments.NotificationDialogFragment;
 
 
 public class LoginActivity extends AppCompatActivity {
-    static final String URL = "http://10.0.2.2:5069/api/Auth/";
-    static final String LOGIN = "login";
-    static final String LOG_TAG = "ResiApp" ;
+    static final String URL = Constants.URL;
+    static final String LOGIN = Constants.AUTH_LOGIN;
+    static final String LOG_TAG = Constants.LOG_TAG;
     Button btnLogin;
     EditText editEmail, editPassword;
     TextView txtJoinUs, txtForgotPassword;
@@ -95,6 +97,18 @@ public class LoginActivity extends AppCompatActivity {
                             progressDialog.dismiss();
                             String token = response.optString("token");
                             String role = response.optString("role");
+                            Integer userId = response.optInt("residentId");
+                            String residentName = response.optString("resident");
+
+                            SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = prefs.edit();
+
+                            editor.putString("token", token);
+                            editor.putString("role",role);
+                            editor.putInt("user_id", userId);
+                            editor.putString("resident_name", residentName);
+                            editor.apply();
+
                             Toast.makeText(this, "Logging successfully: ", Toast.LENGTH_SHORT).show();
                             if(role.trim().equals("Resident")){
                                 startActivity(new Intent(this, ResidentDashboardActivity.class));
@@ -118,22 +132,12 @@ public class LoginActivity extends AppCompatActivity {
                 SingleVolley.getInstance(this).getRequestQueue().add(request);
 
             } catch (Exception e) {
-                Log.e(LOG_TAG, "Volley error: " + e.toString());
+                Log.e(LOG_TAG, "Volley error: " + e);
                 progressDialog.dismiss();
                 Toast.makeText(this, "Error performing request", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
         });
-
-        /*
-        btnLogin = findViewById(R.id.btnLogin);
-        btnLogin.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), AdminDashboardActivity.class));
-            }
-        });
-         */
 
         txtJoinUs = findViewById(R.id.txtCreateUser);
         txtJoinUs.setOnClickListener(v -> {

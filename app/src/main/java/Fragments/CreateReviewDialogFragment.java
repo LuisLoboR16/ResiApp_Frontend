@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -12,7 +14,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import androidx.appcompat.widget.SwitchCompat;
 
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -33,77 +34,99 @@ import java.util.List;
 
 import API.Constants;
 import API.SingleVolley;
-import Models.SpaceRule;
+import Models.Space;
+import Models.User;
 
-public class CreateSpaceDialogFragment extends DialogFragment {
+public class CreateReviewDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
-    static final String CREATE = Constants.SPACES_ENDPOINT;
+    static final String CREATE = Constants.REVIEWS_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
-    private List<SpaceRule> spaceRuleList = new ArrayList<>();
-    public void setSpaceRuleList(List<SpaceRule> spaceRuleList) {
-        this.spaceRuleList = spaceRuleList;
+    private List<Space> spaceList = new ArrayList<>();
+    public void setSpaceList(List<Space> spaceList) {
+        this.spaceList = spaceList;
+    }
+    private User currentUser;
+    public void setUser(User currentUser) {
+        this.currentUser = currentUser;
     }
 
+    @SuppressLint("SetTextI18n")
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_create_space, null);
+        View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_create_review, null);
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editSpaceName = view.findViewById(R.id.editSpaceNameC);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editCapacity = view.findViewById(R.id.editCapacityC);
-        Spinner editSpaceRules = view.findViewById(R.id.editSpinnerSpaceRules);
-        SwitchCompat editAvailability = view.findViewById(R.id.swAvailabilityC);
+        EditText editRating = view.findViewById(R.id.editRating);
+        EditText editComment = view.findViewById(R.id.editComment);
+        EditText editUser = view.findViewById(R.id.editUserReview);
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Spinner editSpace = view.findViewById(R.id.editSpinnerSpace);
 
         Button btnCreate = view.findViewById(R.id.btnCreate);
         Button btnCancel = view.findViewById(R.id.btnCancel);
 
-        List<String> ruleNames = new ArrayList<>();
-        for (SpaceRule rule : spaceRuleList) {
-            ruleNames.add(rule.getRule());
+        editUser.setEnabled(false);
+
+        SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        String residentName = prefs.getString("resident_name", null);
+        int userId = prefs.getInt("user_id", -1);
+
+        if (residentName != null && userId != -1) {
+            currentUser = new User();
+            currentUser.setId(userId);
+            currentUser.setResidentName(residentName);
+        }
+
+        if (currentUser != null && currentUser.getResidentName() != null) {
+            editUser.setText(currentUser.getResidentName());
+        }
+
+        assert currentUser != null;
+        editUser.setText(currentUser.getResidentName());
+
+        List<String> spaceNames = new ArrayList<>();
+        for (Space name : spaceList) {
+            spaceNames.add(name.getSpaceName());
         }
 
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
-                requireContext(), android.R.layout.simple_spinner_item, ruleNames);
+                requireContext(), android.R.layout.simple_spinner_item, spaceNames);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        editSpaceRules.setAdapter(spinnerAdapter);
+        editSpace.setAdapter(spinnerAdapter);
 
         btnCreate.setOnClickListener(v -> {
-            String spaceName = editSpaceName.getText().toString().trim();
-            String capacityStr = editCapacity.getText().toString().trim();
-            boolean availability = editAvailability.isChecked();
+            String rating = editRating.getText().toString().trim();
+            String comment = editComment.getText().toString().trim();
 
 
-            if (TextUtils.isEmpty(spaceName) || TextUtils.isEmpty(capacityStr)) {
+            if (TextUtils.isEmpty(rating) || TextUtils.isEmpty(comment)) {
                 Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            int selectedIndex = editSpaceRules.getSelectedItemPosition();
-            if (selectedIndex < 0 || selectedIndex >= spaceRuleList.size()) {
-                Toast.makeText(getContext(), "Please select a valid rule", Toast.LENGTH_SHORT).show();
+            int selectedIndex = editSpace.getSelectedItemPosition();
+            if (selectedIndex < 0 || selectedIndex >= spaceList.size()) {
+                Toast.makeText(getContext(), "Please select a valid space", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            int selectedRuleId = spaceRuleList.get(selectedIndex).getId();
-
-            int capacity;
+            int finalRating;
             try {
-                capacity = Integer.parseInt(capacityStr);
+                finalRating = Integer.parseInt(rating);
             } catch (NumberFormatException e) {
-                Toast.makeText(getContext(), "Capacity must be a number", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Rating must be a number", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             ProgressDialog progressDialog = new ProgressDialog(getContext());
-            progressDialog.setMessage("Creating space...");
+            progressDialog.setMessage("Creating review...");
             progressDialog.show();
 
             try {
                 JSONObject json = new JSONObject();
-                json.put("SpaceName", spaceName);
-                json.put("Capacity", capacity);
-                json.put("spaceRuleId", selectedRuleId);
-                json.put("Availability", availability);
+                json.put("rating", finalRating);
+                json.put("comment", comment);
+                json.put("residentId",currentUser.getId());
+                json.put("spaceId", spaceList.get(selectedIndex).getId());
 
                 JsonObjectRequest request = getJsonObjectRequest(json, progressDialog);
 
@@ -116,7 +139,6 @@ public class CreateSpaceDialogFragment extends DialogFragment {
             }
         });
 
-
         btnCancel.setOnClickListener(v -> dismiss());
 
         return new AlertDialog.Builder(requireContext())
@@ -125,10 +147,10 @@ public class CreateSpaceDialogFragment extends DialogFragment {
                 .create();
     }
 
-    private Runnable onSpaceCreated;
+    private Runnable onReviewCreated;
 
-    public void setOnSpaceCreated(Runnable onSpaceCreated) {
-        this.onSpaceCreated = onSpaceCreated;
+    public void setOnReviewCreated(Runnable onReviewCreated) {
+        this.onReviewCreated = onReviewCreated;
     }
 
     @NonNull
@@ -138,17 +160,17 @@ public class CreateSpaceDialogFragment extends DialogFragment {
                 URL + CREATE,
                 jsonBody,
                 response -> {
-                    Toast.makeText(getContext(), "Space created successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Review created successfully", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     dismiss();
-                    if (onSpaceCreated != null) {
-                        onSpaceCreated.run();
+                    if (onReviewCreated != null) {
+                        onReviewCreated.run();
                     }
                 },
                 error -> {
                     Log.e(LOG_TAG, "VolleyError: " + error.toString());
                     progressDialog.dismiss();
-                    Toast.makeText(getContext(), "Error creating space", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Error creating review", Toast.LENGTH_LONG).show();
                     if (error.networkResponse != null) {
                         Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
                         if (error.networkResponse.data != null) {
