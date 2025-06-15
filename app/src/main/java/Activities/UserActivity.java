@@ -39,7 +39,7 @@ import Models.User;
 
 public class UserActivity extends AppCompatActivity {
     static final String URL = Constants.URL;
-    static final String GET = Constants.USERS_ENDPOINT+"/User";
+    static final String GET = Constants.USERS_ENDPOINT;
     static final String DELETE = Constants.USERS_ENDPOINT+"/";
     static final String UPDATE = Constants.USERS_ENDPOINT+"/";
     static final String LOG_TAG = Constants.LOG_TAG;

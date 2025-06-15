@@ -28,13 +28,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import API.Constants;
 import API.SingleVolley;
 import Models.SpaceRule;
 
 public class CreateSpaceRuleDialogFragment extends DialogFragment {
-    static final String URL = "http://10.0.2.2:5069/api/";
-    static final String CREATE = "SpaceRule";
-    static final String LOG_TAG = "ResiApp";
+    static final String URL = Constants.URL;
+    static final String CREATE = Constants.SPACE_RULES_ENDPOINT;
+    static final String LOG_TAG = Constants.LOG_TAG;
 
     @NonNull
     @Override

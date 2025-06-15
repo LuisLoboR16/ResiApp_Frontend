@@ -25,15 +25,16 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
+import API.Constants;
 import API.SingleVolley;
 import Fragments.CreateUserDialogFragment;
 import Fragments.NotificationDialogFragment;
 
 
 public class LoginActivity extends AppCompatActivity {
-    static final String URL = "http://10.0.2.2:5069/api/Auth/";
-    static final String LOGIN = "login";
-    static final String LOG_TAG = "ResiApp" ;
+    static final String URL = Constants.URL;
+    static final String LOGIN = Constants.AUTH_LOGIN;
+    static final String LOG_TAG = Constants.LOG_TAG;
     Button btnLogin;
     EditText editEmail, editPassword;
     TextView txtJoinUs, txtForgotPassword;

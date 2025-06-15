@@ -31,14 +31,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import API.Constants;
 import API.SingleVolley;
 import Models.SpaceRule;
 
 public class CreateSpaceDialogFragment extends DialogFragment {
-    static final String URL = "http://10.0.2.2:5069/api/";
-    static final String CREATE = "Space";
-    static final String LOG_TAG = "ResiApp";
-
+    static final String URL = Constants.URL;
+    static final String CREATE = Constants.SPACES_ENDPOINT;
+    static final String LOG_TAG = Constants.LOG_TAG;
     private List<SpaceRule> spaceRuleList = new ArrayList<>();
     public void setSpaceRuleList(List<SpaceRule> spaceRuleList) {
         this.spaceRuleList = spaceRuleList;

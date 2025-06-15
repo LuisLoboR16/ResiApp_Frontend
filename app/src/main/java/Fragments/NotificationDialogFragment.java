@@ -16,9 +16,11 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.resiapp.R;
 
+import API.Constants;
+
 public class NotificationDialogFragment extends DialogFragment {
     static String email = "";
-    static String adminEmail = "Admin@Resiapp.es";
+    static final String adminEmail = Constants.ADMIN_EMAIL;
     EditText txtEmail, txtSubject, txtComments;
 
     @NonNull
