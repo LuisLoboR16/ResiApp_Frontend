@@ -12,29 +12,11 @@
         android:padding="16dp">
 
         <TextView
-            android:id="@+id/tvSpaceName"
+            android:id="@+id/tvRule"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textSize="18sp"/>
-
-        <TextView
-            android:id="@+id/tvCapacity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"/>
-
-        <TextView
-            android:id="@+id/tvSpaceRule"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"/>
-
-        <TextView
-            android:id="@+id/tvAvailability"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"/>
 
         <LinearLayout
             android:orientation="horizontal"

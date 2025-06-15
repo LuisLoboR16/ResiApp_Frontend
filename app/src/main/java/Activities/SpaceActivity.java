@@ -6,8 +6,10 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,47 +32,57 @@ import com.google.gson.Gson;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import API.SingleVolley;
 import Adapters.SpaceAdapter;
 import Fragments.CreateSpaceDialogFragment;
-import Fragments.CreateUserDialogFragment;
 import Models.Space;
+import Models.SpaceRule;
 
 public class SpaceActivity extends AppCompatActivity {
     static final String URL = "http://10.0.2.2:5069/api/";
     static final String GET = "Space";
     static final String DELETE = "Space/";
     static final String UPDATE = "Space/";
+    static final String GET_RULES = "SpaceRule";
     static final String LOG_TAG = "ResiApp";
     private RequestQueue requestQueues;
     Gson gson;
     private List<Space> spaceList;
+    private List<SpaceRule> spaceRuleList;
     private SpaceAdapter adapter;
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SingleVolley volley;
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_space);
 
         FloatingActionButton btnCreateSpace = findViewById(R.id.btnCreateSpace);
         btnCreateSpace.setOnClickListener(v -> {
             CreateSpaceDialogFragment dialog = new CreateSpaceDialogFragment();
-            dialog.setOnSpaceCreated(() -> createSpaceRequest(URL + GET)); // ✅ Este callback refresca la lista
+            dialog.setSpaceRuleList(spaceRuleList);
+            dialog.setOnSpaceCreated(() -> createSpaceRequest(URL + GET));
             dialog.show(getSupportFragmentManager(), "CreateSpaceDialog");
         });
 
         RecyclerView recyclerView = findViewById(R.id.recyclerSpaces);
         spaceList = new ArrayList<>();
-        adapter = new SpaceAdapter(spaceList, new SpaceAdapter.onSpaceActionListener() {
+        spaceRuleList = new ArrayList<>();
+        gson = new Gson();
+
+        SingleVolley volley = SingleVolley.getInstance(getApplicationContext());
+        requestQueues = volley.getRequestQueue();
+
+
+        createSpaceRulesRequest(URL + GET_RULES);
+        adapter = new SpaceAdapter(spaceList, spaceRuleList,new SpaceAdapter.onSpaceActionListener() {
 
             @Override
-            public void onUpdate(Space space) {
-                showUpdateForm(space);
+            public void onUpdate(Space space, List<SpaceRule> spaceRulesList) {
+                showUpdateForm(space, spaceRulesList);
             }
 
             @Override
@@ -96,7 +108,6 @@ public class SpaceActivity extends AppCompatActivity {
 
                     negative.setOnClickListener(v -> dialog.dismiss());
                 });
-
                 dialog.show();
             }
 
@@ -130,10 +141,11 @@ public class SpaceActivity extends AppCompatActivity {
                 requestQueues.add(deleteRequest);
             }
 
-            private void showUpdateForm(Space space) {
+            private void showUpdateForm(Space space, List<SpaceRule> spaceRulesList) {
                 View dialogView = getLayoutInflater().inflate(R.layout.activity_update_space, null);
                 EditText editSpaceName = dialogView.findViewById(R.id.editSpaceName);
                 EditText editCapacity = dialogView.findViewById(R.id.editCapacity);
+                Spinner spinnerSpaceRules = dialogView.findViewById(R.id.spinnerSpaceRules);
                 SwitchCompat editSwAvailability = dialogView.findViewById(R.id.swAvailability);
 
                 Button btnUpdate = dialogView.findViewById(R.id.btnUpdate);
@@ -142,6 +154,30 @@ public class SpaceActivity extends AppCompatActivity {
                 editSpaceName.setText(space.getSpaceName());
                 editCapacity.setText(String.valueOf(space.getCapacity()));
                 editSwAvailability.setChecked(space.isAvailability());
+
+                List<String> ruleNames = new ArrayList<>();
+                for (SpaceRule rule: spaceRulesList){
+                    ruleNames.add(rule.getRule());
+                }
+
+                Log.d(LOG_TAG, "Loading spinner with " + ruleNames.size() + " rules");
+                ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                        SpaceActivity.this,
+                        android.R.layout.simple_spinner_item,
+                        ruleNames
+                );
+                spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerSpaceRules.setAdapter(spinnerAdapter);
+
+                int selectedIndex = 0;
+                    int currentRuleId = space.getSpaceRule().get(0).getId();
+                    for (int i = 0; i < spaceRulesList.size(); i++) {
+                        if (spaceRulesList.get(i).getId() == currentRuleId) {
+                            selectedIndex = i;
+                            break;
+                    }
+                }
+                spinnerSpaceRules.setSelection(selectedIndex);
 
                 AlertDialog dialog = new AlertDialog.Builder(SpaceActivity.this)
                         .setView(dialogView)
@@ -156,6 +192,10 @@ public class SpaceActivity extends AppCompatActivity {
                         return;
                     }
                     space.setAvailability(editSwAvailability.isChecked());
+
+                    int selectedPosition = spinnerSpaceRules.getSelectedItemPosition();
+                    space.setSpaceRules(Collections.singletonList(spaceRulesList.get(selectedPosition)));
+
                     updateSpace(space);
                     dialog.dismiss();
                 });
@@ -167,10 +207,6 @@ public class SpaceActivity extends AppCompatActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
-        gson = new Gson();
-
-        volley = SingleVolley.getInstance(getApplicationContext());
-        requestQueues = volley.getRequestQueue();
 
         createSpaceRequest(URL + GET);
 
@@ -191,6 +227,7 @@ public class SpaceActivity extends AppCompatActivity {
             JSONObject json = new JSONObject();
             json.put("spaceName", space.getSpaceName());
             json.put("capacity", space.getCapacity());
+            json.put("spaceRuleId", space.getSpaceRule().get(0).getId());
             json.put("availability", space.isAvailability());
 
             StringRequest request = new StringRequest(
@@ -239,6 +276,41 @@ public class SpaceActivity extends AppCompatActivity {
         }
     }
 
+    public void createSpaceRulesRequest(String urlRequest) {
+        JsonArrayRequest rulesRequest = new JsonArrayRequest(
+                Request.Method.GET,
+                urlRequest,
+                null,
+                response -> {
+                    try {
+                        spaceRuleList.clear();
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject ruleJson = response.getJSONObject(i);
+                            SpaceRule rule = gson.fromJson(ruleJson.toString(), SpaceRule.class);
+                            spaceRuleList.add(rule);
+                        }
+                        Log.d(LOG_TAG, "Space rules loaded: " + spaceRuleList.size());
+
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, "Error parsing space rules: " + e.getMessage());
+                    }
+                },
+                error -> {
+                    Log.e(LOG_TAG, "Error fetching rules: " + error.toString());
+                    Toast.makeText(this, "Failed to load rules", Toast.LENGTH_SHORT).show();
+                }
+        );
+
+        rulesRequest.setTag(LOG_TAG);
+        rulesRequest.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
+                3,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
+
+        requestQueues.add(rulesRequest);
+    }
+
     public void createSpaceRequest(String urlRequest) {
         ProgressDialog pDialog = new ProgressDialog(this);
         pDialog.setMessage("Loading spaces...");
@@ -250,6 +322,7 @@ public class SpaceActivity extends AppCompatActivity {
                 null,
                 response -> {
                     try {
+
                         spaceList.clear();
                         for (int c = 0; c < response.length(); c++) {
                             JSONObject userJson = response.getJSONObject(c);

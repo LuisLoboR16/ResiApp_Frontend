@@ -9,12 +9,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import androidx.appcompat.widget.SwitchCompat;
 
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,76 +31,35 @@ import java.util.List;
 import API.SingleVolley;
 import Models.SpaceRule;
 
-public class CreateSpaceDialogFragment extends DialogFragment {
+public class CreateSpaceRuleDialogFragment extends DialogFragment {
     static final String URL = "http://10.0.2.2:5069/api/";
-    static final String CREATE = "Space";
+    static final String CREATE = "SpaceRule";
     static final String LOG_TAG = "ResiApp";
-
-    private List<SpaceRule> spaceRuleList = new ArrayList<>();
-    public void setSpaceRuleList(List<SpaceRule> spaceRuleList) {
-        this.spaceRuleList = spaceRuleList;
-    }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_create_space, null);
+        View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_create_space_rule, null);
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editSpaceName = view.findViewById(R.id.editSpaceNameC);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editCapacity = view.findViewById(R.id.editCapacityC);
-        Spinner editSpaceRules = view.findViewById(R.id.editSpinnerSpaceRules);
-        SwitchCompat editAvailability = view.findViewById(R.id.swAvailabilityC);
-
-        Button btnCreate = view.findViewById(R.id.btnCreate);
-        Button btnCancel = view.findViewById(R.id.btnCancel);
-
-        List<String> ruleNames = new ArrayList<>();
-        for (SpaceRule rule : spaceRuleList) {
-            ruleNames.add(rule.getRule());
-        }
-
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
-                requireContext(), android.R.layout.simple_spinner_item, ruleNames);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        editSpaceRules.setAdapter(spinnerAdapter);
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editSpaceRuleName = view.findViewById(R.id.editSpaceRuleName);
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnCreate = view.findViewById(R.id.btnCreateSpaceRule);
+        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnCancel = view.findViewById(R.id.btnCancelSpaceRule);
 
         btnCreate.setOnClickListener(v -> {
-            String spaceName = editSpaceName.getText().toString().trim();
-            String capacityStr = editCapacity.getText().toString().trim();
-            boolean availability = editAvailability.isChecked();
+            String spaceRuleName = editSpaceRuleName.getText().toString().trim();
 
-
-            if (TextUtils.isEmpty(spaceName) || TextUtils.isEmpty(capacityStr)) {
-                Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            int selectedIndex = editSpaceRules.getSelectedItemPosition();
-            if (selectedIndex < 0 || selectedIndex >= spaceRuleList.size()) {
-                Toast.makeText(getContext(), "Please select a valid rule", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            int selectedRuleId = spaceRuleList.get(selectedIndex).getId();
-
-            int capacity;
-            try {
-                capacity = Integer.parseInt(capacityStr);
-            } catch (NumberFormatException e) {
-                Toast.makeText(getContext(), "Capacity must be a number", Toast.LENGTH_SHORT).show();
+            if (TextUtils.isEmpty(spaceRuleName)) {
+                Toast.makeText(getContext(), "Please fill space rule name", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             ProgressDialog progressDialog = new ProgressDialog(getContext());
-            progressDialog.setMessage("Creating space...");
+            progressDialog.setMessage("Creating space rule...");
             progressDialog.show();
 
             try {
                 JSONObject json = new JSONObject();
-                json.put("SpaceName", spaceName);
-                json.put("Capacity", capacity);
-                json.put("spaceRuleId", selectedRuleId);
-                json.put("Availability", availability);
+                json.put("rule", spaceRuleName);
 
                 JsonObjectRequest request = getJsonObjectRequest(json, progressDialog);
 
@@ -138,7 +94,7 @@ public class CreateSpaceDialogFragment extends DialogFragment {
                 URL + CREATE,
                 jsonBody,
                 response -> {
-                    Toast.makeText(getContext(), "Space created successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "SpaceRule created successfully", Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                     dismiss();
                     if (onSpaceCreated != null) {

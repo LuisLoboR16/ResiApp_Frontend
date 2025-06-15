@@ -20,54 +20,60 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.resiapp.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import API.SingleVolley;
-import Adapters.UserAdapter;
-import Models.User;
+import Adapters.SpaceRuleAdapter;
+import Fragments.CreateSpaceRuleDialogFragment;
+import Models.SpaceRule;
 
-public class UserActivity extends AppCompatActivity {
+public class SpaceRuleActivity extends AppCompatActivity {
     static final String URL = "http://10.0.2.2:5069/api/";
-    static final String GET = "User/User";
-    static final String DELETE = "User/";
-    static final String UPDATE = "User/";
+    static final String GET = "SpaceRule";
+    static final String DELETE = "SpaceRule/";
+    static final String UPDATE = "SpaceRule/";
     static final String LOG_TAG = "ResiApp" ;
     private RequestQueue requestQueues;
     Gson gson;
-    private List<User> userList;
-    private UserAdapter adapter;
+    private List<SpaceRule> spaceRulesList;
+    private SpaceRuleAdapter adapter;
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SingleVolley volley;
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user);
+        setContentView(R.layout.activity_space_rules);
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerUsuarios);
-        userList = new ArrayList<>();
-        adapter = new UserAdapter(userList, new UserAdapter.OnUserActionListener(){
+        FloatingActionButton btnCreateSpace = findViewById(R.id.btnCreateSpaceRule);
+        btnCreateSpace.setOnClickListener(v -> {
+            CreateSpaceRuleDialogFragment dialog = new CreateSpaceRuleDialogFragment();
+            dialog.setOnSpaceCreated(() -> createSpaceRuleRequest(URL + GET));
+            dialog.show(getSupportFragmentManager(), "CreateSpaceRuleDialog");
+        });
+
+        RecyclerView recyclerView = findViewById(R.id.recyclerSpaceRules);
+        spaceRulesList = new ArrayList<>();
+        adapter = new SpaceRuleAdapter(spaceRulesList, new SpaceRuleAdapter.OnSpaceRuleActionListener(){
             @Override
-            public void onUpdate(User user) {
-                showUpdateForm(user);
+            public void onUpdate(SpaceRule spaceRule) {
+                showUpdateForm(spaceRule);
             }
 
             @Override
-            public void onDelete(User user) {
-                AlertDialog dialog = new AlertDialog.Builder(UserActivity.this)
+            public void onDelete(SpaceRule spaceRule) {
+                AlertDialog dialog = new AlertDialog.Builder(SpaceRuleActivity.this)
                         .setTitle("🗑 Confirm action")
-                        .setMessage("¿Are you sure to delete" + "\n\n" + "*" + user.getResidentName() + "*?" + "\n" +"\nThis action can't be undone.")
+                        .setMessage("¿Are you sure to delete" + "\n\n" + "*" + spaceRule.getRule() + "*?" + "\n" +"\nThis action can't be undone.")
                         .setPositiveButton("Delete", null)
                         .setNegativeButton("Cancel", null)
                         .create();
@@ -80,7 +86,7 @@ public class UserActivity extends AppCompatActivity {
                     negative.setTextColor(getResources().getColor(android.R.color.darker_gray));
 
                     positive.setOnClickListener(v -> {
-                        deleteUser(user);
+                        deleteSpaceRule(spaceRule);
                         dialog.dismiss();
                     });
 
@@ -90,24 +96,31 @@ public class UserActivity extends AppCompatActivity {
                 dialog.show();
             }
 
-            public void deleteUser(User user) {
-                String urlDelete = URL + DELETE + user.getId();
-                ProgressDialog progressDialog = new ProgressDialog(UserActivity.this);
-                progressDialog.setMessage("Deleting user...");
+            public void deleteSpaceRule(SpaceRule spaceRule) {
+                String urlDelete = URL + DELETE + spaceRule.getId();
+                ProgressDialog progressDialog = new ProgressDialog(SpaceRuleActivity.this);
+                progressDialog.setMessage("Deleting space rule...");
                 progressDialog.show();
 
-                JsonObjectRequest deleteRequest = new JsonObjectRequest(
+                @SuppressLint("NotifyDataSetChanged") JsonObjectRequest deleteRequest = new JsonObjectRequest(
                         Request.Method.DELETE,
                         urlDelete,
                         null,
                         response -> {
-                            Toast.makeText(UserActivity.this, "User deleted sucessfully", Toast.LENGTH_SHORT).show();
-                            userList.remove(user);
+                            Toast.makeText(SpaceRuleActivity.this, "Space rule deleted sucessfully", Toast.LENGTH_SHORT).show();
+                            spaceRulesList.remove(spaceRule);
                             adapter.notifyDataSetChanged();
                             progressDialog.dismiss();
                         },
                         error -> {
-                            Toast.makeText(UserActivity.this, "Error deleting user: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                            Log.e(LOG_TAG, "Error with request: " + error.toString());
+                            int statusCode = error.networkResponse.statusCode;
+
+                            if(statusCode == 500){
+                                Toast.makeText(getApplicationContext(), "You must delete or change the Space which is using this SpaceRule.", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(SpaceRuleActivity.this, "Error deleting space rule: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                            }
                             progressDialog.dismiss();
                         }
                 );
@@ -121,41 +134,23 @@ public class UserActivity extends AppCompatActivity {
                 requestQueues.add(deleteRequest);
             }
 
-            private void showUpdateForm(User user) {
-                View dialogView = getLayoutInflater().inflate(R.layout.activity_update_user, null);
-                EditText editName = dialogView.findViewById(R.id.editName);
-                EditText editEmail = dialogView.findViewById(R.id.editEmail);
-                EditText editPassword = dialogView.findViewById(R.id.editPassword);
-                EditText editApartmentInformation = dialogView.findViewById(R.id.editApartmentInformation);
-                EditText editRole = dialogView.findViewById(R.id.editRole);
+            private void showUpdateForm(SpaceRule spaceRule) {
+                View dialogView = getLayoutInflater().inflate(R.layout.activity_update_space_rule, null);
+                @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editRule = dialogView.findViewById(R.id.editRule);
 
                 Button btnUpdate= dialogView.findViewById(R.id.btnUpdate);
                 Button btnCancel= dialogView.findViewById(R.id.btnCancel);
 
-                editName.setText(user.getResidentName());
-                editEmail.setText(user.getEmail());
-                editPassword.setText("");
-                editApartmentInformation.setText(user.getApartmentInformation());
-                editRole.setText(user.getRole());
+                editRule.setText(spaceRule.getRule());
 
-                AlertDialog dialog = new AlertDialog.Builder(UserActivity.this)
+                AlertDialog dialog = new AlertDialog.Builder(SpaceRuleActivity.this)
                         .setView(dialogView)
                         .create();
 
                 btnUpdate.setOnClickListener(view -> {
-                    user.setResidentName(editName.getText().toString());
-                    user.setEmail(editEmail.getText().toString());
+                    spaceRule.setRule(editRule.getText().toString());
 
-                    String newPassword = editPassword.getText().toString();
-                    if(!newPassword.isEmpty()){
-                        user.setPassword(newPassword);
-                    }else{
-                        user.setPassword(null);
-                    }
-
-                    user.setApartmentInformation(editApartmentInformation.getText().toString());
-                    user.setRole(editRole.getText().toString());
-                    updateUser(user);
+                    updateSpaceRule(spaceRule);
                     dialog.dismiss();
                 });
 
@@ -173,7 +168,7 @@ public class UserActivity extends AppCompatActivity {
         volley = SingleVolley.getInstance(getApplicationContext());
         requestQueues = volley.getRequestQueue();
 
-        createUserRequest(URL + GET);
+        createSpaceRuleRequest(URL + GET);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -182,27 +177,23 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
-    public void updateUser(User user) {
-        String urlUpdate = URL + UPDATE + user.getId();
-        ProgressDialog progressDialog = new ProgressDialog(UserActivity.this);
-        progressDialog.setMessage("Updating user...");
+    public void updateSpaceRule(SpaceRule spaceRule) {
+        String urlUpdate = URL + UPDATE + spaceRule.getId();
+        ProgressDialog progressDialog = new ProgressDialog(SpaceRuleActivity.this);
+        progressDialog.setMessage("Updating space rule...");
         progressDialog.show();
 
         try {
             JSONObject json = new JSONObject();
-            json.put("residentName", user.getResidentName());
-            json.put("email", user.getEmail());
-            json.put("password", user.getPassword());
-            json.put("apartmentInformation", user.getApartmentInformation());
-            json.put("role", user.getRole());
+            json.put("rule", spaceRule.getRule());
 
             JsonObjectRequest request = new JsonObjectRequest(
                     Request.Method.PUT,
                     urlUpdate,
                     json,
                     response -> {
-                        Toast.makeText(this, "User updated sucessfully", Toast.LENGTH_SHORT).show();
-                        createUserRequest(URL + GET);
+                        Toast.makeText(this, "Space Rule updated sucessfully", Toast.LENGTH_SHORT).show();
+                        createSpaceRuleRequest(URL + GET);
                         progressDialog.dismiss();
                     },
                     error ->
@@ -243,42 +234,33 @@ public class UserActivity extends AppCompatActivity {
      *
      * @param urlRequest URL del recurso solicitado
      */
-    public void createUserRequest(String urlRequest) {
+    public void createSpaceRuleRequest(String urlRequest) {
         ProgressDialog pDialog = new ProgressDialog(this);
-        pDialog.setMessage("Loading users...");
+        pDialog.setMessage("Loading space rules...");
         pDialog.show();
 
-        JsonObjectRequest newRequest = new JsonObjectRequest(
+        @SuppressLint("NotifyDataSetChanged") JsonArrayRequest newRequest = new JsonArrayRequest(
                 Request.Method.GET,
                 urlRequest,
                 null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray jsonArray = response.getJSONArray("data");
-                            userList.clear();
-                            for (int c = 0; c < jsonArray.length(); c++) {
-                                JSONObject userJson = jsonArray.getJSONObject(c);
-                                User user = gson.fromJson(userJson.toString(), User.class);
-                                userList.add(user);
-                            }
-                            adapter.notifyDataSetChanged();
-
-
-                        } catch (Exception e) {
-                            Log.e(LOG_TAG, "Error procesing response: " + e.getMessage());
-                        } finally {
-                            pDialog.dismiss();
+                response -> {
+                    try {
+                        spaceRulesList.clear();
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject ruleJson = response.getJSONObject(i);
+                            SpaceRule spaceRule = gson.fromJson(ruleJson.toString(), SpaceRule.class);
+                            spaceRulesList.add(spaceRule);
                         }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e(LOG_TAG, "Error with request: " + error.toString());
+                        adapter.notifyDataSetChanged();
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, "Error processing response: " + e.getMessage());
+                    } finally {
                         pDialog.dismiss();
                     }
+                },
+                error -> {
+                    Log.e(LOG_TAG, "Error with request: " + error.toString());
+                    pDialog.dismiss();
                 }
         );
 
@@ -290,7 +272,6 @@ public class UserActivity extends AppCompatActivity {
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
                 )
         );
-
         requestQueues.add(newRequest);
     }
 

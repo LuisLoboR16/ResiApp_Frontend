@@ -8,45 +8,24 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        tools:ignore="UseSwitchCompatOrMaterialXml">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Update Space"
+            android:text="Create Space Rule"
             android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginBottom="24dp" />
 
         <EditText
-            android:id="@+id/editSpaceName"
+            android:id="@+id/editSpaceRuleName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Space Name"
+            android:hint="SpaceRule"
             android:layout_marginBottom="16dp" />
-
-        <EditText
-            android:id="@+id/editCapacity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Capacity"
-            android:layout_marginBottom="16dp" />
-
-        <Spinner
-            android:id="@+id/spinnerSpaceRules"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="24dp"/>
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/swAvailability"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Availability"
-            tools:ignore="UseSwitchCompatOrMaterialXml">
-        </androidx.appcompat.widget.SwitchCompat>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -56,7 +35,7 @@
             android:gravity="center">
 
             <Button
-                android:id="@+id/btnCancel"
+                android:id="@+id/btnCancelSpaceRule"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cancel"
@@ -66,10 +45,10 @@
                 android:layout_marginEnd="16dp"/>
 
             <Button
-                android:id="@+id/btnUpdate"
+                android:id="@+id/btnCreateSpaceRule"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Update"
+                android:text="Create"
                 android:layout_gravity="center" />
         </LinearLayout>
     </LinearLayout>
