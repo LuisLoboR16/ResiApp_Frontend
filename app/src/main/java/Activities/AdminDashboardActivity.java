@@ -24,9 +24,9 @@ import Fragments.NotificationDialogFragment;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
-    LinearLayout layoutNotifications, layoutUsers, layoutSpaces, layoutSpaceRules, layoutReviews;
-    TextView txtNotifications, txtUsers, txtSpaces, txtSpaceRules, txtReviews;
-    ImageView imgNotifications, imgUsers, imgSpaces, imgSpaceRules, imgReviews;
+    LinearLayout layoutNotifications, layoutUsers, layoutSpaces, layoutSpaceRules, layoutReviews, layoutReservations;
+    TextView txtNotifications, txtUsers, txtSpaces, txtSpaceRules, txtReviews, txtReservations;
+    ImageView imgNotifications, imgUsers, imgSpaces, imgSpaceRules, imgReviews, imgReservations;
     Button btnLogout;
 
     @SuppressLint({"MissingInflatedId", "ResourceType"})
@@ -167,6 +167,30 @@ public class AdminDashboardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 startActivity(new Intent(getApplicationContext(), ReviewActivity.class));
+            }
+        });
+
+        layoutReservations = findViewById(R.id.layoutReservations);
+        layoutReservations.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), ReservationActivity.class));
+            }
+        });
+
+        txtReservations = findViewById(R.id.txtReservations);
+        txtReservations.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), ReservationActivity.class));
+            }
+        });
+
+        imgReservations = findViewById(R.id.imgReservations);
+        imgReservations.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                startActivity(new Intent(getApplicationContext(), ReservationActivity.class));
             }
         });
     }

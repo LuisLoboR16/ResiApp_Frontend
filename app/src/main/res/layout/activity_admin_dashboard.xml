@@ -89,17 +89,22 @@
                 app:cardCornerRadius="12dp"
                 android:layout_margin="12dp">
                 <LinearLayout
+                    android:id="@+id/layoutReservations"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="8dp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    tools:ignore="UseCompoundDrawables">
                     <ImageView
+                        android:id="@+id/imgReservations"
+                        android:contentDescription="Reservations"
                         android:src="@drawable/ic_reservations"
                         android:layout_width="80dp"
                         android:layout_height="80dp">
                     </ImageView>
                     <TextView
+                        android:id="@+id/txtReservations"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
