@@ -7,7 +7,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +29,7 @@ import com.example.resiapp.R;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import API.Constants;
@@ -41,6 +41,7 @@ public class CreateReviewDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
     static final String CREATE = Constants.REVIEWS_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
+
     private List<Space> spaceList = new ArrayList<>();
     public void setSpaceList(List<Space> spaceList) {
         this.spaceList = spaceList;
@@ -56,7 +57,7 @@ public class CreateReviewDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_create_review, null);
 
-        EditText editRating = view.findViewById(R.id.editRating);
+        Spinner editRating = view.findViewById(R.id.editSpinnerRating);
         EditText editComment = view.findViewById(R.id.editComment);
         EditText editUser = view.findViewById(R.id.editUserReview);
         @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Spinner editSpace = view.findViewById(R.id.editSpinnerSpace);
@@ -83,6 +84,15 @@ public class CreateReviewDialogFragment extends DialogFragment {
         assert currentUser != null;
         editUser.setText(currentUser.getResidentName());
 
+        List<Integer> ratingOptions = Arrays.asList(1, 2, 3, 4, 5);
+        ArrayAdapter<Integer> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                ratingOptions
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        editRating.setAdapter(adapter);
+
         List<String> spaceNames = new ArrayList<>();
         for (Space name : spaceList) {
             spaceNames.add(name.getSpaceName());
@@ -94,14 +104,7 @@ public class CreateReviewDialogFragment extends DialogFragment {
         editSpace.setAdapter(spinnerAdapter);
 
         btnCreate.setOnClickListener(v -> {
-            String rating = editRating.getText().toString().trim();
             String comment = editComment.getText().toString().trim();
-
-
-            if (TextUtils.isEmpty(rating) || TextUtils.isEmpty(comment)) {
-                Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
             int selectedIndex = editSpace.getSelectedItemPosition();
             if (selectedIndex < 0 || selectedIndex >= spaceList.size()) {
@@ -109,13 +112,7 @@ public class CreateReviewDialogFragment extends DialogFragment {
                 return;
             }
 
-            int finalRating;
-            try {
-                finalRating = Integer.parseInt(rating);
-            } catch (NumberFormatException e) {
-                Toast.makeText(getContext(), "Rating must be a number", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            int selectedRating = (int) editRating.getSelectedItem();
 
             ProgressDialog progressDialog = new ProgressDialog(getContext());
             progressDialog.setMessage("Creating review...");
@@ -123,7 +120,7 @@ public class CreateReviewDialogFragment extends DialogFragment {
 
             try {
                 JSONObject json = new JSONObject();
-                json.put("rating", finalRating);
+                json.put("rating", selectedRating);
                 json.put("comment", comment);
                 json.put("residentId",currentUser.getId());
                 json.put("spaceId", spaceList.get(selectedIndex).getId());
