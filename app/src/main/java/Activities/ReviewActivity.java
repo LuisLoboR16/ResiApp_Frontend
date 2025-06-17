@@ -12,7 +12,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -41,7 +40,7 @@ import Models.Review;
 import Models.Space;
 import Models.User;
 
-public class ReviewActivity extends AppCompatActivity {
+public class ReviewActivity extends RoleRuleActivity {
     static final String URL = Constants.URL;
     static final String GET = Constants.REVIEWS_ENDPOINT;
     static final String DELETE = Constants.REVIEWS_ENDPOINT+"/";
@@ -63,6 +62,7 @@ public class ReviewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review);
 
+        roleRules(findViewById(android.R.id.content));
 
         FloatingActionButton btnCreateSpace = findViewById(R.id.btnCreateReview);
         btnCreateSpace.setOnClickListener(v -> {
@@ -147,14 +147,28 @@ public class ReviewActivity extends AppCompatActivity {
 
             private void showUpdateForm(Review review, List<Space> spaceList) {
                 View dialogView = getLayoutInflater().inflate(R.layout.activity_update_review, null);
-                EditText editRating = dialogView.findViewById(R.id.editRating);
+                Spinner spinnerUpdateRating = dialogView.findViewById(R.id.editUpdateSpinnerRating);
                 EditText editComment = dialogView.findViewById(R.id.editComment);
                 Spinner spinnerSpaces = dialogView.findViewById(R.id.spinnerSpaces);
 
                 Button btnUpdate = dialogView.findViewById(R.id.btnUpdate);
                 Button btnCancel = dialogView.findViewById(R.id.btnCancel);
 
-                editRating.setText(String.valueOf(review.getRating()));
+                List<String> ratings = new ArrayList<>();
+                for (int i = 1; i <= 5; i++) {
+                    ratings.add(String.valueOf(i));
+                }
+
+                ArrayAdapter<String> ratingAdapter = new ArrayAdapter<>(
+                        ReviewActivity.this,
+                        android.R.layout.simple_spinner_item,
+                        ratings
+                );
+                ratingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerUpdateRating.setAdapter(ratingAdapter);
+
+                spinnerUpdateRating.setSelection(review.getRating() - 1);
+
                 editComment.setText(review.getComment());
 
                 List<String> spaceNames = new ArrayList<>();
@@ -162,7 +176,6 @@ public class ReviewActivity extends AppCompatActivity {
                     spaceNames.add(spaces.getSpaceName());
                 }
 
-                Log.d(LOG_TAG, "Loading spinner with " + spaceNames.size() + " rules");
                 ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
                         ReviewActivity.this,
                         android.R.layout.simple_spinner_item,
@@ -186,18 +199,14 @@ public class ReviewActivity extends AppCompatActivity {
                         .create();
 
                 btnUpdate.setOnClickListener(view -> {
-                    try {
-                        review.setRating(Integer.parseInt(editRating.getText().toString()));
-                    } catch (NumberFormatException e) {
-                        Toast.makeText(ReviewActivity.this, "Invalid rating value", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
                     review.setComment(editComment.getText().toString());
 
                     int selectedPosition = spinnerSpaces.getSelectedItemPosition();
                     Space selectedSpace = spaceList.get(selectedPosition);
-                    Log.d(LOG_TAG, "Selected space: " + selectedSpace.getId());
                     review.setSpace(selectedSpace);
+
+                    int selectedRating = Integer.parseInt(spinnerUpdateRating.getSelectedItem().toString());
+                    review.setRating(selectedRating);
 
                     updateReview(review);
                     dialog.dismiss();
@@ -205,6 +214,7 @@ public class ReviewActivity extends AppCompatActivity {
 
                 btnCancel.setOnClickListener(view -> dialog.dismiss());
                 dialog.show();
+                roleRules(dialogView);
             }
         });
 

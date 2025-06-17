@@ -9,6 +9,26 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="logout">Logout</string>
+    <string name="my_dashboard">My Dashboard</string>
+    <string name="_4_items">4 items</string>
+    <string name="reservations">Reservations</string>
+    <string name="reviews">Reviews</string>
+    <string name="notifications">Notifications</string>
+    <string name="configurations">Configurations</string>
+    <string name="resiapp">Resiapp</string>
+    <string name="add_review">Add Review</string>
+    <string name="comments">Comments</string>
+    <string name="rating">Rating</string>
+    <string name="user">User</string>
+    <string name="cancel">Cancel</string>
+    <string name="create">Create</string>
+    <string name="create_review">Create Review</string>
+    <string name="update">Update</string>
+    <string name="update_review">Update Review</string>
+    <string name="delete">Delete</string>
+    <string name="select_score">Select Score</string>
+    <string name="select_space">Select Space</string>
     <string-array name="roles_array">
         <item>Resident</item>
         <item>Admin</item>

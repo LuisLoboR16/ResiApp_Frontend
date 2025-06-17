@@ -11,12 +11,16 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tvRating"
+        <LinearLayout
+            android:id="@+id/layoutStars"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="18sp"/>
+            android:layout_height="25dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:baselineAligned="false"/>
 
         <TextView
             android:id="@+id/tvComment"
@@ -44,14 +48,16 @@
 
             <Button
                 android:id="@+id/btnUpdate"
-                android:text="Update"
+                android:text="@string/update"
                 android:layout_marginEnd="8dp"
+                android:tag="adminOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <Button
                 android:id="@+id/btnDelete"
-                android:text="Delete"
+                android:text="@string/delete"
+                android:tag="adminOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>

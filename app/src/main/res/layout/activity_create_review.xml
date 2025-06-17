@@ -14,38 +14,56 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Create Review"
+            android:text="@string/create_review"
             android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginBottom="24dp" />
 
-        <EditText
-            android:id="@+id/editRating"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvSelectRating"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:autofillHints="name"
-            android:hint="Rating"
-            android:layout_marginBottom="16dp"
-            android:inputType="number" />
+            android:layout_marginBottom="-20dp"
+            android:text="@string/select_score"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/editSpinnerRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" />
 
         <EditText
             android:id="@+id/editComment"
             android:layout_width="match_parent"
             android:layout_height="180dp"
             android:autofillHints="name"
-            android:hint="Comments"
+            android:hint="@string/comments"
+            android:gravity="top|start"
+            android:minLines="3"
+            android:maxLines="6"
             android:layout_marginBottom="16dp"
-            android:inputType="text" />
+            android:inputType="textMultiLine" />
 
         <EditText
             android:id="@+id/editUserReview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="User"
+            android:hint="@string/user"
             android:autofillHints="name"
             android:inputType="text"
             android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/tvSelectSpace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="-20dp"
+            android:text="@string/select_space"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <Spinner
             android:id="@+id/editSpinnerSpace"
@@ -65,7 +83,7 @@
                 android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cancel"
+                android:text="@string/cancel"
                 android:layout_gravity="center"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="#D32F2F"
@@ -75,7 +93,7 @@
                 android:id="@+id/btnCreate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Create"
+                android:text="@string/create"
                 android:layout_gravity="center" />
         </LinearLayout>
     </LinearLayout>
