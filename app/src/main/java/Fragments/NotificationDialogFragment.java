@@ -36,7 +36,7 @@ public class NotificationDialogFragment extends DialogFragment {
         Button btnSend = view.findViewById(R.id.btnSend);
         Button btnCancel = view.findViewById(R.id.btnCancel);
 
-        if (invokedClass.trim().equals("LoginActivity")) {
+        if (invokedClass.trim().equals("LoginActivity") || invokedClass.trim().equals("ResidentDashboardActivity")) {
             txtEmail.setText(adminEmail);
             txtEmail.setEnabled(false);
             email = adminEmail;

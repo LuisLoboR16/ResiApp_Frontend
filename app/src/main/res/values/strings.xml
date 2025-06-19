@@ -29,6 +29,16 @@
     <string name="delete">Delete</string>
     <string name="select_score">Select Score</string>
     <string name="select_space">Select Space</string>
+    <string name="resident_name">Resident</string>
+    <string name="change_photo">Change photo</string>
+    <string name="new_password">New password</string>
+    <string name="re_type_password">Re-type password</string>
+    <string name="apartment_info">Apartment info</string>
+    <string name="send_notification">Send Notification</string>
+    <string name="to">To</string>
+    <string name="subject">Subject</string>
+    <string name="send">Send</string>
+    <string name="create_user">Create User</string>
     <string-array name="roles_array">
         <item>Resident</item>
         <item>Admin</item>

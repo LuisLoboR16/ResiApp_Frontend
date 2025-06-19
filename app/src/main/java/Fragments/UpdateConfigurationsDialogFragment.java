@@ -76,13 +76,14 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
         etPass = view.findViewById(R.id.etPass);
         etPass2 = view.findViewById(R.id.etPass2);
         etApartmentInfo = view.findViewById(R.id.etApartmentInformation);
-        imgProfile = view.findViewById(R.id.imgProfile);
+        imgProfile = view.findViewById(R.id.imgProfileUpdating);
 
         Button btnCancel = view.findViewById(R.id.btnCancelConfig);
         Button btnUpdate = view.findViewById(R.id.btnUpdateConfig);
-        TextView btnChangePhoto = view.findViewById(R.id.txtChangePhoto);
+        TextView txtChangePhoto = view.findViewById(R.id.txtChangePhotoUpdating);
 
-        btnChangePhoto.setOnClickListener(v -> openGallery());
+        imgProfile.setOnClickListener(v -> openGallery());
+        txtChangePhoto.setOnClickListener(v -> openGallery());
         btnUpdate.setOnClickListener(v -> updateUser());
 
         btnCancel.setOnClickListener(v -> dismiss());

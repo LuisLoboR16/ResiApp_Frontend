@@ -112,6 +112,11 @@ public class CreateReviewDialogFragment extends DialogFragment {
                 return;
             }
 
+            if(comment.isEmpty()){
+                Toast.makeText(getContext(), "Please fill comments", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             int selectedRating = (int) editRating.getSelectedItem();
 
             ProgressDialog progressDialog = new ProgressDialog(getContext());

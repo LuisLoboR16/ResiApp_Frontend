@@ -21,7 +21,7 @@
         android:layout_height="39dp"
         android:textColor="@color/white"
         android:backgroundTint="@color/primary_color"
-        android:text="Logout"
+        android:text="@string/logout"
         android:alpha="0.6"
         android:layout_marginStart="316dp"
         app:cornerRadius="100dp">
@@ -43,6 +43,7 @@
                 android:id="@+id/imageView"
                 android:layout_width="match_parent"
                 android:layout_height="159dp"
+                android:contentDescription="@string/resiapp"
                 app:srcCompat="@drawable/ic_resiapp_logo_wb">
             </ImageView>
 
@@ -51,24 +52,27 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="204dp"
-                android:text="My Dashboard"
+                android:text="@string/my_dashboard"
                 android:textColor="@color/white"
-                android:textSize="32sp" />
+                android:textSize="32sp"
+                tools:ignore="RelativeOverlap" />
 
             <TextView
                 android:id="@+id/txtResidentDashboardItems"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="240dp"
-                android:text="4 items"
+                android:text="@string/_4_items"
                 android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                tools:ignore="RelativeOverlap" />
 
             <ImageView
                 android:layout_width="62dp"
                 android:layout_height="62dp"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:layout_marginTop="207dp"
+                android:contentDescription="@string/resiapp"
                 android:src="@drawable/ic_user" />
         </RelativeLayout>
 
@@ -89,23 +93,28 @@
                 app:cardCornerRadius="12dp"
                 android:layout_margin="12dp">
                 <LinearLayout
+                    android:id="@+id/layoutReservationsResident"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="8dp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    tools:ignore="UseCompoundDrawables">
                     <ImageView
+                        android:id="@+id/imgReservationsResident"
+                        android:contentDescription="@string/reservations"
                         android:src="@drawable/ic_reservations"
                         android:layout_width="80dp"
                         android:layout_height="80dp">
                     </ImageView>
                     <TextView
+                        android:id="@+id/txtReservationsResident"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:textColor="#6f6f6f"
                         android:textSize="18sp"
-                        android:text="Reservations">
+                        android:text="@string/reservations">
                     </TextView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -119,23 +128,28 @@
                 app:cardCornerRadius="12dp"
                 android:layout_margin="12dp">
                 <LinearLayout
+                    android:id="@+id/layoutReviewsResident"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    tools:ignore="UseCompoundDrawables">
                     <ImageView
+                        android:id="@+id/imgReviewsResident"
+                        android:contentDescription="@string/reviews"
                         android:src="@drawable/ic_reviews"
                         android:layout_width="80dp"
                         android:layout_height="80dp">
                     </ImageView>
                     <TextView
+                        android:id="@+id/txtReviewsResident"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:textColor="#6f6f6f"
                         android:textSize="18sp"
-                        android:text="Reviews">
+                        android:text="@string/reviews">
                     </TextView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -149,23 +163,28 @@
                 app:cardCornerRadius="12dp"
                 android:layout_margin="12dp">
                 <LinearLayout
+                    android:id="@+id/layoutNotificationsResident"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    tools:ignore="UseCompoundDrawables">
                     <ImageView
+                        android:id="@+id/imgNotificationsResident"
+                        android:contentDescription="@string/notifications"
                         android:src="@drawable/ic_notifications"
                         android:layout_width="80dp"
                         android:layout_height="80dp">
                     </ImageView>
                     <TextView
+                        android:id="@+id/txtNotificationsResident"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:textColor="#6f6f6f"
                         android:textSize="18sp"
-                        android:text="Notifications">
+                        android:text="@string/notifications">
                     </TextView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -179,27 +198,31 @@
                 app:cardCornerRadius="12dp"
                 android:layout_margin="12dp">
                 <LinearLayout
+                    android:id="@+id/layoutConfigurationsResident"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    tools:ignore="UseCompoundDrawables">
                     <ImageView
+                        android:id="@+id/imgConfigurationsResident"
+                        android:contentDescription="@string/configurations"
                         android:src="@drawable/ic_userconfigs"
                         android:layout_width="80dp"
                         android:layout_height="80dp">
                     </ImageView>
                     <TextView
+                        android:id="@+id/txtConfigurationsResident"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:textColor="#6f6f6f"
                         android:textSize="18sp"
-                        android:text="Configurations">
+                        android:text="@string/configurations">
                     </TextView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </GridLayout>
     </LinearLayout>
-
 </RelativeLayout>

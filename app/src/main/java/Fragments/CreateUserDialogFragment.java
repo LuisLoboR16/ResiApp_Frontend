@@ -1,15 +1,21 @@
 package Fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,13 +29,19 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 import API.Constants;
 import API.SingleVolley;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CreateUserDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
     static final String CREATE = Constants.USERS_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
+    private CircleImageView imgProfile;
+    private static final int PICK_IMAGE_REQUEST = 1;
+
 
     @NonNull
     @Override
@@ -41,8 +53,14 @@ public class CreateUserDialogFragment extends DialogFragment {
         EditText editPassword = view.findViewById(R.id.editPassword);
         EditText editRePassword = view.findViewById(R.id.editRePassword);
         EditText editApartment = view.findViewById(R.id.editApartmentInformation);
+        imgProfile = view.findViewById(R.id.imgProfile);
+
         Button btnCreate = view.findViewById(R.id.btnCreate);
         Button btnCancel = view.findViewById(R.id.btnCancel);
+        TextView txtChangePhoto = view.findViewById(R.id.txtChangePhoto);
+
+        imgProfile.setOnClickListener(v -> openGallery());
+        txtChangePhoto.setOnClickListener(v -> openGallery());
 
         btnCreate.setOnClickListener(v -> {
             String name = editName.getText().toString();
@@ -118,9 +136,10 @@ public class CreateUserDialogFragment extends DialogFragment {
                                 Log.e(LOG_TAG, "VolleyError: No network response (null)");
                             }
 
-                            Log.e(LOG_TAG, "VolleyError: " + error.toString());
+                            Log.e(LOG_TAG, "VolleyError: " + error);
                             Toast.makeText(getContext(), "Error creating user: " + errorMessage, Toast.LENGTH_LONG).show();
                             Log.e(LOG_TAG, "Volley error: " + error);
+                            assert error.networkResponse != null;
                             Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
                             if (error.networkResponse.data != null) {
                                 Log.e(LOG_TAG, "Body: " + new String(error.networkResponse.data));
@@ -155,5 +174,22 @@ public class CreateUserDialogFragment extends DialogFragment {
                 .setView(view)
                 .setCancelable(false)
                 .create();
+    }
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            Uri imageUri = data.getData();
+            try {
+                Bitmap selectedImageBitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
+                imgProfile.setImageBitmap(selectedImageBitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
