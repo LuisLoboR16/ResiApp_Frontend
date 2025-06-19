@@ -83,31 +83,44 @@ public class CreateUserDialogFragment extends DialogFragment {
                             progressDialog.dismiss();
                             dismiss();
                         },
-                        error ->
-                        {
-                            int statusCode = error.networkResponse.statusCode;
-                            String errorMessage;
-                            switch (statusCode) {
-                                case 400:
-                                    errorMessage = "Verify your data, something it's wrong.";
-                                    break;
-                                case 401:
-                                    errorMessage = "Not authorized, check your credentials.";
-                                    break;
-                                case 409:
-                                    errorMessage = "Email already exits.";
-                                    break;
-                                case 500:
-                                    errorMessage = "Error from server, please try again later.";
-                                    break;
-                                default:
-                                    errorMessage = "Unknown error.";
+                        error -> {
+                            progressDialog.dismiss();
+                            String errorMessage = "Unexpected error.";
+
+                            if (error.networkResponse != null) {
+                                int statusCode = error.networkResponse.statusCode;
+
+                                switch (statusCode) {
+                                    case 400:
+                                        errorMessage = "Verify your data, something is wrong.";
+                                        break;
+                                    case 401:
+                                        errorMessage = "Not authorized, check your credentials.";
+                                        break;
+                                    case 409:
+                                        errorMessage = "Email already exists.";
+                                        break;
+                                    case 500:
+                                        errorMessage = "Server error, please try again later.";
+                                        break;
+                                    default:
+                                        errorMessage = "Unknown error.";
+                                }
+
+                                Log.e(LOG_TAG, "Status code: " + statusCode);
+
+                                if (error.networkResponse.data != null) {
+                                    Log.e(LOG_TAG, "Body: " + new String(error.networkResponse.data));
+                                }
+
+                            } else {
+                                errorMessage = "No network response. Check your internet connection or server URL.";
+                                Log.e(LOG_TAG, "VolleyError: No network response (null)");
                             }
 
                             Log.e(LOG_TAG, "VolleyError: " + error.toString());
-                            progressDialog.dismiss();
-                            Toast.makeText(getContext(), "Error creating user, " + errorMessage, Toast.LENGTH_LONG).show();
-                            Log.e(LOG_TAG, "Volley error: " + error.toString());
+                            Toast.makeText(getContext(), "Error creating user: " + errorMessage, Toast.LENGTH_LONG).show();
+                            Log.e(LOG_TAG, "Volley error: " + error);
                             Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
                             if (error.networkResponse.data != null) {
                                 Log.e(LOG_TAG, "Body: " + new String(error.networkResponse.data));

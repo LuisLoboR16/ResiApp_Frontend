@@ -45,10 +45,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-
+    implementation(libs.circleimageview)
     implementation(libs.glide)
-
-    // Volley libraries
     implementation (libs.volley)
     implementation (libs.gson)
 }
