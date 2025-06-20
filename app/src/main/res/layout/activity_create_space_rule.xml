@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="20dp">
 
     <LinearLayout
@@ -14,18 +15,37 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Create Space Rule"
+            android:text="@string/create_spacerule"
             android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginBottom="24dp" />
 
-        <EditText
-            android:id="@+id/editSpaceRuleName"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="SpaceRule"
-            android:layout_marginBottom="16dp" />
+            android:hint="@string/spacerule"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="-5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editSpaceRuleName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/spacerule"
+                android:autofillHints="name"
+                android:inputType="text"
+                android:padding="16dp"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -38,7 +58,7 @@
                 android:id="@+id/btnCancelSpaceRule"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cancel"
+                android:text="@string/cancel"
                 android:layout_gravity="center"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="#D32F2F"
@@ -48,7 +68,7 @@
                 android:id="@+id/btnCreateSpaceRule"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Create"
+                android:text="@string/create"
                 android:layout_gravity="center" />
         </LinearLayout>
     </LinearLayout>

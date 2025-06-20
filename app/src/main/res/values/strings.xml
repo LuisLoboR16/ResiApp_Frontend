@@ -67,6 +67,8 @@
     <string name="availability">Availability</string>
     <string name="select_spacerule">Select SpaceRule</string>
     <string name="update_space">Update Space</string>
+    <string name="spacerule">SpaceRule</string>
+    <string name="create_spacerule">Create SpaceRule</string>
     <string-array name="roles_array">
         <item>Resident</item>
         <item>Admin</item>

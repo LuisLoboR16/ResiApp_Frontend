@@ -5,9 +5,11 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -70,29 +72,25 @@ public class SpaceRuleActivity extends AppCompatActivity {
                 showUpdateForm(spaceRule);
             }
 
+            @SuppressLint("CutPasteId")
             @Override
             public void onDelete(SpaceRule spaceRule) {
+                View dialogView = LayoutInflater.from(SpaceRuleActivity.this).inflate(R.layout.activity_delete_space_rule, null);
+
                 AlertDialog dialog = new AlertDialog.Builder(SpaceRuleActivity.this)
-                        .setTitle("🗑 Confirm action")
-                        .setMessage("¿Are you sure to delete" + "\n\n" + "*" + spaceRule.getRule() + "*?" + "\n" +"\nThis action can't be undone.")
-                        .setPositiveButton("Delete", null)
-                        .setNegativeButton("Cancel", null)
+                        .setView(dialogView)
+                        .setIcon(R.drawable.password_icon)
                         .create();
 
-                dialog.setOnShowListener(dialogInterface -> {
-                    Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                Button btnDelete = dialogView.findViewById(R.id.btnDeleteSpaceRule);
+                Button btnCancel = dialogView.findViewById(R.id.btnCancelDeleteSpaceRule);
 
-                    positive.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                    negative.setTextColor(getResources().getColor(android.R.color.darker_gray));
-
-                    positive.setOnClickListener(v -> {
-                        deleteSpaceRule(spaceRule);
-                        dialog.dismiss();
-                    });
-
-                    negative.setOnClickListener(v -> dialog.dismiss());
+                btnDelete.setOnClickListener(v -> {
+                    deleteSpaceRule(spaceRule);
+                    dialog.dismiss();
                 });
+
+                btnCancel.setOnClickListener(v -> dialog.dismiss());
 
                 dialog.show();
             }
