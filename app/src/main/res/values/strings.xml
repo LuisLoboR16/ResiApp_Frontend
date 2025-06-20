@@ -48,6 +48,13 @@
     <string name="role">Role</string>
     <string name="update_user">Update User</string>
     <string name="select_role">Select role</string>
+    <string name="admin_dashboard">Admin Dashboard</string>
+    <string name="admin_items">6 items</string>
+    <string name="logo">Logo</string>
+    <string name="users">Users</string>
+    <string name="spaces">Spaces</string>
+    <string name="space_rules">Space Rules</string>
+    <string name="select_user">Select User</string>
     <string-array name="roles_array">
         <item>Resident</item>
         <item>Admin</item>

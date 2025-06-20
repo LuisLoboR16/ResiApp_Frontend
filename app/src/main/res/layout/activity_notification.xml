@@ -33,7 +33,7 @@
             android:layout_marginBottom="-5dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editEmail"
+                android:id="@+id/editToEmailNotification"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/to"
@@ -45,6 +45,26 @@
                 android:layout_marginBottom="16dp"
                 />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tvSelectUserNotification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="-20dp"
+            android:text="@string/select_user"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/editSpinnerUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="5dp"
+            android:padding="12dp"
+            android:background="?android:attr/editTextBackground"
+            android:spinnerMode="dropdown"
+            />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
