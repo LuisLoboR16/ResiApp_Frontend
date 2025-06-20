@@ -16,7 +16,7 @@
     </RelativeLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLogout"
+        android:id="@+id/btnLogoutResident"
         android:layout_width="93dp"
         android:layout_height="39dp"
         android:textColor="@color/white"
@@ -67,13 +67,16 @@
                 android:textSize="18sp"
                 tools:ignore="RelativeOverlap" />
 
-            <ImageView
-                android:layout_width="62dp"
-                android:layout_height="62dp"
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imgProfileDashboard"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/ic_user"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="207dp"
-                android:contentDescription="@string/resiapp"
-                android:src="@drawable/ic_user" />
+                app:civ_border_width="1dp"
+                android:layout_marginTop="203dp"
+                app:civ_border_color="@android:color/darker_gray"
+                />
         </RelativeLayout>
 
         <GridLayout

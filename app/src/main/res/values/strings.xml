@@ -41,6 +41,8 @@
     <string name="create_user">Create User</string>
     <string name="forgot_password">Forgot password</string>
     <string name="security_word">Security word</string>
+    <string name="exit">¿Are you sure you want to exit the application?</string>
+    <string name="exit_resiapp">Exit ResiApp</string>
     <string-array name="roles_array">
         <item>Resident</item>
         <item>Admin</item>
