@@ -47,19 +47,21 @@
             android:layout_height="wrap_content">
 
             <Button
-                android:id="@+id/btnUpdate"
-                android:text="@string/update"
-                android:layout_marginEnd="8dp"
+                android:id="@+id/btnDelete"
+                android:backgroundTint="#D32F2F"
+                android:text="@string/delete"
                 android:tag="adminOnly"
+                android:layout_marginEnd="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <Button
-                android:id="@+id/btnDelete"
-                android:text="@string/delete"
+                android:id="@+id/btnUpdate"
+                android:text="@string/update"
                 android:tag="adminOnly"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
+
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="20dp">
 
     <LinearLayout
@@ -30,18 +31,37 @@
 
         <Spinner
             android:id="@+id/editUpdateSpinnerRating"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?android:attr/editTextBackground"
+            android:spinnerMode="dropdown"
+            app:boxCornerRadiusBottomEnd="52dp"
+            android:padding="16dp"
             android:layout_marginTop="16dp" />
 
-        <EditText
-            android:id="@+id/editComment"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:autofillHints=""
+            android:layout_height="wrap_content"
             android:hint="@string/comments"
-            android:layout_marginBottom="16dp"
-            android:inputType="text" />
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editComment"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:minLines="3"
+                android:maxLines="6"
+                android:padding="16dp"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:id="@+id/tvSelectSpace"
@@ -56,6 +76,8 @@
             android:id="@+id/spinnerSpaces"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?android:attr/editTextBackground"
+            android:spinnerMode="dropdown"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="24dp"/>
 

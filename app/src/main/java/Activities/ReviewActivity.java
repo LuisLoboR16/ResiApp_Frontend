@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -91,27 +92,23 @@ public class ReviewActivity extends RoleRuleActivity {
 
             @Override
             public void onDelete(Review review) {
+                @SuppressLint("InflateParams") View dialogView = LayoutInflater.from(ReviewActivity.this)
+                        .inflate(R.layout.activity_delete_review, null);
+
+                Button btnDelete = dialogView.findViewById(R.id.btnDeleteReview);
+                Button btnCancel = dialogView.findViewById(R.id.btnCancelDeleteReview);
+
                 AlertDialog dialog = new AlertDialog.Builder(ReviewActivity.this)
-                        .setTitle("\uD83D\uDDD1 Confirm action")
-                        .setMessage("¿Are you sure to delete\n\n*" + review.getComment() + "*?\n\nThis action can't be undone.")
-                        .setPositiveButton("Delete", null)
-                        .setNegativeButton("Cancel", null)
+                        .setView(dialogView)
                         .create();
 
-                dialog.setOnShowListener(dialogInterface -> {
-                    Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-
-                    positive.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                    negative.setTextColor(getResources().getColor(android.R.color.darker_gray));
-
-                    positive.setOnClickListener(v -> {
-                        deleteReview(review);
-                        dialog.dismiss();
-                    });
-
-                    negative.setOnClickListener(v -> dialog.dismiss());
+                btnDelete.setOnClickListener(v -> {
+                    deleteReview(review);
+                    dialog.dismiss();
                 });
+
+                btnCancel.setOnClickListener(v -> dialog.dismiss());
+
                 dialog.show();
             }
 
