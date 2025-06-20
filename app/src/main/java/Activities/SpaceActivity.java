@@ -5,11 +5,13 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -88,27 +90,26 @@ public class SpaceActivity extends AppCompatActivity {
 
             @Override
             public void onDelete(Space space) {
+                View dialogView = LayoutInflater.from(SpaceActivity.this).inflate(R.layout.activity_delete_space, null);
+
+                TextView txtMessage = dialogView.findViewById(R.id.txtDeleteMessageSpace);
+                txtMessage.setText(space.getSpaceName() + "\n\nThis action can't be undone.");
+
                 AlertDialog dialog = new AlertDialog.Builder(SpaceActivity.this)
-                        .setTitle("\uD83D\uDDD1 Confirm action")
-                        .setMessage("¿Are you sure to delete\n\n*" + space.getSpaceName() + "*?\n\nThis action can't be undone.")
-                        .setPositiveButton("Delete", null)
-                        .setNegativeButton("Cancel", null)
+                        .setView(dialogView)
+                        .setIcon(R.drawable.password_icon)
                         .create();
 
-                dialog.setOnShowListener(dialogInterface -> {
-                    Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                Button btnDelete = dialogView.findViewById(R.id.btnDeleteSpace);
+                Button btnCancel = dialogView.findViewById(R.id.btnCancelDeleteSpace);
 
-                    positive.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                    negative.setTextColor(getResources().getColor(android.R.color.darker_gray));
-
-                    positive.setOnClickListener(v -> {
-                        deleteSpace(space);
-                        dialog.dismiss();
-                    });
-
-                    negative.setOnClickListener(v -> dialog.dismiss());
+                btnDelete.setOnClickListener(v -> {
+                    deleteSpace(space);
+                    dialog.dismiss();
                 });
+
+                btnCancel.setOnClickListener(v -> dialog.dismiss());
+
                 dialog.show();
             }
 
