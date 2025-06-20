@@ -29,7 +29,7 @@ import org.json.JSONObject;
 import API.Constants;
 import API.SingleVolley;
 import Fragments.CreateUserDialogFragment;
-import Fragments.NotificationDialogFragment;
+import Fragments.ForgotPasswordDialogFragment;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -149,8 +149,8 @@ public class LoginActivity extends AppCompatActivity {
         txtForgotPassword.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                NotificationDialogFragment dialog = new NotificationDialogFragment();
-                dialog.show(getSupportFragmentManager(), "NotificationDialog");            }
+                ForgotPasswordDialogFragment dialog = new ForgotPasswordDialogFragment();
+                dialog.show(getSupportFragmentManager(), "ForgotPasswordDialogFragment");            }
         });
     }
 }

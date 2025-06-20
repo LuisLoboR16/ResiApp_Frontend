@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.app.AlertDialog;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,16 +47,18 @@ public class NotificationDialogFragment extends DialogFragment {
 
         btnSend.setOnClickListener(v -> {
             String subject = txtSubject.getText().toString();
-            String comments = txtComments.getText().toString();
+            String body = txtComments.getText().toString();
 
-            if (!TextUtils.isEmpty(email)) {
+            if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(subject) && !TextUtils.isEmpty(body)) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
                 intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-                intent.putExtra(Intent.EXTRA_TEXT, comments);
+                intent.putExtra(Intent.EXTRA_TEXT, body);
                 intent.setType("message/rfc822");
                 startActivity(Intent.createChooser(intent, "Select a client for emails"));
                 dismiss();
+            } else {
+                Toast.makeText(getContext(), "Please fill all fields.", Toast.LENGTH_SHORT).show();
             }
         });
 

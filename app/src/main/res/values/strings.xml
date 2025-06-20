@@ -39,6 +39,8 @@
     <string name="subject">Subject</string>
     <string name="send">Send</string>
     <string name="create_user">Create User</string>
+    <string name="forgot_password">Forgot password</string>
+    <string name="security_word">Security word</string>
     <string-array name="roles_array">
         <item>Resident</item>
         <item>Admin</item>
