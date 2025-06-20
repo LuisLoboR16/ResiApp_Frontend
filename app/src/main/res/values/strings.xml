@@ -43,6 +43,11 @@
     <string name="security_word">Security word</string>
     <string name="exit">¿Are you sure you want to exit the application?</string>
     <string name="exit_resiapp">Exit ResiApp</string>
+    <string name="delete_user">¿Are you sure you want to delete this user?</string>
+    <string name="confirm_deletion">🗑 Confirm Delete to User</string>
+    <string name="role">Role</string>
+    <string name="update_user">Update User</string>
+    <string name="select_role">Select role</string>
     <string-array name="roles_array">
         <item>Resident</item>
         <item>Admin</item>
