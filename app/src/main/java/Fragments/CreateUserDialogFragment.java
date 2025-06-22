@@ -52,6 +52,7 @@ public class CreateUserDialogFragment extends DialogFragment {
         EditText editEmail = view.findViewById(R.id.editEmail);
         EditText editPassword = view.findViewById(R.id.editPassword);
         EditText editRePassword = view.findViewById(R.id.editRePassword);
+        EditText editSecurityWord = view.findViewById(R.id.editSecurityWordcUser);
         EditText editApartment = view.findViewById(R.id.editApartmentInformation);
         imgProfile = view.findViewById(R.id.imgProfile);
 
@@ -68,9 +69,10 @@ public class CreateUserDialogFragment extends DialogFragment {
             String pass1 = editPassword.getText().toString();
             String pass2 = editRePassword.getText().toString();
             String apt = editApartment.getText().toString();
+            String securityWord = editSecurityWord.getText().toString();
             String role = "Resident";
 
-            if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(pass1) || TextUtils.isEmpty(pass2) || TextUtils.isEmpty(apt)) {
+            if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(pass1) || TextUtils.isEmpty(pass2) || TextUtils.isEmpty(securityWord) || TextUtils.isEmpty(apt)) {
                 Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -90,6 +92,7 @@ public class CreateUserDialogFragment extends DialogFragment {
                 jsonBody.put("email", email);
                 jsonBody.put("password", pass1);
                 jsonBody.put("apartmentInformation", apt);
+                jsonBody.put("securityWord",securityWord);
                 jsonBody.put("role", role);
 
                 JsonObjectRequest request = new JsonObjectRequest(

@@ -8,6 +8,7 @@ public class Constants {
     public static final String URL = "http://10.0.2.2:5069/api/v1/";
     public static final String AUTH_LOGIN = "Auth/login";
     public static final String USERS_ENDPOINT = "Users";
+    public static final String FORGOT_PASSWORD = "Auth/FORGOT-PASSWORD";
     public static final String FIND_BY_USER_ID_ENDPOINT = USERS_ENDPOINT + "/findUserById/";
     public static final String SPACES_ENDPOINT = "Spaces";
     public static final String SPACE_RULES_ENDPOINT = "SpaceRules";

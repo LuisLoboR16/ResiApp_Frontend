@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="12dp"/>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/imgProfile"
@@ -139,6 +139,25 @@
             android:padding="16dp"/>
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputSecurityWordcUser"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/security_word"
+        app:layout_constraintTop_toBottomOf="@id/inputApartment"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editSecurityWordcUser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:padding="16dp"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
     <Button
         android:id="@+id/btnCancel"
         android:layout_width="0dp"
@@ -146,7 +165,7 @@
         android:text="@string/cancel"
         android:textColor="#FFFFFF"
         android:backgroundTint="#D32F2F"
-        app:layout_constraintTop_toBottomOf="@id/inputApartment"
+        app:layout_constraintTop_toBottomOf="@id/inputSecurityWordcUser"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btnCreate"
         android:layout_marginTop="24dp"
@@ -157,7 +176,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/create"
-        app:layout_constraintTop_toBottomOf="@id/inputApartment"
+        app:layout_constraintTop_toBottomOf="@id/inputSecurityWordcUser"
         app:layout_constraintStart_toEndOf="@id/btnCancel"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="24dp"

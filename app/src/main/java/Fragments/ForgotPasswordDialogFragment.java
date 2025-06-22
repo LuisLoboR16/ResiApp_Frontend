@@ -29,7 +29,7 @@ import API.Constants;
 
 public class ForgotPasswordDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
-    static final String UPDATE = URL + Constants.USERS_ENDPOINT;
+    static final String UPDATE = URL + Constants.FORGOT_PASSWORD;
     static final String LOG_TAG = Constants.LOG_TAG;
     EditText editEmail,editSecurityWord,editPassword,editRePassword;
 
@@ -60,7 +60,7 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
         String pass = editPassword.getText().toString();
         String pass2 = editRePassword.getText().toString();
 
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(email) || TextUtils.isEmpty(pass) || TextUtils.isEmpty(pass2) || TextUtils.isEmpty(securityWord)) {
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pass) || TextUtils.isEmpty(pass2) || TextUtils.isEmpty(securityWord)) {
             Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -76,11 +76,13 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
 
         try {
             JSONObject json = new JSONObject();
-            json.put("password", pass);
+            json.put("email",email);
+            json.put("newPassword", pass);
+            json.put("securityWord",securityWord);
 
             JsonObjectRequest request = new JsonObjectRequest(
-                    Request.Method.PUT,
-                    UPDATE + email,
+                    Request.Method.POST,
+                    UPDATE,
                     json,
                     response -> {
                         Toast.makeText(getContext(), "Password updated successfully", Toast.LENGTH_SHORT).show();
@@ -90,13 +92,36 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
                     error -> {
                         Log.e(LOG_TAG, "Error: " + error.toString());
                         if (error.networkResponse != null) {
-                            Log.e(LOG_TAG, "Status code: " + error.networkResponse.statusCode);
+                            int statusCode = error.networkResponse.statusCode;
+                            Log.e(LOG_TAG, "Status code: " + statusCode);
+
                             if (error.networkResponse.data != null) {
                                 String errorBody = new String(error.networkResponse.data);
                                 Log.e(LOG_TAG, "Error body: " + errorBody);
                             }
+                            switch (statusCode) {
+                                case 400:
+                                    Toast.makeText(getContext(), "Security word is incorrect", Toast.LENGTH_LONG).show();
+                                    break;
+                                case 401:
+                                    Toast.makeText(getContext(), "Unauthorized request", Toast.LENGTH_LONG).show();
+                                    break;
+                                case 403:
+                                    Toast.makeText(getContext(), "Access denied", Toast.LENGTH_LONG).show();
+                                    break;
+                                case 404:
+                                    Toast.makeText(getContext(), "Resource not found", Toast.LENGTH_LONG).show();
+                                    break;
+                                case 500:
+                                    Toast.makeText(getContext(), "Server error. Please try again later", Toast.LENGTH_LONG).show();
+                                    break;
+                                default:
+                                    Toast.makeText(getContext(), "Unexpected error occurred: " + statusCode, Toast.LENGTH_LONG).show();
+                                    break;
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "No response from server. Check your connection.", Toast.LENGTH_LONG).show();
                         }
-                        Toast.makeText(getContext(), "Error updating password", Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                     }
             ) {
