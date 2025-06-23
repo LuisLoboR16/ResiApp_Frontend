@@ -29,7 +29,7 @@ import API.Constants;
 
 public class ForgotPasswordDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
-    static final String UPDATE = URL + Constants.FORGOT_PASSWORD;
+    static final String UPDATE = URL + Constants.FORGOT_PASSWORD_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
     EditText editEmail,editSecurityWord,editPassword,editRePassword;
 

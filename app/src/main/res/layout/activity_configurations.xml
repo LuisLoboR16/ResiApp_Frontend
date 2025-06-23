@@ -130,6 +130,25 @@
             android:inputType="text"/>
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/inputSecurityWordConfig"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/security_word"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:boxBackgroundMode="outline"
+        app:layout_constraintTop_toBottomOf="@id/inputApartment"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSecurityWordConfig"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
     <Button
         android:id="@+id/btnCancelConfig"
         android:layout_width="0dp"
@@ -137,7 +156,7 @@
         android:text="@string/cancel"
         android:textColor="#FFFFFF"
         android:backgroundTint="#D32F2F"
-        app:layout_constraintTop_toBottomOf="@id/inputApartment"
+        app:layout_constraintTop_toBottomOf="@id/inputSecurityWordConfig"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btnUpdateConfig"
         android:layout_marginTop="24dp"
@@ -148,7 +167,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/update"
-        app:layout_constraintTop_toBottomOf="@id/inputApartment"
+        app:layout_constraintTop_toBottomOf="@id/inputSecurityWordConfig"
         app:layout_constraintStart_toEndOf="@id/btnCancelConfig"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="24dp"

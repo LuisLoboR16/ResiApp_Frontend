@@ -48,7 +48,7 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
     static final String GET = URL + Constants.FIND_BY_USER_ID_ENDPOINT;
     static final String UPDATE = URL + Constants.USERS_ENDPOINT+"/";
     static final String LOG_TAG = Constants.LOG_TAG;
-    private EditText etName, etEmail, etPass, etPass2, etApartmentInfo;
+    private EditText etName, etEmail, etPass, etPass2, etApartmentInfo,etSecurityWord;
     private CircleImageView imgProfile;
     private User currentUser;
     public void setUser(User currentUser) {
@@ -76,6 +76,7 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
         etPass = view.findViewById(R.id.etPass);
         etPass2 = view.findViewById(R.id.etPass2);
         etApartmentInfo = view.findViewById(R.id.etApartmentInformation);
+        etSecurityWord = view.findViewById(R.id.etSecurityWordConfig);
         imgProfile = view.findViewById(R.id.imgProfileUpdating);
 
         Button btnCancel = view.findViewById(R.id.btnCancelConfig);
@@ -119,6 +120,7 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
         String pass = etPass.getText().toString().trim();
         String pass2 = etPass2.getText().toString().trim();
         String aptInfo = etApartmentInfo.getText().toString().trim();
+        String securityWord = etSecurityWord.getText().toString().trim();
 
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(aptInfo)) {
             Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
@@ -140,6 +142,7 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
             json.put("email", etEmail.getText().toString().trim());
             json.put("password", pass);
             json.put("apartmentInformation", aptInfo);
+            json.put("securityWord",securityWord);
 
             JsonObjectRequest request = new JsonObjectRequest(
                     Request.Method.PUT,
@@ -178,7 +181,7 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
             Volley.newRequestQueue(requireContext()).add(request);
 
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Execption JSON: " + e.getMessage());
+            Log.e(LOG_TAG, "Execution JSON: " + e.getMessage());
             progressDialog.dismiss();
         }
 
@@ -188,6 +191,7 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
             jsonBody.put("email", email);
             jsonBody.put("passwordHash", pass);
             jsonBody.put("apartmentInformation",aptInfo);
+            jsonBody.put("securityWord",securityWord);
             /*
             if (selectedImageBitmap != null) {
                 jsonBody.put("photo", convertirImagenBase64(selectedImageBitmap));

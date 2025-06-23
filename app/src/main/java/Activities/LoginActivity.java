@@ -34,7 +34,7 @@ import Fragments.ForgotPasswordDialogFragment;
 
 public class LoginActivity extends AppCompatActivity {
     static final String URL = Constants.URL;
-    static final String LOGIN = Constants.AUTH_LOGIN;
+    static final String LOGIN = Constants.AUTH_LOGIN_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
     Button btnLogin;
     EditText editEmail, editPassword;
