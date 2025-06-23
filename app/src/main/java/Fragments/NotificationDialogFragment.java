@@ -1,6 +1,5 @@
 package Fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,13 +35,12 @@ import API.SingleVolley;
 public class NotificationDialogFragment extends DialogFragment {
     static String email = "";
     static final String adminEmail = Constants.ADMIN_EMAIL;
+
     EditText edtEmail, edtSubject, edtComments;
     TextView txtSelectUser;
     Spinner spinnerUser;
 
-    Gson gson = new Gson();
 
-    @SuppressLint("MissingInflatedId")
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -66,10 +64,12 @@ public class NotificationDialogFragment extends DialogFragment {
             spinnerUser.setVisibility(View.GONE);
 
             email = adminEmail;
+
         } else {
             edtEmail.setVisibility(View.GONE);
             txtSelectUser.setVisibility(View.VISIBLE);
             spinnerUser.setVisibility(View.VISIBLE);
+
             loadUserEmails();
         }
 
@@ -89,6 +89,7 @@ public class NotificationDialogFragment extends DialogFragment {
                 intent.setType("message/rfc822");
                 startActivity(Intent.createChooser(intent, "Select a client for emails"));
                 dismiss();
+
             } else {
                 Toast.makeText(getContext(), "Please fill all fields.", Toast.LENGTH_SHORT).show();
             }

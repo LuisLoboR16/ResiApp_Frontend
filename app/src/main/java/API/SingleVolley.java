@@ -8,9 +8,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
 public class SingleVolley {
-
-        private static SingleVolley volleyInstance = null;
-
+    private static SingleVolley volleyInstance = null;
     private final RequestQueue requestQueues;
 
     private SingleVolley(Context context) {
@@ -21,7 +19,6 @@ public class SingleVolley {
         if (volleyInstance == null) {
             volleyInstance = new SingleVolley(context);
         }
-
         return volleyInstance;
     }
 

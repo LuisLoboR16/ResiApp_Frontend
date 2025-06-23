@@ -1,6 +1,5 @@
 package Activities;
 
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,18 +35,18 @@ public class LoginActivity extends AppCompatActivity {
     static final String URL = Constants.URL;
     static final String LOGIN = Constants.AUTH_LOGIN_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
+
     Button btnLogin;
     EditText editEmail, editPassword;
     TextView txtJoinUs, txtForgotPassword;
-
     ImageView ivToggle;
 
-    @SuppressLint({"WrongViewCast", "MissingInflatedId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -60,9 +59,11 @@ public class LoginActivity extends AppCompatActivity {
         ivToggle = findViewById(R.id.ivTogglePassword);
 
         ivToggle.setOnClickListener(v -> {
+
             if (editPassword.getInputType() == (InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)) {
                 editPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                 ivToggle.setImageResource(R.drawable.password_icon);
+
             } else {
                 editPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                 ivToggle.setImageResource(R.drawable.password_icon);

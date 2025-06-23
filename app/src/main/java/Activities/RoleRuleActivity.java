@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import androidx.appcompat.app.AppCompatActivity;
 
 public abstract class RoleRuleActivity extends AppCompatActivity {
-
     protected String userRole;
 
     @Override
@@ -26,16 +25,8 @@ public abstract class RoleRuleActivity extends AppCompatActivity {
     protected boolean isAdmin() {
         return "Admin".equalsIgnoreCase(userRole);
     }
-
     protected boolean isResident() {
         return "Resident".equalsIgnoreCase(userRole);
-    }
-
-    protected boolean hasRole(String... roles) {
-        for (String r : roles) {
-            if (r.equalsIgnoreCase(userRole)) return true;
-        }
-        return false;
     }
 
     protected void roleRules(View rootView) {

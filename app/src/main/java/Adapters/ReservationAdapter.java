@@ -2,7 +2,6 @@ package Adapters;
 
 import static API.Constants.DATE_FORMAT;
 
-import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,20 +18,17 @@ import android.text.Html;
 import java.util.Collections;
 import java.util.List;
 
-import API.Constants;
 import Models.Reservation;
 import Models.Space;
 import Models.User;
 
 public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.ReservationViewHolder> {
-    static final String LOG_TAG = Constants.LOG_TAG;
     private static List<Reservation> reservationList = Collections.emptyList();
     private static List<Space> spaceList = Collections.emptyList();
     private static List<User> userList = Collections.emptyList();
 
     public void setUserList(List<User> userList) {
     }
-
     public interface onReservationActionListener{
         void onUpdate(Reservation reservation, List<User> userList,List<Space> spaceList);
         void onDelete(Reservation reservation);
@@ -55,7 +51,6 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
         return new ReservationViewHolder(view);
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@androidx.annotation.NonNull ReservationViewHolder holder, int position) {
         Reservation reservation = reservationList.get(position);

@@ -1,6 +1,5 @@
 package Adapters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
@@ -26,7 +25,6 @@ import Models.Space;
 import Models.User;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder> {
-    static final String LOG_TAG = Constants.LOG_TAG;
     private static List<Review> reviewList = Collections.emptyList();
     private static List<Space> spaceList = Collections.emptyList();
     private static List<User> userList = Collections.emptyList();
@@ -105,7 +103,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         Button btnUpdate, btnDelete;
         LinearLayout  layoutStars;
 
-        @SuppressLint("WrongViewCast")
         public ReviewViewHolder(@androidx.annotation.NonNull View itemView) {
             super(itemView);
 

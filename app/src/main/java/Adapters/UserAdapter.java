@@ -16,12 +16,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
-
     private static List<User> userList = Collections.emptyList();
 
     public interface OnUserActionListener {
         void onUpdate(User user);
-
         void onDelete(User user);
     }
 

@@ -1,6 +1,5 @@
 package Fragments;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -47,19 +46,23 @@ import Models.User;
 public class CreateReservationDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
     static final String CREATE = Constants.RESERVATIONS_ENDPOINT;
+    static final String DATE_FORMAT_LONG = Constants.DATE_FORMAT_LONG;
+    static final String DATE_TIME_FORMAT = Constants.DATE_TIME_FORMAT;
+    static final String DATE_INVERTED_FORMAT = Constants.DATE_INVERTED_FORMAT;
+    static final String DATE_FORMAT_SHORTEST = Constants.DATE_FORMAT_SHORTEST;
     static final String LOG_TAG = Constants.LOG_TAG;
 
+    private RequestQueue requestQueues;
+    private User currentUser;
     private List<Space> spaceList = new ArrayList<>();
+
     public void setSpaceList(List<Space> spaceList) {
         this.spaceList = spaceList;
     }
-
-    private User currentUser;
     public void setUser(User currentUser) {
         this.currentUser = currentUser;
     }
 
-    private RequestQueue requestQueues;
     String formattedStartTimeDate = "";
     String formattedEndTimeDate = "";
 
@@ -71,11 +74,12 @@ public class CreateReservationDialogFragment extends DialogFragment {
         EditText editStartTime = view.findViewById(R.id.editStartTimecReservation);
         EditText editEndTime = view.findViewById(R.id.editEndTimecReservation);
         EditText editDate = view.findViewById(R.id.editDateReservation);
+        EditText editUser = view.findViewById(R.id.editUsercReservation);
+
         Spinner editSpace = view.findViewById(R.id.editSpinnerSpacecReservation);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editUser = view.findViewById(R.id.editUsercReservation);
 
         Button btnCreate = view.findViewById(R.id.btnCreatecReservation);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnTimeBoard = view.findViewById(R.id.btnTimeBoardcReservation);
+        Button btnTimeBoard = view.findViewById(R.id.btnTimeBoardcReservation);
         Button btnCancel = view.findViewById(R.id.btnCancelcReservation);
 
         editStartTime.setEnabled(false);
@@ -100,13 +104,12 @@ public class CreateReservationDialogFragment extends DialogFragment {
                         calendar.set(Calendar.MONTH, selectedMonth);
                         calendar.set(Calendar.DAY_OF_MONTH, selectedDay);
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                        SimpleDateFormat sdf = new SimpleDateFormat(DATE_INVERTED_FORMAT, Locale.getDefault());
                         String formattedDate = sdf.format(calendar.getTime());
                         editDate.setText(formattedDate);
                     },
                     year, month, day
             );
-
             datePickerDialog.show();
         });
 
@@ -169,8 +172,8 @@ public class CreateReservationDialogFragment extends DialogFragment {
                             List<String> startList = new ArrayList<>();
                             List<String> endList = new ArrayList<>();
 
-                            SimpleDateFormat inFmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-                            SimpleDateFormat outFmt = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+                            SimpleDateFormat inFmt = new SimpleDateFormat(DATE_FORMAT_LONG, Locale.getDefault());
+                            SimpleDateFormat outFmt = new SimpleDateFormat(DATE_FORMAT_SHORTEST, Locale.getDefault());
 
                             for (int i = 0; i < data.length(); i++) {
                                 JSONObject obj = data.getJSONObject(i);
@@ -194,9 +197,10 @@ public class CreateReservationDialogFragment extends DialogFragment {
                                         formattedEndTimeDate = endList.get(which);
 
                                         try {
-                                            SimpleDateFormat display = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                                            SimpleDateFormat display = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.getDefault());
                                             editStartTime.setText(display.format(Objects.requireNonNull(inFmt.parse(formattedStartTimeDate))));
                                             editEndTime.setText(display.format(Objects.requireNonNull(inFmt.parse(formattedEndTimeDate))));
+
                                         } catch (Exception e) {
                                             Log.e(LOG_TAG, "Date parsing error: " + e.getMessage());
                                         }
@@ -296,11 +300,14 @@ public class CreateReservationDialogFragment extends DialogFragment {
                         Log.e(LOG_TAG, "Status code: " + statusCode);
                     }
                     try {
+
                         JSONObject obj = new JSONObject(errorBody);
+
                         if (obj.has("message")) {
                             Log.e(LOG_TAG, obj.getString("message"));
                             Toast.makeText(getContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
                         }
+
                     } catch (Exception e) {
                         Log.e(LOG_TAG, "Error parsing error body: " + e.getMessage());
                     }

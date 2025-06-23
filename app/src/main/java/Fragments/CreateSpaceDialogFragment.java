@@ -1,6 +1,5 @@
 package Fragments;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -39,6 +38,7 @@ public class CreateSpaceDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
     static final String CREATE = Constants.SPACES_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
+
     private List<SpaceRule> spaceRuleList = new ArrayList<>();
     public void setSpaceRuleList(List<SpaceRule> spaceRuleList) {
         this.spaceRuleList = spaceRuleList;
@@ -49,8 +49,9 @@ public class CreateSpaceDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_create_space, null);
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editSpaceName = view.findViewById(R.id.editSpaceNameC);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editCapacity = view.findViewById(R.id.editCapacityC);
+        EditText editSpaceName = view.findViewById(R.id.editSpaceNameC);
+        EditText editCapacity = view.findViewById(R.id.editCapacityC);
+
         Spinner editSpaceRules = view.findViewById(R.id.editSpinnerSpaceRules);
         SwitchCompat editAvailability = view.findViewById(R.id.swAvailabilityC);
 
@@ -72,7 +73,6 @@ public class CreateSpaceDialogFragment extends DialogFragment {
             String capacityStr = editCapacity.getText().toString().trim();
             boolean availability = editAvailability.isChecked();
 
-
             if (TextUtils.isEmpty(spaceName) || TextUtils.isEmpty(capacityStr)) {
                 Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
                 return;
@@ -89,6 +89,7 @@ public class CreateSpaceDialogFragment extends DialogFragment {
             int capacity;
             try {
                 capacity = Integer.parseInt(capacityStr);
+
             } catch (NumberFormatException e) {
                 Toast.makeText(getContext(), "Capacity must be a number", Toast.LENGTH_SHORT).show();
                 return;
@@ -115,7 +116,6 @@ public class CreateSpaceDialogFragment extends DialogFragment {
                 Toast.makeText(getContext(), "Error preparing request", Toast.LENGTH_SHORT).show();
             }
         });
-
 
         btnCancel.setOnClickListener(v -> dismiss());
 

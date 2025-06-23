@@ -1,6 +1,5 @@
 package Fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -48,16 +47,17 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
     static final String GET = URL + Constants.FIND_BY_USER_ID_ENDPOINT;
     static final String UPDATE = URL + Constants.USERS_ENDPOINT+"/";
     static final String LOG_TAG = Constants.LOG_TAG;
-    private EditText etName, etEmail, etPass, etPass2, etApartmentInfo,etSecurityWord;
-    private CircleImageView imgProfile;
-    private User currentUser;
-    public void setUser(User currentUser) {
-        this.currentUser = currentUser;
-    }
     private static final int PICK_IMAGE_REQUEST = 1;
 
 
-    @SuppressLint("MissingInflatedId")
+    private User currentUser;
+    private EditText etName, etEmail, etPass, etPass2, etApartmentInfo,etSecurityWord;
+    private CircleImageView imgProfile;
+    public void setUser(User currentUser) {
+        this.currentUser = currentUser;
+    }
+
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -78,13 +78,15 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
         etApartmentInfo = view.findViewById(R.id.etApartmentInformation);
         etSecurityWord = view.findViewById(R.id.etSecurityWordConfig);
         imgProfile = view.findViewById(R.id.imgProfileUpdating);
+        TextView txtChangePhoto = view.findViewById(R.id.txtChangePhotoUpdating);
+
 
         Button btnCancel = view.findViewById(R.id.btnCancelConfig);
         Button btnUpdate = view.findViewById(R.id.btnUpdateConfig);
-        TextView txtChangePhoto = view.findViewById(R.id.txtChangePhotoUpdating);
 
         imgProfile.setOnClickListener(v -> openGallery());
         txtChangePhoto.setOnClickListener(v -> openGallery());
+
         btnUpdate.setOnClickListener(v -> updateUser());
 
         btnCancel.setOnClickListener(v -> dismiss());

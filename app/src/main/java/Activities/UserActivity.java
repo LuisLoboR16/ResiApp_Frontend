@@ -1,6 +1,5 @@
 package Activities;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -47,12 +46,13 @@ public class UserActivity extends AppCompatActivity {
     static final String DELETE = Constants.USERS_ENDPOINT+"/";
     static final String UPDATE = Constants.USERS_ENDPOINT+"/";
     static final String LOG_TAG = Constants.LOG_TAG;
+
     private RequestQueue requestQueues;
-    Gson gson;
     private List<User> userList;
     private UserAdapter adapter;
+    Gson gson;
 
-    @SuppressLint("MissingInflatedId")
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SingleVolley volley;
@@ -68,7 +68,6 @@ public class UserActivity extends AppCompatActivity {
                 showUpdateForm(user);
             }
 
-            @SuppressLint("SetTextI18n")
             public void onDelete(User user) {
                 View dialogView = LayoutInflater.from(UserActivity.this).inflate(R.layout.activity_delete_user, null);
 
@@ -99,7 +98,7 @@ public class UserActivity extends AppCompatActivity {
                 progressDialog.setMessage("Deleting user...");
                 progressDialog.show();
 
-                @SuppressLint("NotifyDataSetChanged") JsonObjectRequest deleteRequest = new JsonObjectRequest(
+                JsonObjectRequest deleteRequest = new JsonObjectRequest(
                         Request.Method.DELETE,
                         urlDelete,
                         null,
@@ -126,10 +125,12 @@ public class UserActivity extends AppCompatActivity {
 
             private void showUpdateForm(User user) {
                 View dialogView = getLayoutInflater().inflate(R.layout.activity_update_user, null);
+
                 EditText editName = dialogView.findViewById(R.id.editName);
                 EditText editEmail = dialogView.findViewById(R.id.editEmail);
                 EditText editPassword = dialogView.findViewById(R.id.editPassword);
                 EditText editApartmentInformation = dialogView.findViewById(R.id.editApartmentInformation);
+
                 Spinner spinnerRole = dialogView.findViewById(R.id.editSpinnerRole);
 
                 Button btnUpdate = dialogView.findViewById(R.id.btnUpdate);
@@ -162,8 +163,10 @@ public class UserActivity extends AppCompatActivity {
                     user.setEmail(editEmail.getText().toString());
 
                     String newPassword = editPassword.getText().toString();
+
                     if (!newPassword.isEmpty()) {
                         user.setPassword(newPassword);
+
                     } else {
                         user.setPassword(null);
                     }
@@ -204,6 +207,7 @@ public class UserActivity extends AppCompatActivity {
         progressDialog.show();
 
         try {
+
             JSONObject json = new JSONObject();
             json.put("residentName", user.getResidentName());
             json.put("email", user.getEmail());
@@ -268,7 +272,6 @@ public class UserActivity extends AppCompatActivity {
                 urlRequest,
                 null,
                 new Response.Listener<JSONObject>() {
-                    @SuppressLint("NotifyDataSetChanged")
                     @Override
                     public void onResponse(JSONObject response) {
                         try {

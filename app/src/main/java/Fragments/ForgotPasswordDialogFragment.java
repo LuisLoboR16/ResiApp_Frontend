@@ -1,6 +1,5 @@
 package Fragments;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -31,6 +30,7 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
     static final String UPDATE = URL + Constants.FORGOT_PASSWORD_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
+
     EditText editEmail,editSecurityWord,editPassword,editRePassword;
 
     @NonNull
@@ -43,8 +43,8 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
          editPassword = view.findViewById(R.id.etPassForgot);
          editRePassword = view.findViewById(R.id.etPass2Forgot);
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnUpdate = view.findViewById(R.id.btnUpdateForgot);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnCancel = view.findViewById(R.id.btnCancelForgot);
+        Button btnUpdate = view.findViewById(R.id.btnUpdateForgot);
+        Button btnCancel = view.findViewById(R.id.btnCancelForgot);
 
         btnUpdate.setOnClickListener(v ->updateUser());
         btnCancel.setOnClickListener(v -> dismiss());

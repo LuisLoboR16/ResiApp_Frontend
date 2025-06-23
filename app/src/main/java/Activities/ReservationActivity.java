@@ -58,18 +58,22 @@ public class ReservationActivity extends RoleRuleActivity {
     static final String UPDATE = Constants.RESERVATIONS_ENDPOINT+"/";
     static final String GET_SPACE = Constants.SPACES_ENDPOINT;
     static final String GET_USERS = Constants.USERS_ENDPOINT;
-
+    static final String DATE_FORMAT_LONG = Constants.DATE_FORMAT_LONG;
+    static final String DATE_TIME_FORMAT = Constants.DATE_TIME_FORMAT;
+    static final String DATE_INVERTED_FORMAT = Constants.DATE_INVERTED_FORMAT;
     static final String LOG_TAG = Constants.LOG_TAG;
+
     private RequestQueue requestQueues;
-    Gson gson;
     private List<Reservation> reservationList;
     private List<Space> spaceList;
     private List<User> userList;
     private User currentUser;
+    private ReservationAdapter adapter;
+
     String formattedStartTimeDate = "";
     String formattedEndTimeDate = "";
     EditText editStartTime, editEndTime;
-    private ReservationAdapter adapter;
+    Gson gson;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -91,9 +95,7 @@ public class ReservationActivity extends RoleRuleActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerReservation);
         reservationList = new ArrayList<>();
         spaceList = new ArrayList<>();
-        gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
-                .create();
+        gson = new GsonBuilder().setDateFormat(DATE_FORMAT_LONG).create();
         SingleVolley volley = SingleVolley.getInstance(getApplicationContext());
         requestQueues = volley.getRequestQueue();
 
@@ -175,8 +177,8 @@ public class ReservationActivity extends RoleRuleActivity {
                 editEndTime.setEnabled(false);
 
 
-                SimpleDateFormat displayFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                SimpleDateFormat dateOnlyFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                SimpleDateFormat displayFormat = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.getDefault());
+                SimpleDateFormat dateOnlyFormat = new SimpleDateFormat(DATE_INVERTED_FORMAT, Locale.getDefault());
 
                 if (userList == null || userList.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "User list not loaded yet. Try again.", Toast.LENGTH_SHORT).show();
@@ -188,11 +190,11 @@ public class ReservationActivity extends RoleRuleActivity {
                     Date end = reservation.getEndTime();
 
                     if (start != null && end != null) {
-                        SimpleDateFormat apiFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-                        formattedStartTimeDate = apiFormat.format(start);  // ✅ Formato original esperado por el API
+                        SimpleDateFormat apiFormat = new SimpleDateFormat(DATE_FORMAT_LONG, Locale.getDefault());
+                        formattedStartTimeDate = apiFormat.format(start);
                         formattedEndTimeDate = apiFormat.format(end);
 
-                        editStartTime.setText(displayFormat.format(start));  // 🧑‍🎨 Amigable para el usuario
+                        editStartTime.setText(displayFormat.format(start));
                         editEndTime.setText(displayFormat.format(end));
                         editDate.setText(dateOnlyFormat.format(start));
                     }
@@ -271,6 +273,7 @@ public class ReservationActivity extends RoleRuleActivity {
                             (view2, year, month, day) -> {
                                 calendar.set(year, month, day);
                                 editDate.setText(dateOnlyFormat.format(calendar.getTime()));
+
                                 editStartTime.setText("");
                                 editEndTime.setText("");
                                 formattedStartTimeDate = "";
@@ -315,7 +318,7 @@ public class ReservationActivity extends RoleRuleActivity {
                                     List<String> startList = new ArrayList<>();
                                     List<String> endList = new ArrayList<>();
 
-                                    SimpleDateFormat inFmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                                    SimpleDateFormat inFmt = new SimpleDateFormat(DATE_FORMAT_LONG, Locale.getDefault());
                                     SimpleDateFormat outFmt = new SimpleDateFormat("hh:mm a", Locale.getDefault());
 
                                     for (int i = 0; i < data.length(); i++) {
@@ -340,7 +343,7 @@ public class ReservationActivity extends RoleRuleActivity {
                                                 formattedEndTimeDate = endList.get(which);
 
                                                 try {
-                                                    SimpleDateFormat display = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                                                    SimpleDateFormat display = new SimpleDateFormat(DATE_FORMAT_LONG, Locale.getDefault());
                                                     editStartTime.setText(display.format(Objects.requireNonNull(inFmt.parse(formattedStartTimeDate))));
                                                     editEndTime.setText(display.format(Objects.requireNonNull(inFmt.parse(formattedEndTimeDate))));
                                                 } catch (Exception e) {
@@ -459,7 +462,7 @@ public class ReservationActivity extends RoleRuleActivity {
     }
 
     public void createSpaceRequest(String urlRequest) {
-        JsonArrayRequest rulesRequest = new JsonArrayRequest(
+        JsonArrayRequest spaceRequest = new JsonArrayRequest(
                 Request.Method.GET,
                 urlRequest,
                 null,
@@ -483,14 +486,14 @@ public class ReservationActivity extends RoleRuleActivity {
                 }
         );
 
-        rulesRequest.setTag(LOG_TAG);
-        rulesRequest.setRetryPolicy(new DefaultRetryPolicy(
+        spaceRequest.setTag(LOG_TAG);
+        spaceRequest.setRetryPolicy(new DefaultRetryPolicy(
                 DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
                 3,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
 
-        requestQueues.add(rulesRequest);
+        requestQueues.add(spaceRequest);
     }
 
     public void createUserRequest(String urlRequest) {
@@ -501,7 +504,7 @@ public class ReservationActivity extends RoleRuleActivity {
                 response -> {
                     try {
                         userList = new ArrayList<>();
-                        JSONArray usersArray = response.getJSONArray("data"); // ✅ Extraer el array desde el objeto
+                        JSONArray usersArray = response.getJSONArray("data");
 
                         for (int i = 0; i < usersArray.length(); i++) {
                             JSONObject userJson = usersArray.getJSONObject(i);
@@ -553,7 +556,7 @@ public class ReservationActivity extends RoleRuleActivity {
                             Reservation reservation = gson.fromJson(reservationJson.toString(), Reservation.class);
 
                             if (reservation.getUser() == null) {
-                                Log.e(LOG_TAG, "¡Reservation con ID " + reservation.getId() + " no tiene usuario!");
+                                Log.e(LOG_TAG, "Reservation with ID: " + reservation.getId() + " doesn't has an User.");
                             }
 
                             reservationList.add(reservation);

@@ -1,6 +1,5 @@
 package Fragments;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -25,12 +24,8 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import API.Constants;
 import API.SingleVolley;
-import Models.SpaceRule;
 
 public class CreateSpaceRuleDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
@@ -42,9 +37,10 @@ public class CreateSpaceRuleDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_create_space_rule, null);
 
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editSpaceRuleName = view.findViewById(R.id.editSpaceRuleName);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnCreate = view.findViewById(R.id.btnCreateSpaceRule);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Button btnCancel = view.findViewById(R.id.btnCancelSpaceRule);
+        EditText editSpaceRuleName = view.findViewById(R.id.editSpaceRuleName);
+
+        Button btnCreate = view.findViewById(R.id.btnCreateSpaceRule);
+        Button btnCancel = view.findViewById(R.id.btnCancelSpaceRule);
 
         btnCreate.setOnClickListener(v -> {
             String spaceRuleName = editSpaceRuleName.getText().toString().trim();
@@ -72,7 +68,6 @@ public class CreateSpaceRuleDialogFragment extends DialogFragment {
                 Toast.makeText(getContext(), "Error preparing request", Toast.LENGTH_SHORT).show();
             }
         });
-
 
         btnCancel.setOnClickListener(v -> dismiss());
 

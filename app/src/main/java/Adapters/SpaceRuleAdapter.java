@@ -17,12 +17,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class SpaceRuleAdapter extends RecyclerView.Adapter<SpaceRuleAdapter.SpaceRuleViewHolder> {
-
     private static List<SpaceRule> spaceRuleList = Collections.emptyList();
 
     public interface OnSpaceRuleActionListener {
         void onUpdate(SpaceRule spaceRule);
-
         void onDelete(SpaceRule spaceRule);
     }
 

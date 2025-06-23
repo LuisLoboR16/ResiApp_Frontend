@@ -1,6 +1,5 @@
 package Activities;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -9,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,10 +43,11 @@ public class SpaceRuleActivity extends AppCompatActivity {
     static final String DELETE = Constants.SPACE_RULES_ENDPOINT+"/";
     static final String UPDATE = Constants.SPACE_RULES_ENDPOINT+"/";
     static final String LOG_TAG = Constants.LOG_TAG;
+
     private RequestQueue requestQueues;
-    Gson gson;
     private List<SpaceRule> spaceRulesList;
     private SpaceRuleAdapter adapter;
+    Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +71,6 @@ public class SpaceRuleActivity extends AppCompatActivity {
                 showUpdateForm(spaceRule);
             }
 
-            @SuppressLint("CutPasteId")
             @Override
             public void onDelete(SpaceRule spaceRule) {
                 View dialogView = LayoutInflater.from(SpaceRuleActivity.this).inflate(R.layout.activity_delete_space_rule, null);
@@ -101,7 +99,7 @@ public class SpaceRuleActivity extends AppCompatActivity {
                 progressDialog.setMessage("Deleting space rule...");
                 progressDialog.show();
 
-                @SuppressLint("NotifyDataSetChanged") JsonObjectRequest deleteRequest = new JsonObjectRequest(
+                JsonObjectRequest deleteRequest = new JsonObjectRequest(
                         Request.Method.DELETE,
                         urlDelete,
                         null,
@@ -135,7 +133,7 @@ public class SpaceRuleActivity extends AppCompatActivity {
 
             private void showUpdateForm(SpaceRule spaceRule) {
                 View dialogView = getLayoutInflater().inflate(R.layout.activity_update_space_rule, null);
-                @SuppressLint({"MissingInflatedId", "LocalSuppress"}) EditText editRule = dialogView.findViewById(R.id.editRule);
+                EditText editRule = dialogView.findViewById(R.id.editRule);
 
                 Button btnUpdate= dialogView.findViewById(R.id.btnUpdate);
                 Button btnCancel= dialogView.findViewById(R.id.btnCancel);
@@ -223,7 +221,7 @@ public class SpaceRuleActivity extends AppCompatActivity {
             requestQueues.add(request);
 
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Excepction JSON: " + e.getMessage());
+            Log.e(LOG_TAG, "Exception JSON: " + e.getMessage());
             progressDialog.dismiss();
         }
     }
@@ -238,21 +236,25 @@ public class SpaceRuleActivity extends AppCompatActivity {
         pDialog.setMessage("Loading space rules...");
         pDialog.show();
 
-        @SuppressLint("NotifyDataSetChanged") JsonArrayRequest newRequest = new JsonArrayRequest(
+        JsonArrayRequest newRequest = new JsonArrayRequest(
                 Request.Method.GET,
                 urlRequest,
                 null,
                 response -> {
+
                     try {
                         spaceRulesList.clear();
+
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject ruleJson = response.getJSONObject(i);
                             SpaceRule spaceRule = gson.fromJson(ruleJson.toString(), SpaceRule.class);
                             spaceRulesList.add(spaceRule);
                         }
                         adapter.notifyDataSetChanged();
+
                     } catch (Exception e) {
                         Log.e(LOG_TAG, "Error processing response: " + e.getMessage());
+
                     } finally {
                         pDialog.dismiss();
                     }

@@ -39,9 +39,9 @@ public class CreateUserDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
     static final String CREATE = Constants.USERS_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
-    private CircleImageView imgProfile;
     private static final int PICK_IMAGE_REQUEST = 1;
 
+    private CircleImageView imgProfile;
 
     @NonNull
     @Override
@@ -54,11 +54,12 @@ public class CreateUserDialogFragment extends DialogFragment {
         EditText editRePassword = view.findViewById(R.id.editRePassword);
         EditText editSecurityWord = view.findViewById(R.id.editSecurityWordcUser);
         EditText editApartment = view.findViewById(R.id.editApartmentInformation);
+        TextView txtChangePhoto = view.findViewById(R.id.txtChangePhoto);
+
         imgProfile = view.findViewById(R.id.imgProfile);
 
         Button btnCreate = view.findViewById(R.id.btnCreate);
         Button btnCancel = view.findViewById(R.id.btnCancel);
-        TextView txtChangePhoto = view.findViewById(R.id.txtChangePhoto);
 
         imgProfile.setOnClickListener(v -> openGallery());
         txtChangePhoto.setOnClickListener(v -> openGallery());

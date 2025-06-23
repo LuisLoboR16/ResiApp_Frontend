@@ -24,7 +24,6 @@ import Fragments.NotificationDialogFragment;
 import Fragments.UpdateConfigurationsDialogFragment;
 
 public class ResidentDashboardActivity extends AppCompatActivity {
-
     LinearLayout layoutNotifications, layoutConfigurations, layoutReviews, layoutReservations;
     TextView txtNotifications, txtConfigurations, txtReviews, txtReservations;
     ImageView imgNotifications, imgConfigurations, imgReviews, imgReservations;

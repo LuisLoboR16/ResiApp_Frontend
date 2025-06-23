@@ -1,6 +1,5 @@
 package Fragments;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -42,16 +41,15 @@ public class CreateReviewDialogFragment extends DialogFragment {
     static final String CREATE = Constants.REVIEWS_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
 
+    private User currentUser;
     private List<Space> spaceList = new ArrayList<>();
     public void setSpaceList(List<Space> spaceList) {
         this.spaceList = spaceList;
     }
-    private User currentUser;
     public void setUser(User currentUser) {
         this.currentUser = currentUser;
     }
 
-    @SuppressLint("SetTextI18n")
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -60,7 +58,8 @@ public class CreateReviewDialogFragment extends DialogFragment {
         Spinner editRating = view.findViewById(R.id.editSpinnerRating);
         EditText editComment = view.findViewById(R.id.editComment);
         EditText editUser = view.findViewById(R.id.editUserReview);
-        @SuppressLint({"MissingInflatedId", "LocalSuppress"}) Spinner editSpace = view.findViewById(R.id.editSpinnerSpace);
+
+        Spinner editSpace = view.findViewById(R.id.editSpinnerSpace);
 
         Button btnCreate = view.findViewById(R.id.btnCreate);
         Button btnCancel = view.findViewById(R.id.btnCancel);

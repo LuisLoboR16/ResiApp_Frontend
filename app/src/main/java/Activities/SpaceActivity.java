@@ -1,6 +1,5 @@
 package Activities;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -51,13 +50,13 @@ public class SpaceActivity extends AppCompatActivity {
     static final String UPDATE = Constants.SPACES_ENDPOINT+"/";
     static final String GET_RULES = Constants.SPACE_RULES_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
+
     private RequestQueue requestQueues;
-    Gson gson;
     private List<Space> spaceList;
     private List<SpaceRule> spaceRuleList;
     private SpaceAdapter adapter;
+    Gson gson;
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,7 +118,7 @@ public class SpaceActivity extends AppCompatActivity {
                 progressDialog.setMessage("Deleting space...");
                 progressDialog.show();
 
-                @SuppressLint("NotifyDataSetChanged") StringRequest deleteRequest = new StringRequest(
+                StringRequest deleteRequest = new StringRequest(
                         Request.Method.DELETE,
                         urlDelete,
                         response -> {
@@ -318,7 +317,7 @@ public class SpaceActivity extends AppCompatActivity {
         pDialog.setMessage("Loading spaces...");
         pDialog.show();
 
-        @SuppressLint("NotifyDataSetChanged") JsonArrayRequest newRequest = new JsonArrayRequest(
+        JsonArrayRequest newRequest = new JsonArrayRequest(
                 Request.Method.GET,
                 urlRequest,
                 null,

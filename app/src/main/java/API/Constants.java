@@ -19,4 +19,8 @@ public class Constants {
     public static final String DATE_SLOTS = "&date=";
     public static final String ADMIN_EMAIL = "Admin@Resiapp.es";
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("EEE dd/MM/yyyy HH:mm", Locale.ENGLISH);
+    public static final String DATE_FORMAT_LONG = "yyyy-MM-dd'T'HH:mm:ss";
+    public static final String DATE_TIME_FORMAT = "dd/MM/yyyy HH:mm";
+    public static final String DATE_INVERTED_FORMAT = "yyyy-MM-dd";
+    public static final String DATE_FORMAT_SHORTEST = "hh:mm a";
 }

@@ -1,6 +1,5 @@
 package Activities;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -48,16 +47,15 @@ public class ReviewActivity extends RoleRuleActivity {
     static final String UPDATE = Constants.REVIEWS_ENDPOINT+"/";
     static final String GET_SPACE = Constants.SPACES_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
+
     private RequestQueue requestQueues;
-    Gson gson;
+    private ReviewAdapter adapter;
     private List<Review> reviewList;
     private List<Space> spaceList;
     private List<User> userList;
     private User currentUser;
+    Gson gson;
 
-    private ReviewAdapter adapter;
-
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +90,7 @@ public class ReviewActivity extends RoleRuleActivity {
 
             @Override
             public void onDelete(Review review) {
-                @SuppressLint("InflateParams") View dialogView = LayoutInflater.from(ReviewActivity.this)
+                View dialogView = LayoutInflater.from(ReviewActivity.this)
                         .inflate(R.layout.activity_delete_review, null);
 
                 Button btnDelete = dialogView.findViewById(R.id.btnDeleteReview);
@@ -118,7 +116,7 @@ public class ReviewActivity extends RoleRuleActivity {
                 progressDialog.setMessage("Deleting review...");
                 progressDialog.show();
 
-                @SuppressLint("NotifyDataSetChanged") StringRequest deleteRequest = new StringRequest(
+                StringRequest deleteRequest = new StringRequest(
                         Request.Method.DELETE,
                         urlDelete,
                         response -> {
@@ -326,7 +324,7 @@ public class ReviewActivity extends RoleRuleActivity {
         pDialog.setMessage("Loading reviews...");
         pDialog.show();
 
-        @SuppressLint("NotifyDataSetChanged") JsonArrayRequest newRequest = new JsonArrayRequest(
+        JsonArrayRequest newRequest = new JsonArrayRequest(
                 Request.Method.GET,
                 urlRequest,
                 null,
