@@ -4,9 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -14,7 +14,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -35,36 +34,41 @@ import com.google.gson.GsonBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import API.SingleVolley;
 import API.Constants;
 import Adapters.ReservationAdapter;
-
+import Fragments.CreateReservationDialogFragment;
 import Models.Reservation;
 import Models.Space;
 import Models.User;
 
-public class ReservationActivity extends AppCompatActivity {
+public class ReservationActivity extends RoleRuleActivity {
     static final String URL = Constants.URL;
     static final String GET = Constants.RESERVATIONS_ENDPOINT;
     static final String DELETE = Constants.RESERVATIONS_ENDPOINT+"/";
     static final String UPDATE = Constants.RESERVATIONS_ENDPOINT+"/";
     static final String GET_SPACE = Constants.SPACES_ENDPOINT;
+    static final String GET_USERS = Constants.USERS_ENDPOINT;
+
     static final String LOG_TAG = Constants.LOG_TAG;
-    static String formattedStartTimeDate = "";
-    static String formattedEndTimeDate = "";
     private RequestQueue requestQueues;
     Gson gson;
     private List<Reservation> reservationList;
     private List<Space> spaceList;
     private List<User> userList;
     private User currentUser;
-
+    String formattedStartTimeDate = "";
+    String formattedEndTimeDate = "";
+    EditText editStartTime, editEndTime;
     private ReservationAdapter adapter;
 
     @SuppressLint("MissingInflatedId")
@@ -72,59 +76,55 @@ public class ReservationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reservation);
-        /*
-        FloatingActionButton btnCreateSpace = findViewById(R.id.btnCreateReview);
-        btnCreateSpace.setOnClickListener(v -> {
-            CreateReviewDialogFragment dialog = new CreateReviewDialogFragment();
+
+        roleRules(findViewById(android.R.id.content));
+
+        FloatingActionButton btnCreateReservation = findViewById(R.id.btnCreatecReservation);
+        btnCreateReservation.setOnClickListener(v -> {
+            CreateReservationDialogFragment dialog = new CreateReservationDialogFragment();
             dialog.setUser(currentUser);
             dialog.setSpaceList(spaceList);
-            dialog.setOnReviewCreated(() -> createReviewRequest(URL + GET));
-            dialog.show(getSupportFragmentManager(), "CreateReviewDialog");
+            dialog.setOnReservationCreated(() -> createReservationRequest(URL + GET));
+            dialog.show(getSupportFragmentManager(), "CreateReservationDialogFragment");
         });
-
-         */
 
         RecyclerView recyclerView = findViewById(R.id.recyclerReservation);
         reservationList = new ArrayList<>();
         spaceList = new ArrayList<>();
         gson = new GsonBuilder()
-                .setDateFormat("yyyy-MM-dd'T'HH:mm")
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
                 .create();
-
         SingleVolley volley = SingleVolley.getInstance(getApplicationContext());
         requestQueues = volley.getRequestQueue();
 
         createSpaceRequest(URL + GET_SPACE);
+        createUserRequest(URL + GET_USERS);
         adapter = new ReservationAdapter(reservationList,userList,spaceList,new ReservationAdapter.onReservationActionListener() {
 
             @Override
-            public void onUpdate(Reservation reservation, List<User> userList,List<Space> spaceList) {
+            public void onUpdate(Reservation reservation, List<User> userList, List<Space> spaceList) {
                 showUpdateForm(reservation,spaceList);
             }
 
             @Override
             public void onDelete(Reservation reservation) {
+                @SuppressLint("InflateParams") View dialogView = LayoutInflater.from(ReservationActivity.this)
+                        .inflate(R.layout.activity_delete_reservation, null);
+
+                Button btnDelete = dialogView.findViewById(R.id.btnDeleteReservation);
+                Button btnCancel = dialogView.findViewById(R.id.btnCancelDeleteReservation);
+
                 AlertDialog dialog = new AlertDialog.Builder(ReservationActivity.this)
-                        .setTitle("\uD83D\uDDD1 Confirm action")
-                        .setMessage("¿Are you sure to delete reservation for\n\n*" + reservation.getSpace() + "at: " + reservation.getStartTime() + " - " + reservation.getEndTime() + "*?\n\nThis action can't be undone.")
-                        .setPositiveButton("Delete", null)
-                        .setNegativeButton("Cancel", null)
+                        .setView(dialogView)
                         .create();
 
-                dialog.setOnShowListener(dialogInterface -> {
-                    Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-
-                    positive.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                    negative.setTextColor(getResources().getColor(android.R.color.darker_gray));
-
-                    positive.setOnClickListener(v -> {
-                        deleteReservation(reservation);
-                        dialog.dismiss();
-                    });
-
-                    negative.setOnClickListener(v -> dialog.dismiss());
+                btnDelete.setOnClickListener(v -> {
+                    deleteReservation(reservation);
+                    dialog.dismiss();
                 });
+
+                btnCancel.setOnClickListener(v -> dialog.dismiss());
+
                 dialog.show();
             }
 
@@ -159,113 +159,228 @@ public class ReservationActivity extends AppCompatActivity {
             }
 
             private void showUpdateForm(Reservation reservation, List<Space> spaceList) {
-                View dialogView = getLayoutInflater().inflate(R.layout.activity_update_reservation, null);
-                EditText editStartTime = dialogView.findViewById(R.id.editStartTime);
-                EditText editEndTime = dialogView.findViewById(R.id.editEndTime);
-                Spinner spinnerSpacesReservation = dialogView.findViewById(R.id.spinnerSpacesReservation);
+                View view = getLayoutInflater().inflate(R.layout.activity_update_reservation, null);
 
-                Button btnUpdate = dialogView.findViewById(R.id.btnUpdate);
-                Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+                 editStartTime = view.findViewById(R.id.editStartTimeUpdateReservation);
+                 editEndTime = view.findViewById(R.id.editEndTimeUpdateReservation);
+                EditText editDate = view.findViewById(R.id.editDateUpdateReservation);
+                Spinner editSpace = view.findViewById(R.id.editSpinnerSpaceUpdateReservation);
+                Spinner editUser = view.findViewById(R.id.editSpinnerUserUpdateReservation);
 
-                editStartTime.setOnClickListener(v -> {
-                    final Calendar calendar = Calendar.getInstance();
-                    DatePickerDialog datePickerDialog = new DatePickerDialog(
-                            v.getContext(),
-                            (view, year, month, dayOfMonth) -> {
-                                TimePickerDialog timePickerDialog = new TimePickerDialog(
-                                        v.getContext(),
-                                        (view1, hourOfDay, minute) -> {
-                                            calendar.set(year, month, dayOfMonth, hourOfDay, minute);
+                Button btnUpdate = view.findViewById(R.id.btnUpdateReservation);
+                Button btnTimeBoard = view.findViewById(R.id.btnTimeBoardUpdateReservation);
+                Button btnCancel = view.findViewById(R.id.btnCancelUpdateReservation);
 
-                                            @SuppressLint("SimpleDateFormat")
-                                            SimpleDateFormat sdfDisplay = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                                            editStartTime.setText(sdfDisplay.format(calendar.getTime()));
+                editStartTime.setEnabled(false);
+                editEndTime.setEnabled(false);
 
-                                            SimpleDateFormat sdfSend = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.getDefault());
-                                            formattedStartTimeDate = sdfSend.format(calendar.getTime());
-                                        },
-                                        calendar.get(Calendar.HOUR_OF_DAY),
-                                        calendar.get(Calendar.MINUTE),
-                                        true
-                                );
-                                timePickerDialog.show();
-                            },
-                            calendar.get(Calendar.YEAR),
-                            calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH)
-                    );
-                    datePickerDialog.show();
-                });
 
-                editEndTime.setOnClickListener(v -> {
-                    final Calendar calendar = Calendar.getInstance();
-                    DatePickerDialog datePickerDialog = new DatePickerDialog(
-                            v.getContext(),
-                            (view, year, month, dayOfMonth) -> {
-                                TimePickerDialog timePickerDialog = new TimePickerDialog(
-                                        v.getContext(),
-                                        (view1, hourOfDay, minute) -> {
-                                            calendar.set(year, month, dayOfMonth, hourOfDay, minute);
+                SimpleDateFormat displayFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                SimpleDateFormat dateOnlyFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-                                            @SuppressLint("SimpleDateFormat")
-                                            SimpleDateFormat sdfDisplay = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                                            editEndTime.setText(sdfDisplay.format(calendar.getTime()));
-
-                                            SimpleDateFormat sdfSend = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.getDefault());
-                                            formattedEndTimeDate = sdfSend.format(calendar.getTime());
-                                        },
-                                        calendar.get(Calendar.HOUR_OF_DAY),
-                                        calendar.get(Calendar.MINUTE),
-                                        true
-                                );
-                                timePickerDialog.show();
-                            },
-                            calendar.get(Calendar.YEAR),
-                            calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH)
-                    );
-                    datePickerDialog.show();
-                });
-
-                List<String> spaceNames = new ArrayList<>();
-                for (Space spaces: spaceList){
-                    spaceNames.add(spaces.getSpaceName());
+                if (userList == null || userList.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "User list not loaded yet. Try again.", Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
-                Log.d(LOG_TAG, "Loading spinner with " + spaceNames.size() + " spaces");
-                ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
-                        ReservationActivity.this,
-                        android.R.layout.simple_spinner_item,
-                        spaceNames
-                );
-                spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinnerSpacesReservation.setAdapter(spinnerAdapter);
+                try {
+                    Date start = reservation.getStartTime();
+                    Date end = reservation.getEndTime();
 
-                int selectedIndex = 0;
-                int currentSpaceId = reservation.getSpace().getId();
-                for (int i = 0; i < spaceList.size(); i++) {
-                    if (spaceList.get(i).getId() == currentSpaceId) {
-                        selectedIndex = i;
-                        break;
+                    if (start != null && end != null) {
+                        SimpleDateFormat apiFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                        formattedStartTimeDate = apiFormat.format(start);  // ✅ Formato original esperado por el API
+                        formattedEndTimeDate = apiFormat.format(end);
+
+                        editStartTime.setText(displayFormat.format(start));  // 🧑‍🎨 Amigable para el usuario
+                        editEndTime.setText(displayFormat.format(end));
+                        editDate.setText(dateOnlyFormat.format(start));
                     }
+
+                    List<String> userNames = new ArrayList<>();
+                    for (User user : userList) {
+                        userNames.add(user.getResidentName());
+                    }
+
+                    ArrayAdapter<String> userAdapter = new ArrayAdapter<>(
+                            ReservationActivity.this,
+                            android.R.layout.simple_spinner_item,
+                            userNames
+                    );
+                    userAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    editUser.setAdapter(userAdapter);
+
+                    for (int i = 0; i < userList.size(); i++) {
+                        if (userList.get(i).getId() == reservation.getUser().getId()) {
+                            editUser.setSelection(i);
+                            break;
+                        }
+                    }
+
+                    List<String> spaceNames = new ArrayList<>();
+                    for (Space name : spaceList) {
+                        spaceNames.add(name.getSpaceName());
+                    }
+
+                    ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                            ReservationActivity.this,
+                            android.R.layout.simple_spinner_item,
+                            spaceNames
+                    );
+                    spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    editSpace.setAdapter(spinnerAdapter);
+
+                     boolean[] isInitialSelection = {true};
+
+                    editSpace.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                            if (isInitialSelection[0]) {
+                                isInitialSelection[0] = false;
+                                return;
+                            }
+
+                            editStartTime.setText("");
+                            editEndTime.setText("");
+                            formattedStartTimeDate = "";
+                            formattedEndTimeDate = "";
+                        }
+
+                        @Override
+                        public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                        }
+                    });
+
+                    for (int i = 0; i < spaceList.size(); i++) {
+                        if (spaceList.get(i).getId() == reservation.getSpace().getId()) {
+                            editSpace.setSelection(i);
+                            break;
+                        }
+                    }
+
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "Error preloading data: " + e.getMessage());
                 }
-                spinnerSpacesReservation.setSelection(selectedIndex);
+
+                editDate.setFocusable(false);
+                editDate.setOnClickListener(view1 -> {
+
+                    final Calendar calendar = Calendar.getInstance();
+                    DatePickerDialog datePickerDialog = new DatePickerDialog(
+                            ReservationActivity.this,
+                            (view2, year, month, day) -> {
+                                calendar.set(year, month, day);
+                                editDate.setText(dateOnlyFormat.format(calendar.getTime()));
+                                editStartTime.setText("");
+                                editEndTime.setText("");
+                                formattedStartTimeDate = "";
+                                formattedEndTimeDate = "";
+                            },
+                            calendar.get(Calendar.YEAR),
+                            calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH)
+                    );
+                    datePickerDialog.show();
+                });
 
                 AlertDialog dialog = new AlertDialog.Builder(ReservationActivity.this)
-                        .setView(dialogView)
+                        .setView(view)
                         .create();
 
-                btnUpdate.setOnClickListener(view -> {
-                    int selectedPosition = spinnerSpacesReservation.getSelectedItemPosition();
-                    Space selectedSpace = spaceList.get(selectedPosition);
-                    Log.d(LOG_TAG, "Selected space: " + selectedSpace.getId());
-                    reservation.setSpace(selectedSpace);
+                btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+                btnTimeBoard.setOnClickListener(v -> {
+                            String selectedDate = editDate.getText().toString().trim();
+                            if (selectedDate.isEmpty()) {
+                                Toast.makeText(ReservationActivity.this, "Select a date first", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                    int selectedIndex = editSpace.getSelectedItemPosition();
+                    Space selectedSpace = spaceList.get(selectedIndex);
+                    int spaceId = selectedSpace.getId();
+
+                    String url = URL + Constants.FIND_RESERVATIONS_BY_AVAILABLE_SLOTS + spaceId + Constants.DATE_SLOTS + selectedDate + Constants.SLOT_MINUTES_SLOTS;
+
+                    JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                            response -> {
+                                try {
+                                    JSONArray data = response.getJSONArray("data");
+                                    if (data.length() == 0) {
+                                        Toast.makeText(ReservationActivity.this, "No available time slots", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+
+                                    List<String> labels = new ArrayList<>();
+                                    List<String> startList = new ArrayList<>();
+                                    List<String> endList = new ArrayList<>();
+
+                                    SimpleDateFormat inFmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                                    SimpleDateFormat outFmt = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+
+                                    for (int i = 0; i < data.length(); i++) {
+                                        JSONObject obj = data.getJSONObject(i);
+                                        String startTime = obj.getString("startTime");
+                                        String endTime = obj.getString("endTime");
+
+                                        Date start = inFmt.parse(startTime);
+                                        Date end = inFmt.parse(endTime);
+
+                                        assert start != null;
+                                        assert end != null;
+                                        labels.add(outFmt.format(start) + " - " + outFmt.format(end));
+                                        startList.add(startTime);
+                                        endList.add(endTime);
+                                    }
+
+                                    new AlertDialog.Builder(ReservationActivity.this)
+                                            .setTitle("Select available time slot")
+                                            .setItems(labels.toArray(new String[0]), (dialog3, which) -> {
+                                                formattedStartTimeDate = startList.get(which);
+                                                formattedEndTimeDate = endList.get(which);
+
+                                                try {
+                                                    SimpleDateFormat display = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                                                    editStartTime.setText(display.format(Objects.requireNonNull(inFmt.parse(formattedStartTimeDate))));
+                                                    editEndTime.setText(display.format(Objects.requireNonNull(inFmt.parse(formattedEndTimeDate))));
+                                                } catch (Exception e) {
+                                                    Log.e(LOG_TAG, "Date parsing error: " + e.getMessage());
+                                                }
+                                            })
+                                            .show();
+
+                                } catch (Exception e) {
+                                    Toast.makeText(ReservationActivity.this, "Error processing response", Toast.LENGTH_SHORT).show();
+                                }
+                            },
+                            error -> Toast.makeText(ReservationActivity.this, "You can't select a previous date from today.", Toast.LENGTH_SHORT).show()
+                    );
+
+                    requestQueues.add(request);
+                        });
+
+                btnUpdate.setOnClickListener(view1 -> {
+                    int selectedUserIndex = editUser.getSelectedItemPosition();
+                    int selectedSpaceIndex = editSpace.getSelectedItemPosition();
+
+                    if (selectedUserIndex < 0 || selectedSpaceIndex < 0) {
+                        Toast.makeText(ReservationActivity.this, "Please select valid data", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (formattedStartTimeDate == null || formattedStartTimeDate.trim().isEmpty() ||
+                            formattedEndTimeDate == null || formattedEndTimeDate.trim().isEmpty()) {
+                        Toast.makeText(ReservationActivity.this, "You must select a time range before updating.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    reservation.setUser(userList.get(selectedUserIndex));
+                    reservation.setSpace(spaceList.get(selectedSpaceIndex));
 
                     updateReservation(reservation);
                     dialog.dismiss();
                 });
 
-                btnCancel.setOnClickListener(view -> dialog.dismiss());
                 dialog.show();
             }
         });
@@ -289,11 +404,13 @@ public class ReservationActivity extends AppCompatActivity {
         progressDialog.show();
 
         try {
-            JSONObject json = new JSONObject();
-            json.put("startTime", formattedStartTimeDate);
-            json.put("endTime", formattedStartTimeDate);
-            json.put("residentId", reservation.getUser().getId());
-            json.put("spaceId", reservation.getSpace().getId());
+            JSONObject requestBody = new JSONObject();
+
+            requestBody.put("startTime", formattedStartTimeDate);
+            requestBody.put("endTime", formattedEndTimeDate);
+            requestBody.put("spaceId", reservation.getSpace().getId());
+            requestBody.put("residentId", reservation.getUser().getId());
+
 
             StringRequest request = new StringRequest(
                     Request.Method.PUT,
@@ -312,13 +429,13 @@ public class ReservationActivity extends AppCompatActivity {
                                 Log.e(LOG_TAG, "Error body: " + errorBody);
                             }
                         }
-                        Toast.makeText(this, "Error updating", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Error updating reservation", Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                     }
             ) {
                 @Override
                 public byte[] getBody() {
-                    return json.toString().getBytes();
+                    return requestBody.toString().getBytes(StandardCharsets.UTF_8);
                 }
 
                 @Override
@@ -376,6 +493,48 @@ public class ReservationActivity extends AppCompatActivity {
         requestQueues.add(rulesRequest);
     }
 
+    public void createUserRequest(String urlRequest) {
+        JsonObjectRequest userRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                urlRequest,
+                null,
+                response -> {
+                    try {
+                        userList = new ArrayList<>();
+                        JSONArray usersArray = response.getJSONArray("data"); // ✅ Extraer el array desde el objeto
+
+                        for (int i = 0; i < usersArray.length(); i++) {
+                            JSONObject userJson = usersArray.getJSONObject(i);
+                            User user = gson.fromJson(userJson.toString(), User.class);
+                            userList.add(user);
+                        }
+
+                        Log.d(LOG_TAG, "Users loaded: " + userList.size());
+
+                        if (adapter != null) {
+                            adapter.setUserList(userList);
+                            adapter.notifyDataSetChanged();
+                        }
+
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, "Error parsing user list: " + e.getMessage());
+                    }
+                },
+                error -> {
+                    Log.e(LOG_TAG, "Error fetching users: " + error.toString());
+                    Toast.makeText(this, "Failed to load users", Toast.LENGTH_SHORT).show();
+                }
+        );
+
+        userRequest.setTag(LOG_TAG);
+        userRequest.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
+                3,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
+
+        requestQueues.add(userRequest);
+    }
     public void createReservationRequest(String urlRequest) {
         ProgressDialog pDialog = new ProgressDialog(this);
         pDialog.setMessage("Loading reservations...");
@@ -389,14 +548,14 @@ public class ReservationActivity extends AppCompatActivity {
                     try {
                         reservationList.clear();
                         JSONArray dataArray = response.getJSONArray("data");
-
                         for (int c = 0; c < dataArray.length(); c++) {
-                            JSONObject itemJson = dataArray.getJSONObject(c);
-                            Reservation reservation = gson.fromJson(itemJson.toString(), Reservation.class);
+                            JSONObject reservationJson = dataArray.getJSONObject(c);
+                            Reservation reservation = gson.fromJson(reservationJson.toString(), Reservation.class);
 
                             if (reservation.getUser() == null) {
                                 Log.e(LOG_TAG, "¡Reservation con ID " + reservation.getId() + " no tiene usuario!");
                             }
+
                             reservationList.add(reservation);
                         }
                         Log.d(LOG_TAG, "Reservations loaded: " + reservationList.size());

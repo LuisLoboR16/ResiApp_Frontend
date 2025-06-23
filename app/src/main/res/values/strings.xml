@@ -46,8 +46,10 @@
     <string name="delete_user">¿Are you sure you want to delete this user?</string>
     <string name="delete_review">¿Are you sure you want to delete this review?</string>
     <string name="delete_space">¿Are you sure you want to delete this space?</string>
+    <string name="delete_reservation">¿Are you sure you want to delete this reservation?</string>
     <string name="delete_space_rule">¿Are you sure you want to delete this space rule?</string>
     <string name="confirm_deletion">🗑 Confirm Delete to User</string>
+    <string name="confirm_deletion_reservation">🗑 Confirm Delete</string>
     <string name="confirm_deletion_review">🗑 Confirm Delete Review</string>
     <string name="confirm_deletion_space">🗑 Confirm Delete Space</string>
     <string name="confirm_deletion_space_rule">🗑 Confirm Delete Space Rule</string>
@@ -62,6 +64,7 @@
     <string name="space_rules">Space Rules</string>
     <string name="select_user">Select User</string>
     <string name="create_space">Create Space</string>
+    <string name="create_reservation">Create Reservation</string>
     <string name="space_name">Space Name</string>
     <string name="capacity">Capacity</string>
     <string name="availability">Availability</string>
@@ -69,6 +72,13 @@
     <string name="update_space">Update Space</string>
     <string name="spacerule">SpaceRule</string>
     <string name="create_spacerule">Create SpaceRule</string>
+    <string name="start_time">Start time</string>
+    <string name="end_time">End time</string>
+    <string name="timeboard">TimeBoard</string>
+    <string name="date">Date</string>
+    <string name="add_reservation">Add Reservation</string>
+    <string name="select_date">Select Date</string>
+    <string name="update_reservation">Update Reservation</string>
     <string-array name="roles_array">
         <item>Resident</item>
         <item>Admin</item>

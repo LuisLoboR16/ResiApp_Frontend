@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="UseSwitchCompatOrMaterialXml">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/create_reservation"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:id="@+id/tvSelectDatecReservation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:text="@string/select_date"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/date"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editDateReservation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/date"
+                android:autofillHints="name"
+                android:inputType="datetime"
+                android:padding="16dp"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="0dp"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/start_time"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editStartTimecReservation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/start_time"
+                android:autofillHints="name"
+                android:inputType="datetime"
+                android:padding="16dp"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="0dp"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/end_time"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editEndTimecReservation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/end_time"
+                android:autofillHints="name"
+                android:inputType="datetime"
+                android:padding="16dp"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="0dp"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/user"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editUsercReservation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/user"
+                android:autofillHints="name"
+                android:inputType="text"
+                android:padding="16dp"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="0dp"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tvSelectSpacecReservation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="-20dp"
+            android:text="@string/select_space"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/editSpinnerSpacecReservation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp"
+            android:padding="12dp"
+            android:background="?android:attr/editTextBackground"
+            android:spinnerMode="dropdown"
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btnCancelcReservation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel"
+                android:layout_gravity="center"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#D32F2F"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btnTimeBoardcReservation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/timeboard"
+                android:layout_gravity="center"
+                android:backgroundTint="@color/design_default_color_secondary_variant"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btnCreatecReservation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create"
+                android:layout_gravity="center" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

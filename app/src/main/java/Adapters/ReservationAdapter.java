@@ -1,5 +1,7 @@
 package Adapters;
 
+import static API.Constants.DATE_FORMAT;
+
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,10 +16,8 @@ import com.example.resiapp.R;
 import org.jspecify.annotations.NonNull;
 
 import android.text.Html;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import API.Constants;
 import Models.Reservation;
@@ -29,6 +29,9 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
     private static List<Reservation> reservationList = Collections.emptyList();
     private static List<Space> spaceList = Collections.emptyList();
     private static List<User> userList = Collections.emptyList();
+
+    public void setUserList(List<User> userList) {
+    }
 
     public interface onReservationActionListener{
         void onUpdate(Reservation reservation, List<User> userList,List<Space> spaceList);
@@ -62,15 +65,13 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
         holder.tvReservationNumber.setText("Reservation #" + reservation.getId());
 
         if (reservation.getStartTime() != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE dd/MM/yyyy HH:mm", Locale.ENGLISH);
-            holder.tvStartTime.setText(Html.fromHtml("<b>From:</b> " + sdf.format(reservation.getStartTime())));
+            holder.tvStartTime.setText(Html.fromHtml("<b>From:</b> " + DATE_FORMAT.format(reservation.getStartTime())));
         } else {
             holder.tvStartTime.setText("Date unavailable");
         }
 
         if (reservation.getEndTime() != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE dd/MM/yyyy HH:mm", Locale.ENGLISH);
-            holder.tvEndTime.setText(Html.fromHtml("<b>To:</b> " + sdf.format(reservation.getEndTime())));
+            holder.tvEndTime.setText(Html.fromHtml("<b>To:</b> " + DATE_FORMAT.format(reservation.getEndTime())));
         } else {
             holder.tvEndTime.setText("Date unavailable");
         }
@@ -100,8 +101,8 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             tvUser = itemView.findViewById(R.id.tvResidentReservation);
             tvSpace = itemView.findViewById(R.id.tvSpaceReservation);
 
-            btnUpdate = itemView.findViewById(R.id.btnUpdate);
-            btnDelete = itemView.findViewById(R.id.btnDelete);
+            btnUpdate = itemView.findViewById(R.id.btnUpdateReservations);
+            btnDelete = itemView.findViewById(R.id.btnDeleteReservations);
         }
     }
 }
