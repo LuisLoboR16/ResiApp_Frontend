@@ -21,7 +21,7 @@
         android:layout_height="39dp"
         android:textColor="@color/white"
         android:backgroundTint="@color/primary_color"
-        android:text="Logout"
+        android:text="@string/logout"
         android:alpha="0.6"
         android:layout_marginStart="316dp"
         app:cornerRadius="100dp">
@@ -43,6 +43,7 @@
                 android:id="@+id/imageView"
                 android:layout_width="match_parent"
                 android:layout_height="170dp"
+                android:contentDescription="@string/logo"
                 app:srcCompat="@drawable/ic_resiapp_logo_wb">
             </ImageView>
 
@@ -51,25 +52,32 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="160dp"
-                android:text="Admin Dashboard"
+                android:text="@string/admin_dashboard"
                 android:textColor="@color/white"
-                android:textSize="32sp" />
+                android:textSize="32sp"
+                tools:ignore="RelativeOverlap" />
 
             <TextView
                 android:id="@+id/txtResidentDashboardItems"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="195dp"
-                android:text="6 items"
+                android:text="@string/admin_items"
                 android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                tools:ignore="RelativeOverlap" />
 
-            <ImageView
-                android:layout_width="62dp"
-                android:layout_height="62dp"
-                android:layout_alignParentRight="true"
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imgProfileAdminDashboard"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/ic_user"
+                android:layout_alignParentEnd="true"
                 android:layout_marginTop="160dp"
-                android:src="@drawable/ic_user" />
+                android:layout_marginEnd="16dp"
+                app:civ_border_width="2dp"
+                app:civ_border_color="@android:color/white"
+                />
         </RelativeLayout>
 
         <GridLayout
@@ -89,23 +97,28 @@
                 app:cardCornerRadius="12dp"
                 android:layout_margin="12dp">
                 <LinearLayout
+                    android:id="@+id/layoutReservations"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="8dp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    tools:ignore="UseCompoundDrawables">
                     <ImageView
+                        android:id="@+id/imgReservations"
+                        android:contentDescription="@string/reservations"
                         android:src="@drawable/ic_reservations"
                         android:layout_width="80dp"
                         android:layout_height="80dp">
                     </ImageView>
                     <TextView
+                        android:id="@+id/txtReservations"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:textColor="#6f6f6f"
                         android:textSize="18sp"
-                        android:text="Reservations">
+                        android:text="@string/reservations">
                     </TextView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -125,12 +138,14 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="8dp">
+                    android:padding="8dp"
+                    tools:ignore="UseCompoundDrawables">
 
                     <ImageView
                         android:id="@+id/imgUsers"
                         android:layout_width="80dp"
                         android:layout_height="80dp"
+                        android:contentDescription="@string/users"
                         android:src="@drawable/ic_userconfigs">
                     </ImageView>
 
@@ -139,7 +154,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="Users"
+                        android:text="@string/users"
                         android:textColor="#6f6f6f"
                         android:textSize="18sp">
                     </TextView>
@@ -160,10 +175,11 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    tools:ignore="UseCompoundDrawables">
                     <ImageView
                         android:id="@+id/imgReviews"
-                        android:contentDescription="Reviews"
+                        android:contentDescription="@string/reviews"
                         android:src="@drawable/ic_reviews"
                         android:layout_width="80dp"
                         android:layout_height="80dp">
@@ -175,7 +191,7 @@
                         android:layout_marginTop="12dp"
                         android:textColor="#6f6f6f"
                         android:textSize="18sp"
-                        android:text="Reviews">
+                        android:text="@string/reviews">
                     </TextView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -188,15 +204,18 @@
                 app:cardElevation="6dp"
                 app:cardCornerRadius="12dp"
                 android:layout_margin="12dp">
+
                 <LinearLayout
                     android:id="@+id/layoutNotifications"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    tools:ignore="UseCompoundDrawables">
                     <ImageView
                         android:id="@+id/imgNotifications"
+                        android:contentDescription="@string/notifications"
                         android:src="@drawable/ic_notifications"
                         android:layout_width="80dp"
                         android:layout_height="80dp">
@@ -208,7 +227,7 @@
                         android:layout_marginTop="12dp"
                         android:textColor="#6f6f6f"
                         android:textSize="18sp"
-                        android:text="Notifications">
+                        android:text="@string/notifications">
                     </TextView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -227,9 +246,11 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     android:padding="8dp"
-                    android:gravity="center">
+                    android:gravity="center"
+                    tools:ignore="UseCompoundDrawables">
                     <ImageView
                         android:id="@+id/imgSpaces"
+                        android:contentDescription="@string/spaces"
                         android:src="@drawable/ic_spaces"
                         android:layout_width="80dp"
                         android:layout_height="80dp">
@@ -241,7 +262,7 @@
                         android:layout_marginTop="12dp"
                         android:textColor="#6f6f6f"
                         android:textSize="18sp"
-                        android:text="Spaces">
+                        android:text="@string/spaces">
                     </TextView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -264,7 +285,7 @@
                     tools:ignore="UseCompoundDrawables">
                     <ImageView
                         android:id="@+id/imgSpaceRule"
-                        android:contentDescription="img"
+                        android:contentDescription="@string/space_rules"
                         android:src="@drawable/ic_spacerules"
                         android:layout_width="80dp"
                         android:layout_height="80dp">
@@ -276,7 +297,7 @@
                         android:layout_marginTop="12dp"
                         android:textColor="#6f6f6f"
                         android:textSize="18sp"
-                        android:text="Space Rules">
+                        android:text="@string/space_rules">
                     </TextView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

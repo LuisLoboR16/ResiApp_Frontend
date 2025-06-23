@@ -15,83 +15,120 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/create_review"
+            android:text="@string/update_reservation"
             android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginBottom="24dp" />
 
         <TextView
-            android:id="@+id/tvSelectRating"
+            android:id="@+id/tvSelectDateUpdateReservation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="-20dp"
-            android:text="@string/select_score"
+            android:layout_marginBottom="0dp"
+            android:text="@string/select_date"
             android:textSize="16sp"
             android:textStyle="bold" />
-
-        <Spinner
-            android:id="@+id/editSpinnerRating"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:padding="12dp"
-            android:background="?android:attr/editTextBackground"
-            android:spinnerMode="dropdown"
-            android:layout_marginBottom="8dp"
-            />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/comments"
+            android:hint="@string/date"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxBackgroundMode="outline"
             app:boxCornerRadiusTopStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusBottomEnd="12dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editComment"
+                android:id="@+id/editDateUpdateReservation"
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:gravity="top|start"
-                android:inputType="textMultiLine"
-                android:minLines="3"
-                android:maxLines="6"
-                android:padding="16dp"/>
+                android:layout_height="wrap_content"
+                android:hint="@string/date"
+                android:autofillHints="name"
+                android:inputType="datetime"
+                android:padding="16dp"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="0dp"
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/user"
+            android:hint="@string/start_time"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxBackgroundMode="outline"
             app:boxCornerRadiusTopStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusBottomEnd="12dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editUserReview"
+                android:id="@+id/editStartTimeUpdateReservation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/user"
+                android:hint="@string/start_time"
                 android:autofillHints="name"
-                android:inputType="text"
+                android:inputType="datetime"
                 android:padding="16dp"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="0dp"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/end_time"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editEndTimeUpdateReservation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/end_time"
+                android:autofillHints="name"
+                android:inputType="datetime"
+                android:padding="16dp"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="0dp"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
-            android:id="@+id/tvSelectSpace"
+            android:id="@+id/tvSelectUserUpdateReservation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="-20dp"
+            android:text="@string/select_user"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/editSpinnerUserUpdateReservation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="0dp"
+            android:padding="12dp"
+            android:background="?android:attr/editTextBackground"
+            android:spinnerMode="dropdown"
+            />
+
+        <TextView
+            android:id="@+id/tvSelectSpacecReservation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="-20dp"
@@ -100,7 +137,7 @@
             android:textStyle="bold" />
 
         <Spinner
-            android:id="@+id/editSpinnerSpace"
+            android:id="@+id/editSpinnerSpaceUpdateReservation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -118,20 +155,29 @@
             android:gravity="center">
 
             <Button
-                android:id="@+id/btnCancel"
+                android:id="@+id/btnCancelUpdateReservation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/cancel"
                 android:layout_gravity="center"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="#D32F2F"
-                android:layout_marginEnd="16dp"/>
+                android:layout_marginEnd="5dp"/>
 
             <Button
-                android:id="@+id/btnCreate"
+                android:id="@+id/btnTimeBoardUpdateReservation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/create"
+                android:text="@string/timeboard"
+                android:layout_gravity="center"
+                android:backgroundTint="@color/design_default_color_secondary_variant"
+                android:layout_marginEnd="5dp"/>
+
+            <Button
+                android:id="@+id/btnUpdateReservation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/update"
                 android:layout_gravity="center" />
         </LinearLayout>
     </LinearLayout>

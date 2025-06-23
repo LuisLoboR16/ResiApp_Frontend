@@ -5,9 +5,13 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -64,29 +68,27 @@ public class UserActivity extends AppCompatActivity {
                 showUpdateForm(user);
             }
 
-            @Override
+            @SuppressLint("SetTextI18n")
             public void onDelete(User user) {
+                View dialogView = LayoutInflater.from(UserActivity.this).inflate(R.layout.activity_delete_user, null);
+
+                TextView txtMessage = dialogView.findViewById(R.id.txtDeleteMessage);
+                txtMessage.setText(user.getResidentName() + "\n\nThis action can't be undone.");
+
                 AlertDialog dialog = new AlertDialog.Builder(UserActivity.this)
-                        .setTitle("🗑 Confirm action")
-                        .setMessage("¿Are you sure to delete" + "\n\n" + "*" + user.getResidentName() + "*?" + "\n" +"\nThis action can't be undone.")
-                        .setPositiveButton("Delete", null)
-                        .setNegativeButton("Cancel", null)
+                        .setView(dialogView)
+                        .setIcon(R.drawable.password_icon)
                         .create();
 
-                dialog.setOnShowListener(dialogInterface -> {
-                    Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                Button btnDelete = dialogView.findViewById(R.id.btnConfirmDelete);
+                Button btnCancel = dialogView.findViewById(R.id.btnCancelDelete);
 
-                    positive.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                    negative.setTextColor(getResources().getColor(android.R.color.darker_gray));
-
-                    positive.setOnClickListener(v -> {
-                        deleteUser(user);
-                        dialog.dismiss();
-                    });
-
-                    negative.setOnClickListener(v -> dialog.dismiss());
+                btnDelete.setOnClickListener(v -> {
+                    deleteUser(user);
+                    dialog.dismiss();
                 });
+
+                btnCancel.setOnClickListener(v -> dialog.dismiss());
 
                 dialog.show();
             }
@@ -97,12 +99,12 @@ public class UserActivity extends AppCompatActivity {
                 progressDialog.setMessage("Deleting user...");
                 progressDialog.show();
 
-                JsonObjectRequest deleteRequest = new JsonObjectRequest(
+                @SuppressLint("NotifyDataSetChanged") JsonObjectRequest deleteRequest = new JsonObjectRequest(
                         Request.Method.DELETE,
                         urlDelete,
                         null,
                         response -> {
-                            Toast.makeText(UserActivity.this, "User deleted sucessfully", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(UserActivity.this, "User deleted successfully", Toast.LENGTH_SHORT).show();
                             userList.remove(user);
                             adapter.notifyDataSetChanged();
                             progressDialog.dismiss();
@@ -128,16 +130,28 @@ public class UserActivity extends AppCompatActivity {
                 EditText editEmail = dialogView.findViewById(R.id.editEmail);
                 EditText editPassword = dialogView.findViewById(R.id.editPassword);
                 EditText editApartmentInformation = dialogView.findViewById(R.id.editApartmentInformation);
-                EditText editRole = dialogView.findViewById(R.id.editRole);
+                Spinner spinnerRole = dialogView.findViewById(R.id.editSpinnerRole);
 
-                Button btnUpdate= dialogView.findViewById(R.id.btnUpdate);
-                Button btnCancel= dialogView.findViewById(R.id.btnCancel);
+                Button btnUpdate = dialogView.findViewById(R.id.btnUpdate);
+                Button btnCancel = dialogView.findViewById(R.id.btnCancel);
 
                 editName.setText(user.getResidentName());
                 editEmail.setText(user.getEmail());
                 editPassword.setText("");
                 editApartmentInformation.setText(user.getApartmentInformation());
-                editRole.setText(user.getRole());
+
+                ArrayAdapter<CharSequence> adapterRoles = ArrayAdapter.createFromResource(
+                        UserActivity.this,
+                        R.array.roles_array,
+                        android.R.layout.simple_spinner_item
+                );
+                adapterRoles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerRole.setAdapter(adapterRoles);
+
+                int rolePosition = adapterRoles.getPosition(user.getRole());
+                if (rolePosition >= 0) {
+                    spinnerRole.setSelection(rolePosition);
+                }
 
                 AlertDialog dialog = new AlertDialog.Builder(UserActivity.this)
                         .setView(dialogView)
@@ -148,24 +162,24 @@ public class UserActivity extends AppCompatActivity {
                     user.setEmail(editEmail.getText().toString());
 
                     String newPassword = editPassword.getText().toString();
-                    if(!newPassword.isEmpty()){
+                    if (!newPassword.isEmpty()) {
                         user.setPassword(newPassword);
-                    }else{
+                    } else {
                         user.setPassword(null);
                     }
 
                     user.setApartmentInformation(editApartmentInformation.getText().toString());
-                    user.setRole(editRole.getText().toString());
+                    user.setRole(spinnerRole.getSelectedItem().toString());
+
                     updateUser(user);
                     dialog.dismiss();
                 });
 
-                btnCancel.setOnClickListener(view -> {
-                    dialog.dismiss();
-                });
+                btnCancel.setOnClickListener(view -> dialog.dismiss());
 
                 dialog.show();
             }
+
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
@@ -202,7 +216,7 @@ public class UserActivity extends AppCompatActivity {
                     urlUpdate,
                     json,
                     response -> {
-                        Toast.makeText(this, "User updated sucessfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "User updated successfully", Toast.LENGTH_SHORT).show();
                         createUserRequest(URL + GET);
                         progressDialog.dismiss();
                     },
@@ -234,7 +248,7 @@ public class UserActivity extends AppCompatActivity {
             requestQueues.add(request);
 
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Excepction JSON: " + e.getMessage());
+            Log.e(LOG_TAG, "Exception JSON: " + e.getMessage());
             progressDialog.dismiss();
         }
     }
@@ -254,6 +268,7 @@ public class UserActivity extends AppCompatActivity {
                 urlRequest,
                 null,
                 new Response.Listener<JSONObject>() {
+                    @SuppressLint("NotifyDataSetChanged")
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
@@ -268,7 +283,7 @@ public class UserActivity extends AppCompatActivity {
 
 
                         } catch (Exception e) {
-                            Log.e(LOG_TAG, "Error procesing response: " + e.getMessage());
+                            Log.e(LOG_TAG, "Error processing response: " + e.getMessage());
                         } finally {
                             pDialog.dismiss();
                         }

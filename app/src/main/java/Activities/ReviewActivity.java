@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -12,7 +13,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -41,7 +41,7 @@ import Models.Review;
 import Models.Space;
 import Models.User;
 
-public class ReviewActivity extends AppCompatActivity {
+public class ReviewActivity extends RoleRuleActivity {
     static final String URL = Constants.URL;
     static final String GET = Constants.REVIEWS_ENDPOINT;
     static final String DELETE = Constants.REVIEWS_ENDPOINT+"/";
@@ -63,6 +63,7 @@ public class ReviewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review);
 
+        roleRules(findViewById(android.R.id.content));
 
         FloatingActionButton btnCreateSpace = findViewById(R.id.btnCreateReview);
         btnCreateSpace.setOnClickListener(v -> {
@@ -91,27 +92,23 @@ public class ReviewActivity extends AppCompatActivity {
 
             @Override
             public void onDelete(Review review) {
+                @SuppressLint("InflateParams") View dialogView = LayoutInflater.from(ReviewActivity.this)
+                        .inflate(R.layout.activity_delete_review, null);
+
+                Button btnDelete = dialogView.findViewById(R.id.btnDeleteReview);
+                Button btnCancel = dialogView.findViewById(R.id.btnCancelDeleteReview);
+
                 AlertDialog dialog = new AlertDialog.Builder(ReviewActivity.this)
-                        .setTitle("\uD83D\uDDD1 Confirm action")
-                        .setMessage("¿Are you sure to delete\n\n*" + review.getComment() + "*?\n\nThis action can't be undone.")
-                        .setPositiveButton("Delete", null)
-                        .setNegativeButton("Cancel", null)
+                        .setView(dialogView)
                         .create();
 
-                dialog.setOnShowListener(dialogInterface -> {
-                    Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-
-                    positive.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                    negative.setTextColor(getResources().getColor(android.R.color.darker_gray));
-
-                    positive.setOnClickListener(v -> {
-                        deleteReview(review);
-                        dialog.dismiss();
-                    });
-
-                    negative.setOnClickListener(v -> dialog.dismiss());
+                btnDelete.setOnClickListener(v -> {
+                    deleteReview(review);
+                    dialog.dismiss();
                 });
+
+                btnCancel.setOnClickListener(v -> dialog.dismiss());
+
                 dialog.show();
             }
 
@@ -147,14 +144,28 @@ public class ReviewActivity extends AppCompatActivity {
 
             private void showUpdateForm(Review review, List<Space> spaceList) {
                 View dialogView = getLayoutInflater().inflate(R.layout.activity_update_review, null);
-                EditText editRating = dialogView.findViewById(R.id.editRating);
+                Spinner spinnerUpdateRating = dialogView.findViewById(R.id.editUpdateSpinnerRating);
                 EditText editComment = dialogView.findViewById(R.id.editComment);
                 Spinner spinnerSpaces = dialogView.findViewById(R.id.spinnerSpaces);
 
                 Button btnUpdate = dialogView.findViewById(R.id.btnUpdate);
                 Button btnCancel = dialogView.findViewById(R.id.btnCancel);
 
-                editRating.setText(String.valueOf(review.getRating()));
+                List<String> ratings = new ArrayList<>();
+                for (int i = 1; i <= 5; i++) {
+                    ratings.add(String.valueOf(i));
+                }
+
+                ArrayAdapter<String> ratingAdapter = new ArrayAdapter<>(
+                        ReviewActivity.this,
+                        android.R.layout.simple_spinner_item,
+                        ratings
+                );
+                ratingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerUpdateRating.setAdapter(ratingAdapter);
+
+                spinnerUpdateRating.setSelection(review.getRating() - 1);
+
                 editComment.setText(review.getComment());
 
                 List<String> spaceNames = new ArrayList<>();
@@ -162,7 +173,6 @@ public class ReviewActivity extends AppCompatActivity {
                     spaceNames.add(spaces.getSpaceName());
                 }
 
-                Log.d(LOG_TAG, "Loading spinner with " + spaceNames.size() + " rules");
                 ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
                         ReviewActivity.this,
                         android.R.layout.simple_spinner_item,
@@ -186,18 +196,14 @@ public class ReviewActivity extends AppCompatActivity {
                         .create();
 
                 btnUpdate.setOnClickListener(view -> {
-                    try {
-                        review.setRating(Integer.parseInt(editRating.getText().toString()));
-                    } catch (NumberFormatException e) {
-                        Toast.makeText(ReviewActivity.this, "Invalid rating value", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
                     review.setComment(editComment.getText().toString());
 
                     int selectedPosition = spinnerSpaces.getSelectedItemPosition();
                     Space selectedSpace = spaceList.get(selectedPosition);
-                    Log.d(LOG_TAG, "Selected space: " + selectedSpace.getId());
                     review.setSpace(selectedSpace);
+
+                    int selectedRating = Integer.parseInt(spinnerUpdateRating.getSelectedItem().toString());
+                    review.setRating(selectedRating);
 
                     updateReview(review);
                     dialog.dismiss();
@@ -205,6 +211,7 @@ public class ReviewActivity extends AppCompatActivity {
 
                 btnCancel.setOnClickListener(view -> dialog.dismiss());
                 dialog.show();
+                roleRules(dialogView);
             }
         });
 

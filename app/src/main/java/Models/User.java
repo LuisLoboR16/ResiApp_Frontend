@@ -28,6 +28,10 @@ public class User {
     @Expose
     private String apartmentInformation;
 
+    @SerializedName("securityWord")
+    @Expose
+    private String securityWord;
+
     @SerializedName("role")
     @Expose
     private String role;
@@ -70,6 +74,14 @@ public class User {
 
     public void setApartmentInformation(String apartmentInformation) {
         this.apartmentInformation = apartmentInformation;
+    }
+
+    public String getSecurityWord() {
+        return securityWord;
+    }
+
+    public void setSecurityWord(String securityWord) {
+        this.securityWord = securityWord;
     }
 
     public String getRole() {

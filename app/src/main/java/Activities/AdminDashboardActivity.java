@@ -1,10 +1,10 @@
 package Activities;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -24,151 +24,91 @@ import Fragments.NotificationDialogFragment;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
-    LinearLayout layoutNotifications, layoutUsers, layoutSpaces, layoutSpaceRules, layoutReviews;
-    TextView txtNotifications, txtUsers, txtSpaces, txtSpaceRules, txtReviews;
-    ImageView imgNotifications, imgUsers, imgSpaces, imgSpaceRules, imgReviews;
+    LinearLayout layoutNotifications, layoutUsers, layoutSpaces, layoutSpaceRules, layoutReviews, layoutReservations;
+    TextView txtNotifications, txtUsers, txtSpaces, txtSpaceRules, txtReviews, txtReservations;
+    ImageView imgNotifications, imgUsers, imgSpaces, imgSpaceRules, imgReviews, imgReservations;
     Button btnLogout;
 
-    @SuppressLint({"MissingInflatedId", "ResourceType"})
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_admin_dashboard);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
+        initViews();
+        setListeners();
+    }
+
+    private void initViews() {
         btnLogout = findViewById(R.id.btnLogout);
-        btnLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDialogLogout();
-            }
-        });
-
         layoutNotifications = findViewById(R.id.layoutNotifications);
-        layoutNotifications.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                NotificationDialogFragment dialog = new NotificationDialogFragment();
-                dialog.show(getSupportFragmentManager(), "NotificationDialog");            }
-        });
-
-
         txtNotifications = findViewById(R.id.txtNotifications);
-        txtNotifications.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                NotificationDialogFragment dialog = new NotificationDialogFragment();
-                dialog.show(getSupportFragmentManager(), "NotificationDialog");            }
-        });
-
         imgNotifications = findViewById(R.id.imgNotifications);
-        imgNotifications.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                NotificationDialogFragment dialog = new NotificationDialogFragment();
-                dialog.show(getSupportFragmentManager(), "NotificationDialog");            }
-        });
 
         layoutUsers = findViewById(R.id.layoutUsers);
-        layoutUsers.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), UserActivity.class));
-            }
-        });
-
         txtUsers = findViewById(R.id.txtUsers);
-        txtUsers.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), UserActivity.class));
-            }
-        });
-
         imgUsers = findViewById(R.id.imgUsers);
-        imgUsers.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), UserActivity.class));
-            }
-        });
 
         layoutSpaces = findViewById(R.id.layoutSpaces);
-        layoutSpaces.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), SpaceActivity.class));
-            }
-        });
-
         txtSpaces = findViewById(R.id.txtSpaces);
-        txtSpaces.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), SpaceActivity.class));
-            }
-        });
-
         imgSpaces = findViewById(R.id.imgSpaces);
-        imgSpaces.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), SpaceActivity.class));
-            }
-        });
 
         layoutSpaceRules = findViewById(R.id.layoutSpaceRules);
-        layoutSpaceRules.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), SpaceRuleActivity.class));
-            }
-        });
-
         txtSpaceRules = findViewById(R.id.txtSpaceRule);
-        txtSpaceRules.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), SpaceRuleActivity.class));
-            }
-        });
-
         imgSpaceRules = findViewById(R.id.imgSpaceRule);
-        imgSpaceRules.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), SpaceRuleActivity.class));
-            }
-        });
 
         layoutReviews = findViewById(R.id.layoutReviews);
-        layoutReviews.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), ReviewActivity.class));
-            }
-        });
-
         txtReviews = findViewById(R.id.txtReviews);
-        txtReviews.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), ReviewActivity.class));
-            }
-        });
-
         imgReviews = findViewById(R.id.imgReviews);
-        imgReviews.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                startActivity(new Intent(getApplicationContext(), ReviewActivity.class));
-            }
-        });
+
+        layoutReservations = findViewById(R.id.layoutReservations);
+        txtReservations = findViewById(R.id.txtReservations);
+        imgReservations = findViewById(R.id.imgReservations);
+    }
+
+    private void setListeners() {
+        btnLogout.setOnClickListener(v -> showDialogLogout());
+
+        View.OnClickListener notificationListener = v -> {
+            NotificationDialogFragment dialog = new NotificationDialogFragment();
+            dialog.show(getSupportFragmentManager(), "NotificationDialog");
+        };
+
+        layoutNotifications.setOnClickListener(notificationListener);
+        txtNotifications.setOnClickListener(notificationListener);
+        imgNotifications.setOnClickListener(notificationListener);
+
+        View.OnClickListener userListener = v -> startActivity(new Intent(getApplicationContext(), UserActivity.class));
+        layoutUsers.setOnClickListener(userListener);
+        txtUsers.setOnClickListener(userListener);
+        imgUsers.setOnClickListener(userListener);
+
+        View.OnClickListener spaceListener = v -> startActivity(new Intent(getApplicationContext(), SpaceActivity.class));
+        layoutSpaces.setOnClickListener(spaceListener);
+        txtSpaces.setOnClickListener(spaceListener);
+        imgSpaces.setOnClickListener(spaceListener);
+
+        View.OnClickListener ruleListener = v -> startActivity(new Intent(getApplicationContext(), SpaceRuleActivity.class));
+        layoutSpaceRules.setOnClickListener(ruleListener);
+        txtSpaceRules.setOnClickListener(ruleListener);
+        imgSpaceRules.setOnClickListener(ruleListener);
+
+        View.OnClickListener reviewListener = v -> startActivity(new Intent(getApplicationContext(), ReviewActivity.class));
+        layoutReviews.setOnClickListener(reviewListener);
+        txtReviews.setOnClickListener(reviewListener);
+        imgReviews.setOnClickListener(reviewListener);
+
+        View.OnClickListener reservationListener = v -> startActivity(new Intent(getApplicationContext(), ReservationActivity.class));
+        layoutReservations.setOnClickListener(reservationListener);
+        txtReservations.setOnClickListener(reservationListener);
+        imgReservations.setOnClickListener(reservationListener);
     }
 
     @Override
@@ -181,25 +121,26 @@ public class AdminDashboardActivity extends AppCompatActivity {
     }
 
     private void showDialogLogout() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Exit ResiApp")
-                .setMessage("¿Are you sure you want to exit the application?")
+        View view = LayoutInflater.from(this).inflate(R.layout.activity_exit, null);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(view)
                 .setIcon(R.drawable.password_icon)
-                .setPositiveButton("Logout", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-        builder.show();
+                .create();
+
+        Button btnLogoutExit = view.findViewById(R.id.btnLogoutExit);
+        Button btnCancelExit = view.findViewById(R.id.btnCancelExit);
+
+        btnLogoutExit.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+            dialog.dismiss();
+        });
+
+        btnCancelExit.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 }

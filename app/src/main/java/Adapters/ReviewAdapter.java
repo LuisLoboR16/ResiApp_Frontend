@@ -1,10 +1,14 @@
 package Adapters;
 
-import android.util.Log;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -55,13 +59,37 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         List<User> userList = ReviewAdapter.userList;
         List<Space> spaceList = ReviewAdapter.spaceList;
 
-        holder.tvRating.setText(String.valueOf(review.getRating()));
+        int rating = review.getRating();
+        holder.layoutStars.removeAllViews();
+
+        for (int i = 0; i < rating; i++) {
+            ImageView star = new ImageView(holder.itemView.getContext());
+            star.setImageResource(R.drawable.ic_star);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(1, 0, 1, 0);
+            star.setLayoutParams(params);
+            star.setAdjustViewBounds(true);
+            star.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            holder.layoutStars.addView(star);
+        }
+
         holder.tvComment.setText(review.getComment());
-
-        Log.d(LOG_TAG, "Review User Adapter: " + review.getUser().getResidentName());
-
         holder.tvUser.setText(review.getUser().getResidentName());
         holder.tvSpace.setText(review.getSpace().getSpaceName());
+
+        SharedPreferences prefs = holder.itemView.getContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        String role = prefs.getString("role", "Guess");
+
+        if (role.equalsIgnoreCase("Admin")) {
+            holder.btnUpdate.setVisibility(View.VISIBLE);
+            holder.btnDelete.setVisibility(View.VISIBLE);
+        } else {
+            holder.btnUpdate.setVisibility(View.GONE);
+            holder.btnDelete.setVisibility(View.GONE);
+        }
 
         holder.btnUpdate.setOnClickListener(v -> listener.onUpdate(review,userList,spaceList));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(review));
@@ -73,13 +101,15 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
     }
 
     public static class ReviewViewHolder extends RecyclerView.ViewHolder {
-        TextView tvRating, tvComment, tvUser,tvSpace;
+        TextView tvComment, tvUser,tvSpace;
         Button btnUpdate, btnDelete;
+        LinearLayout  layoutStars;
 
+        @SuppressLint("WrongViewCast")
         public ReviewViewHolder(@androidx.annotation.NonNull View itemView) {
             super(itemView);
 
-            tvRating = itemView.findViewById(R.id.tvRating);
+            layoutStars = itemView.findViewById(R.id.layoutStars);
             tvComment = itemView.findViewById(R.id.tvComment);
             tvUser = itemView.findViewById(R.id.tvResident);
             tvSpace = itemView.findViewById(R.id.tvSpace);

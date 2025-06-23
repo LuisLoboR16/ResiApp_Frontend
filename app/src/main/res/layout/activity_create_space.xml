@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="20dp">
 
     <LinearLayout
@@ -14,38 +15,87 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Create Space"
+            android:text="@string/create_space"
             android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginBottom="24dp" />
 
-        <EditText
-            android:id="@+id/editSpaceNameC"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Space Name"
-            android:layout_marginBottom="16dp" />
+            android:hint="@string/space_name"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="-5dp">
 
-        <EditText
-            android:id="@+id/editCapacityC"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editSpaceNameC"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/space_name"
+                android:autofillHints="name"
+                android:inputType="text"
+                android:padding="16dp"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Capacity"
-            android:layout_marginBottom="16dp" />
+            android:hint="@string/capacity"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="-5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editCapacityC"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/capacity"
+                android:autofillHints="name"
+                android:inputType="number"
+                android:padding="16dp"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tvSelectSpace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="-20dp"
+            android:text="@string/select_spacerule"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <Spinner
             android:id="@+id/editSpinnerSpaceRules"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?android:attr/editTextBackground"
+            android:spinnerMode="dropdown"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="24dp"/>
+            android:layout_marginBottom="-5dp"/>
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swAvailabilityC"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Availability"
+            android:text="@string/availability"
             tools:ignore="UseSwitchCompatOrMaterialXml">
         </androidx.appcompat.widget.SwitchCompat>
 
@@ -60,7 +110,7 @@
                 android:id="@+id/btnCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cancel"
+                android:text="@string/cancel"
                 android:layout_gravity="center"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="#D32F2F"
@@ -70,7 +120,7 @@
                 android:id="@+id/btnCreate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Create"
+                android:text="@string/create"
                 android:layout_gravity="center" />
         </LinearLayout>
     </LinearLayout>

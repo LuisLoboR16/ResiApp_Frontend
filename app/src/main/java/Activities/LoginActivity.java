@@ -29,12 +29,12 @@ import org.json.JSONObject;
 import API.Constants;
 import API.SingleVolley;
 import Fragments.CreateUserDialogFragment;
-import Fragments.NotificationDialogFragment;
+import Fragments.ForgotPasswordDialogFragment;
 
 
 public class LoginActivity extends AppCompatActivity {
     static final String URL = Constants.URL;
-    static final String LOGIN = Constants.AUTH_LOGIN;
+    static final String LOGIN = Constants.AUTH_LOGIN_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
     Button btnLogin;
     EditText editEmail, editPassword;
@@ -149,8 +149,8 @@ public class LoginActivity extends AppCompatActivity {
         txtForgotPassword.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                NotificationDialogFragment dialog = new NotificationDialogFragment();
-                dialog.show(getSupportFragmentManager(), "NotificationDialog");            }
+                ForgotPasswordDialogFragment dialog = new ForgotPasswordDialogFragment();
+                dialog.show(getSupportFragmentManager(), "ForgotPasswordDialogFragment");            }
         });
     }
 }
