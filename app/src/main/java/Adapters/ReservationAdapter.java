@@ -2,6 +2,8 @@ package Adapters;
 
 import static API.Constants.DATE_FORMAT;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,6 +75,17 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
 
         holder.tvUser.setText(Html.fromHtml("<b>Resident:</b> " + reservation.getUser().getResidentName()));
         holder.tvSpace.setText(Html.fromHtml("<b>In:</b> " + reservation.getSpace().getSpaceName()));
+
+        SharedPreferences prefs = holder.itemView.getContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        String role = prefs.getString("role", "Resident");
+
+        if (role.equalsIgnoreCase("Admin")) {
+            holder.btnUpdate.setVisibility(View.VISIBLE);
+            holder.btnDelete.setVisibility(View.VISIBLE);
+        } else {
+            holder.btnUpdate.setVisibility(View.GONE);
+            holder.btnDelete.setVisibility(View.GONE);
+        }
 
         holder.btnUpdate.setOnClickListener(v -> listener.onUpdate(reservation,userList,spaceList));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(reservation));

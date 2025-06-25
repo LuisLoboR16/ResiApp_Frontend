@@ -14,6 +14,7 @@ public class Constants {
     public static final String SPACE_RULES_ENDPOINT = "SpaceRules";
     public static final String REVIEWS_ENDPOINT = "Reviews";
     public static final String RESERVATIONS_ENDPOINT = "Reservations";
+    public static final String FIND_RESERVATIONS_BY_ID = RESERVATIONS_ENDPOINT + "/findReservationsByUser/";
     public static final String FIND_RESERVATIONS_BY_AVAILABLE_SLOTS = RESERVATIONS_ENDPOINT + "/findReservationsByAvailableSlots?spaceId=";
     public static final String SLOT_MINUTES_SLOTS = "&slotMinutes=60";
     public static final String DATE_SLOTS = "&date=";

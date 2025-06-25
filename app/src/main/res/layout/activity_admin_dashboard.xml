@@ -227,7 +227,7 @@
                         android:layout_marginTop="12dp"
                         android:textColor="#6f6f6f"
                         android:textSize="18sp"
-                        android:text="@string/notifications">
+                        android:text="@string/messages">
                     </TextView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
