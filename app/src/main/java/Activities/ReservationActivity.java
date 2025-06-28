@@ -1,9 +1,9 @@
 package Activities;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -75,7 +75,6 @@ public class ReservationActivity extends RoleRuleActivity {
     EditText editStartTime, editEndTime;
     Gson gson;
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,7 +109,7 @@ public class ReservationActivity extends RoleRuleActivity {
 
             @Override
             public void onDelete(Reservation reservation) {
-                @SuppressLint("InflateParams") View dialogView = LayoutInflater.from(ReservationActivity.this)
+                View dialogView = LayoutInflater.from(ReservationActivity.this)
                         .inflate(R.layout.activity_delete_reservation, null);
 
                 Button btnDelete = dialogView.findViewById(R.id.btnDeleteReservation);
@@ -136,7 +135,7 @@ public class ReservationActivity extends RoleRuleActivity {
                 progressDialog.setMessage("Deleting reservation...");
                 progressDialog.show();
 
-                @SuppressLint("NotifyDataSetChanged") StringRequest deleteRequest = new StringRequest(
+                StringRequest deleteRequest = new StringRequest(
                         Request.Method.DELETE,
                         urlDelete,
                         response -> {
@@ -391,7 +390,7 @@ public class ReservationActivity extends RoleRuleActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        createReservationRequest(URL + GET);
+        createReservationRequest(getReservationUrlByRole());
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -458,6 +457,26 @@ public class ReservationActivity extends RoleRuleActivity {
         } catch (Exception e) {
             Log.e(LOG_TAG, "Exception JSON: " + e.getMessage());
             progressDialog.dismiss();
+        }
+    }
+
+    private String getUserRoleFromPrefs() {
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        return prefs.getString("role", "Resident");
+    }
+
+    private int getUserIdFromPrefs() {
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        return prefs.getInt("user_id", 1);
+    }
+
+    private String getReservationUrlByRole() {
+        String role = getUserRoleFromPrefs();
+        int residentId = getUserIdFromPrefs();
+        if (role.equalsIgnoreCase("Resident")) {
+            return URL + Constants.FIND_RESERVATIONS_BY_ID + residentId;
+        } else {
+            return URL + GET;
         }
     }
 

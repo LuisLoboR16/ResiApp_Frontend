@@ -1,9 +1,13 @@
 package Adapters;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -50,7 +54,26 @@ public class SpaceAdapter extends RecyclerView.Adapter<SpaceAdapter.SpaceViewHol
         holder.tvSpaceName.setText(space.getSpaceName());
         holder.tvCapacity.setText(String.valueOf(space.getCapacity()));
         holder.tvSpaceRule.setText(space.getSpaceRule().get(0).getRule());
-        holder.tvAvailability.setText(space.isAvailability() ? "Available" : "Unavailable");
+        holder.tvAvailability.setText(space.isAvailability() ? "Available✅" : "Unavailable❌");
+
+        if (space.getImage() != null && !space.getImage().isEmpty()) {
+            try {
+                String base64Image = space.getImage();
+                if (base64Image.contains(",")) {
+                    base64Image = base64Image.split(",")[1];
+                }
+
+                byte[] imageBytes = Base64.decode(base64Image, Base64.DEFAULT);
+                Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                holder.tvImage.setImageBitmap(decodedImage);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                holder.tvImage.setImageResource(R.drawable.ic_resiapp_under_construction);
+            }
+        } else {
+            holder.tvImage.setImageResource(R.drawable.ic_resiapp_under_construction);
+        }
 
         holder.btnUpdate.setOnClickListener(v -> listener.onUpdate(space,spaceRulesList));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(space));
@@ -62,7 +85,8 @@ public class SpaceAdapter extends RecyclerView.Adapter<SpaceAdapter.SpaceViewHol
     }
 
     public static class SpaceViewHolder extends RecyclerView.ViewHolder {
-        TextView tvSpaceName, tvCapacity, tvSpaceRule,tvAvailability;
+        TextView tvSpaceName, tvCapacity, tvSpaceRule,tvAvailability ;
+        ImageView tvImage;
         Button btnUpdate, btnDelete;
 
         public SpaceViewHolder(@androidx.annotation.NonNull View itemView) {
@@ -72,6 +96,7 @@ public class SpaceAdapter extends RecyclerView.Adapter<SpaceAdapter.SpaceViewHol
             tvCapacity = itemView.findViewById(R.id.tvCapacity);
             tvSpaceRule = itemView.findViewById(R.id.tvSpaceRule);
             tvAvailability = itemView.findViewById(R.id.tvAvailability);
+            tvImage = itemView.findViewById(R.id.imgSpacePhoto);
 
             btnUpdate = itemView.findViewById(R.id.btnUpdate);
             btnDelete = itemView.findViewById(R.id.btnDelete);

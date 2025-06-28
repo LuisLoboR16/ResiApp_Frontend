@@ -40,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText editEmail, editPassword;
     TextView txtJoinUs, txtForgotPassword;
     ImageView ivToggle;
+    String email, password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +74,8 @@ public class LoginActivity extends AppCompatActivity {
 
         btnLogin.setOnClickListener(v -> {
 
-            String email = editEmail.getText().toString().trim();
-            String password = editPassword.getText().toString().trim();
+            email = editEmail.getText().toString().trim();
+            password = editPassword.getText().toString().trim();
 
             if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill all the fields", Toast.LENGTH_SHORT).show();
@@ -108,6 +109,7 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("role",role);
                             editor.putInt("user_id", userId);
                             editor.putString("resident_name", residentName);
+                            editor.putString("resident_email", email);
                             editor.apply();
 
                             Toast.makeText(this, "Logging successfully: ", Toast.LENGTH_SHORT).show();

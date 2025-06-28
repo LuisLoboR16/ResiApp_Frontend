@@ -60,11 +60,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="-27dp"
             android:padding="12dp"
             android:background="?android:attr/editTextBackground"
             android:spinnerMode="dropdown"
             />
+
+        <CheckBox
+            android:id="@+id/checkSendToAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/send_to_all_users"
+            android:layout_marginTop="11dp"
+            android:textSize="14sp"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"

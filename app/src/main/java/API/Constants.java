@@ -14,10 +14,13 @@ public class Constants {
     public static final String SPACE_RULES_ENDPOINT = "SpaceRules";
     public static final String REVIEWS_ENDPOINT = "Reviews";
     public static final String RESERVATIONS_ENDPOINT = "Reservations";
+    public static final String EMAIL_ENDPOINT = "Email";
+    public static final String FIND_RESERVATIONS_BY_ID = RESERVATIONS_ENDPOINT + "/findReservationsByUser/";
     public static final String FIND_RESERVATIONS_BY_AVAILABLE_SLOTS = RESERVATIONS_ENDPOINT + "/findReservationsByAvailableSlots?spaceId=";
+    public static final String SEND_EMAIL = EMAIL_ENDPOINT + "/send-email";
     public static final String SLOT_MINUTES_SLOTS = "&slotMinutes=60";
     public static final String DATE_SLOTS = "&date=";
-    public static final String ADMIN_EMAIL = "Admin@Resiapp.es";
+    public static final String ADMIN_EMAIL = "notificationsresiapp@gmail.com";
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("EEE dd/MM/yyyy HH:mm", Locale.ENGLISH);
     public static final String DATE_FORMAT_LONG = "yyyy-MM-dd'T'HH:mm:ss";
     public static final String DATE_TIME_FORMAT = "dd/MM/yyyy HH:mm";

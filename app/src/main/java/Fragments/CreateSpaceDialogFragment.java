@@ -1,10 +1,16 @@
 package Fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +20,7 @@ import android.widget.EditText;
 import androidx.appcompat.widget.SwitchCompat;
 
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,18 +34,24 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import API.Constants;
 import API.SingleVolley;
 import Models.SpaceRule;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CreateSpaceDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
     static final String CREATE = Constants.SPACES_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
+    private static final int PICK_IMAGE_REQUEST = 1;
 
+    private String imageBase64 = "";
+    private CircleImageView imgProfile;
     private List<SpaceRule> spaceRuleList = new ArrayList<>();
     public void setSpaceRuleList(List<SpaceRule> spaceRuleList) {
         this.spaceRuleList = spaceRuleList;
@@ -51,12 +64,18 @@ public class CreateSpaceDialogFragment extends DialogFragment {
 
         EditText editSpaceName = view.findViewById(R.id.editSpaceNameC);
         EditText editCapacity = view.findViewById(R.id.editCapacityC);
+        TextView txtChangePhoto = view.findViewById(R.id.txtChangePhotoCreateSpace);
 
         Spinner editSpaceRules = view.findViewById(R.id.editSpinnerSpaceRules);
         SwitchCompat editAvailability = view.findViewById(R.id.swAvailabilityC);
 
+        imgProfile = view.findViewById(R.id.imgProfileCreateSpace);
+
         Button btnCreate = view.findViewById(R.id.btnCreate);
         Button btnCancel = view.findViewById(R.id.btnCancel);
+
+        imgProfile.setOnClickListener(v -> openGallery());
+        txtChangePhoto.setOnClickListener(v -> openGallery());
 
         List<String> ruleNames = new ArrayList<>();
         for (SpaceRule rule : spaceRuleList) {
@@ -105,6 +124,7 @@ public class CreateSpaceDialogFragment extends DialogFragment {
                 json.put("Capacity", capacity);
                 json.put("spaceRuleId", selectedRuleId);
                 json.put("Availability", availability);
+                json.put("imageBase64", imageBase64);
 
                 JsonObjectRequest request = getJsonObjectRequest(json, progressDialog);
 
@@ -169,5 +189,33 @@ public class CreateSpaceDialogFragment extends DialogFragment {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
         return request;
+    }
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            Uri imageUri = data.getData();
+            try {
+                Bitmap originalBitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
+
+                Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 340, 200, true);
+
+                imgProfile.setImageBitmap(resizedBitmap);
+
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                byte[] imageBytes = outputStream.toByteArray();
+                imageBase64 = "data:image/jpeg;base64," + Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(getContext(), "Error loading image", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

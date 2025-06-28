@@ -30,6 +30,10 @@ public class Space {
     @Expose
     private boolean availability;
 
+    @SerializedName("imageBase64")
+    @Expose
+    private String image;
+
     public int getId() {
         return id;
     }
@@ -68,5 +72,13 @@ public class Space {
 
     public void setAvailability(boolean availability) {
         this.availability = availability;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

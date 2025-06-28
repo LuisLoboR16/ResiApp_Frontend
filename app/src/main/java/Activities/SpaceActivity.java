@@ -2,7 +2,13 @@ package Activities;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.graphics.Insets;
@@ -32,6 +39,8 @@ import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,6 +51,7 @@ import Adapters.SpaceAdapter;
 import Fragments.CreateSpaceDialogFragment;
 import Models.Space;
 import Models.SpaceRule;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SpaceActivity extends AppCompatActivity {
     static final String URL = Constants.URL;
@@ -50,11 +60,16 @@ public class SpaceActivity extends AppCompatActivity {
     static final String UPDATE = Constants.SPACES_ENDPOINT+"/";
     static final String GET_RULES = Constants.SPACE_RULES_ENDPOINT;
     static final String LOG_TAG = Constants.LOG_TAG;
+    private static final int PICK_IMAGE_REQUEST = 1;
 
     private RequestQueue requestQueues;
     private List<Space> spaceList;
     private List<SpaceRule> spaceRuleList;
     private SpaceAdapter adapter;
+    private CircleImageView imgProfile;
+    private String imageBase64 = "";
+    private Space spaceUpdated;
+    private OnImageSelected onImageSelectedCallback;
     Gson gson;
 
     @Override
@@ -143,11 +158,46 @@ public class SpaceActivity extends AppCompatActivity {
             }
 
             private void showUpdateForm(Space space, List<SpaceRule> spaceRulesList) {
+                spaceUpdated = space;
+
                 View dialogView = getLayoutInflater().inflate(R.layout.activity_update_space, null);
                 EditText editSpaceName = dialogView.findViewById(R.id.editSpaceName);
                 EditText editCapacity = dialogView.findViewById(R.id.editCapacity);
                 Spinner spinnerSpaceRules = dialogView.findViewById(R.id.spinnerSpaceRules);
                 SwitchCompat editSwAvailability = dialogView.findViewById(R.id.swAvailability);
+
+                imgProfile = dialogView.findViewById(R.id.imgProfileUpdateSpace);
+                TextView txtChangePhoto = dialogView.findViewById(R.id.txtChangePhotoUpdateSpace);
+
+                if (space.getImage() != null && space.getImage().startsWith("data:image")) {
+
+                    try {
+                        String base64Image = space.getImage().split(",")[1];
+                        byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+                        Bitmap decodedBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                        imgProfile.setImageBitmap(decodedBitmap);
+                        imageBase64 = space.getImage();
+
+                    } catch (Exception e) {
+                        Log.e(LOG_TAG, "Error decoding image: " + e.getMessage());
+                    }
+                }
+
+                View.OnClickListener imagePicker = v -> {
+                    onImageSelectedCallback = image -> {
+                        imgProfile.setImageBitmap(image);
+                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                        image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                        byte[] imageBytes = outputStream.toByteArray();
+                        imageBase64 = "data:image/jpeg;base64," + Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+                    };
+                    openGallery();
+                };
+
+                imgProfile.setOnClickListener(imagePicker);
+                txtChangePhoto.setOnClickListener(imagePicker);
+
+                txtChangePhoto.setOnClickListener(v -> imgProfile.performClick());
 
                 Button btnUpdate = dialogView.findViewById(R.id.btnUpdate);
                 Button btnCancel = dialogView.findViewById(R.id.btnCancel);
@@ -224,12 +274,20 @@ public class SpaceActivity extends AppCompatActivity {
         progressDialog.setMessage("Updating space...");
         progressDialog.show();
 
+        Log.d(LOG_TAG, "Base64 image being sent: " + space.getImage());
+
         try {
             JSONObject json = new JSONObject();
+
             json.put("spaceName", space.getSpaceName());
             json.put("capacity", space.getCapacity());
             json.put("spaceRuleId", space.getSpaceRule().get(0).getId());
             json.put("availability", space.isAvailability());
+            if (space.getImage() != null && !space.getImage().isEmpty()) {
+                json.put("imageBase64", space.getImage());
+            }
+
+            Log.d(LOG_TAG, "Sending JSON: " + json);
 
             StringRequest request = new StringRequest(
                     Request.Method.PUT,
@@ -268,7 +326,6 @@ public class SpaceActivity extends AppCompatActivity {
                     3,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
             ));
-
             requestQueues.add(request);
 
         } catch (Exception e) {
@@ -301,14 +358,12 @@ public class SpaceActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to load rules", Toast.LENGTH_SHORT).show();
                 }
         );
-
         rulesRequest.setTag(LOG_TAG);
         rulesRequest.setRetryPolicy(new DefaultRetryPolicy(
                 DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
                 3,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
-
         requestQueues.add(rulesRequest);
     }
 
@@ -353,7 +408,6 @@ public class SpaceActivity extends AppCompatActivity {
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
                 )
         );
-
         requestQueues.add(newRequest);
     }
 
@@ -364,5 +418,44 @@ public class SpaceActivity extends AppCompatActivity {
             requestQueues.cancelAll(LOG_TAG);
         }
         Log.i(LOG_TAG, "onStop() - Requests canceled");
+    }
+
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            Uri imageUri = data.getData();
+            try {
+                Bitmap originalBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 340, 200, true);
+
+                if (imgProfile != null) {
+                    imgProfile.setImageBitmap(resizedBitmap);
+                }
+
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                byte[] imageBytes = outputStream.toByteArray();
+                imageBase64 = "data:image/jpeg;base64," + Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+
+                if (spaceUpdated != null) {
+                    spaceUpdated.setImage(imageBase64);
+                    Log.d(LOG_TAG, "New image assigned");
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Error loading image", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    interface OnImageSelected {
+        void onSelected(Bitmap image);
     }
 }
