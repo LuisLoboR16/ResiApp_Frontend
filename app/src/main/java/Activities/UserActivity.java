@@ -35,10 +35,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import API.Constants;
+import Utils.Constants;
 import API.SingleVolley;
 import Adapters.UserAdapter;
 import Models.User;
+import Utils.TokenValidator;
 
 public class UserActivity extends AppCompatActivity {
     static final String URL = Constants.URL;
@@ -320,5 +321,10 @@ public class UserActivity extends AppCompatActivity {
             requestQueues.cancelAll(LOG_TAG);
         }
         Log.i(LOG_TAG, "onStop() - Requests canceled");
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(this);
     }
 }

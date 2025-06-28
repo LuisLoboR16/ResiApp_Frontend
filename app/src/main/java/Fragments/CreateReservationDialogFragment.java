@@ -38,8 +38,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import API.Constants;
+import Utils.Constants;
 import API.SingleVolley;
+import Utils.TokenValidator;
 import Models.Space;
 import Models.User;
 
@@ -338,5 +339,10 @@ public class CreateReservationDialogFragment extends DialogFragment {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
         return request;
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(requireContext());
     }
 }

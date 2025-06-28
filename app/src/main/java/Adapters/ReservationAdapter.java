@@ -1,8 +1,8 @@
 package Adapters;
 
-import static API.Constants.DATE_FORMAT_CUSTOM;
-import static API.Constants.DATE_FORMAT_HOURS_CUSTOM;
-import static API.Constants.LOG_TAG;
+import static Utils.Constants.DATE_FORMAT_CUSTOM;
+import static Utils.Constants.DATE_FORMAT_HOURS_CUSTOM;
+import static Utils.Constants.LOG_TAG;
 
 import android.content.Context;
 import android.content.SharedPreferences;

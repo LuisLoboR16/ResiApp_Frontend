@@ -1,6 +1,7 @@
 package Activities;
 
-import android.annotation.SuppressLint;
+import static com.android.volley.toolbox.Volley.newRequestQueue;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -14,6 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
@@ -28,19 +30,20 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
-import API.Constants;
+import Utils.Constants;
 import Fragments.NotificationDialogFragment;
+import Utils.TokenValidator;
 
 public class AdminDashboardActivity extends AppCompatActivity {
     static final String URL = Constants.URL;
     static final String FIND_BY_USER_ID = Constants.FIND_BY_USER_ID_ENDPOINT;
+    static final String LOGOUT = Constants.AUTH_LOGOUT_ENDPOINT;
 
     LinearLayout layoutNotifications, layoutUsers, layoutSpaces, layoutSpaceRules, layoutReviews, layoutReservations;
     TextView txtNotifications, txtUsers, txtSpaces, txtSpaceRules, txtReviews, txtReservations;
     ImageView imgNotifications, imgUsers, imgSpaces, imgSpaceRules, imgReviews, imgReservations, imgProfileDashboard;
     Button btnLogout;
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,17 +149,55 @@ public class AdminDashboardActivity extends AppCompatActivity {
         Button btnCancelExit = view.findViewById(R.id.btnCancelExit);
 
         btnLogoutExit.setOnClickListener(v -> {
-            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
-            dialog.dismiss();
+            SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+            String token = prefs.getString("token", null);
+
+            if (token == null) {
+                logoutManually(dialog);
+                return;
+            }
+
+            RequestQueue queue = newRequestQueue(this);
+
+            StringRequest request = new com.android.volley.toolbox.StringRequest(
+                    com.android.volley.Request.Method.POST,
+                    URL + LOGOUT,
+                    response -> {
+                        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+                        logoutManually(dialog);
+                    },
+                    error -> {
+                        error.printStackTrace();
+                        logoutManually(dialog);
+                    }
+            ) {
+                @Override
+                public java.util.Map<String, String> getHeaders() {
+                    java.util.Map<String, String> headers = new java.util.HashMap<>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+
+            queue.add(request);
         });
 
         btnCancelExit.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
     }
+
+    private void logoutManually(AlertDialog dialog) {
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        prefs.edit().clear().apply();
+
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
+        dialog.dismiss();
+    }
+
 
     private void loadUserData() {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
@@ -192,5 +233,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 }
         );
         queue.add(request);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(this);
     }
 }

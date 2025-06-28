@@ -36,8 +36,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import API.Constants;
+import Utils.Constants;
 import API.SingleVolley;
+import Utils.TokenValidator;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CreateUserDialogFragment extends DialogFragment {
@@ -231,5 +232,10 @@ public class CreateUserDialogFragment extends DialogFragment {
                 Toast.makeText(getContext(), "Error loading image", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(requireContext());
     }
 }

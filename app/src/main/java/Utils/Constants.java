@@ -1,4 +1,4 @@
-package API;
+package Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -7,6 +7,8 @@ public class Constants {
     public static final String LOG_TAG = "ResiApp" ;
     public static final String URL = "http://10.0.2.2:5069/api/v1/";
     public static final String AUTH_LOGIN_ENDPOINT = "Auth/login";
+    public static final String AUTH_LOGOUT_ENDPOINT = "Auth/logout";
+    public static final String AUTH_VALIDATE_TOKEN_ENDPOINT = "Auth/validate-token";
     public static final String USERS_ENDPOINT = "Users";
     public static final String FORGOT_PASSWORD_ENDPOINT = "Auth/FORGOT-PASSWORD";
     public static final String FIND_BY_USER_ID_ENDPOINT = USERS_ENDPOINT + "/findUserById/";

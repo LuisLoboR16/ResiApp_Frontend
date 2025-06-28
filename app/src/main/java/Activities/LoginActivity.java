@@ -25,7 +25,7 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
-import API.Constants;
+import Utils.Constants;
 import API.SingleVolley;
 import Fragments.CreateUserDialogFragment;
 import Fragments.ForgotPasswordDialogFragment;
@@ -111,6 +111,8 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putString("resident_name", residentName);
                             editor.putString("resident_email", email);
                             editor.apply();
+
+                            Log.e(LOG_TAG, token);
 
                             Toast.makeText(this, "Logging successfully: ", Toast.LENGTH_SHORT).show();
                             if(role.trim().equals("Resident")){

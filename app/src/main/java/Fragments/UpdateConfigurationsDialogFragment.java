@@ -40,7 +40,8 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import API.Constants;
+import Utils.Constants;
+import Utils.TokenValidator;
 import Models.User;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -261,5 +262,10 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
 
     interface OnImageSelected {
         void onSelected(Bitmap image);
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(requireContext());
     }
 }

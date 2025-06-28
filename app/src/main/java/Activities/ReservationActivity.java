@@ -44,14 +44,16 @@ import java.util.Locale;
 import java.util.Objects;
 
 import API.SingleVolley;
-import API.Constants;
+import Utils.Constants;
 import Adapters.ReservationAdapter;
 import Fragments.CreateReservationDialogFragment;
 import Models.Reservation;
 import Models.Space;
 import Models.User;
+import Utils.RoleRule;
+import Utils.TokenValidator;
 
-public class ReservationActivity extends RoleRuleActivity {
+public class ReservationActivity extends RoleRule {
     static final String URL = Constants.URL;
     static final String GET = Constants.RESERVATIONS_ENDPOINT;
     static final String DELETE = Constants.RESERVATIONS_ENDPOINT+"/";
@@ -644,5 +646,11 @@ public class ReservationActivity extends RoleRuleActivity {
             requestQueues.cancelAll(LOG_TAG);
         }
         Log.i(LOG_TAG, "onStop() - Requests canceled");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(this);
     }
 }

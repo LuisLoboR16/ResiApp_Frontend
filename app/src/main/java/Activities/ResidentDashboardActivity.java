@@ -1,6 +1,8 @@
 package Activities;
 
 
+import static com.android.volley.toolbox.Volley.newRequestQueue;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -14,6 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -29,13 +32,16 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
-import API.Constants;
+import Utils.Constants;
 import Fragments.NotificationDialogFragment;
 import Fragments.UpdateConfigurationsDialogFragment;
+import Utils.TokenValidator;
 
 public class ResidentDashboardActivity extends AppCompatActivity {
     static final String URL = Constants.URL;
     static final String FIND_BY_USER_ID = Constants.FIND_BY_USER_ID_ENDPOINT;
+    static final String LOGOUT = Constants.AUTH_LOGOUT_ENDPOINT;
+
 
     LinearLayout layoutNotifications, layoutConfigurations, layoutReviews, layoutReservations;
     TextView txtNotifications, txtConfigurations, txtReviews, txtReservations;
@@ -133,11 +139,37 @@ public class ResidentDashboardActivity extends AppCompatActivity {
         Button btnCancel = view.findViewById(R.id.btnCancelExit);
 
         btnLogout.setOnClickListener(v -> {
-            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
-            dialog.dismiss();
+            SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+            String token = prefs.getString("token", null);
+
+            if (token == null) {
+                logoutManually(dialog);
+                return;
+            }
+
+            RequestQueue queue = newRequestQueue(this);
+
+            StringRequest request = new com.android.volley.toolbox.StringRequest(
+                    com.android.volley.Request.Method.POST,
+                    URL + LOGOUT,
+                    response -> {
+                        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+                        logoutManually(dialog);
+                    },
+                    error -> {
+                        error.printStackTrace();
+                        logoutManually(dialog);
+                    }
+            ) {
+                @Override
+                public java.util.Map<String, String> getHeaders() {
+                    java.util.Map<String, String> headers = new java.util.HashMap<>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+            };
+
+            queue.add(request);
         });
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());
@@ -145,13 +177,24 @@ public class ResidentDashboardActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    private void logoutManually(AlertDialog dialog) {
+            SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+            prefs.edit().clear().apply();
+
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+            dialog.dismiss();
+        }
+
     private void loadUserData() {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int userId = prefs.getInt("user_id", -1);
 
         String url = URL + FIND_BY_USER_ID + userId;
 
-        RequestQueue queue = com.android.volley.toolbox.Volley.newRequestQueue(this);
+        RequestQueue queue = newRequestQueue(this);
 
         StringRequest request = new com.android.volley.toolbox.StringRequest(
                 com.android.volley.Request.Method.GET,
@@ -179,5 +222,11 @@ public class ResidentDashboardActivity extends AppCompatActivity {
                 }
         );
         queue.add(request);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(this);
     }
 }

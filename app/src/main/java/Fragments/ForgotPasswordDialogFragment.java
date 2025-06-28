@@ -24,7 +24,7 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
-import API.Constants;
+import Utils.Constants;
 
 public class ForgotPasswordDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
