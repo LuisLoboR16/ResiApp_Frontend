@@ -2,7 +2,11 @@ package Activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,15 +22,22 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
 import com.example.resiapp.R;
 
+import org.json.JSONObject;
+
+import API.Constants;
 import Fragments.NotificationDialogFragment;
 
 public class AdminDashboardActivity extends AppCompatActivity {
+    static final String URL = Constants.URL;
+    static final String FIND_BY_USER_ID = Constants.FIND_BY_USER_ID_ENDPOINT;
 
     LinearLayout layoutNotifications, layoutUsers, layoutSpaces, layoutSpaceRules, layoutReviews, layoutReservations;
     TextView txtNotifications, txtUsers, txtSpaces, txtSpaceRules, txtReviews, txtReservations;
-    ImageView imgNotifications, imgUsers, imgSpaces, imgSpaceRules, imgReviews, imgReservations;
+    ImageView imgNotifications, imgUsers, imgSpaces, imgSpaceRules, imgReviews, imgReservations, imgProfileDashboard;
     Button btnLogout;
 
     @SuppressLint("MissingInflatedId")
@@ -44,6 +55,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         initViews();
         setListeners();
+        loadUserData();
     }
 
     private void initViews() {
@@ -71,6 +83,8 @@ public class AdminDashboardActivity extends AppCompatActivity {
         layoutReservations = findViewById(R.id.layoutReservations);
         txtReservations = findViewById(R.id.txtReservations);
         imgReservations = findViewById(R.id.imgReservations);
+
+        imgProfileDashboard = findViewById(R.id.imgProfileAdminDashboard);
     }
 
     private void setListeners() {
@@ -142,5 +156,41 @@ public class AdminDashboardActivity extends AppCompatActivity {
         btnCancelExit.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
+    }
+
+    private void loadUserData() {
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+
+        String url = URL + FIND_BY_USER_ID + userId;
+
+        RequestQueue queue = com.android.volley.toolbox.Volley.newRequestQueue(this);
+
+        StringRequest request = new com.android.volley.toolbox.StringRequest(
+                com.android.volley.Request.Method.GET,
+                url,
+                response -> {
+                    try {
+                        JSONObject json = new JSONObject(response);
+                        JSONObject dataObject = json.getJSONObject("data");
+                        String base64Image = dataObject.getString("imageBase64");
+
+                        if (base64Image.startsWith("data:image")) {
+                            String encoded = base64Image.split(",")[1];
+                            byte[] imageBytes = Base64.decode(encoded, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                            imgProfileDashboard.setImageBitmap(bitmap);
+                        } else {
+                            imgProfileDashboard.setImageResource(R.drawable.ic_resiapp_under_construction);
+                        }
+                    } catch (Exception e) {
+                        imgProfileDashboard.setImageResource(R.drawable.ic_resiapp_under_construction);
+                    }
+                },
+                error -> {
+                    imgProfileDashboard.setImageResource(R.drawable.ic_resiapp_under_construction);
+                }
+        );
+        queue.add(request);
     }
 }

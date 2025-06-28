@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,7 @@ import com.example.resiapp.R;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -45,7 +47,8 @@ public class CreateUserDialogFragment extends DialogFragment {
     static final String LOG_TAG = Constants.LOG_TAG;
     private static final int PICK_IMAGE_REQUEST = 1;
 
-    CircleImageView imgProfile;
+    private CircleImageView imgProfile;
+    private String imageBase64 = "";
 
     @NonNull
     @Override
@@ -56,9 +59,8 @@ public class CreateUserDialogFragment extends DialogFragment {
         EditText editEmail = view.findViewById(R.id.editEmail);
         EditText editPassword = view.findViewById(R.id.editPassword);
         EditText editRePassword = view.findViewById(R.id.editRePassword);
-        EditText editSecurityWord = view.findViewById(R.id.editSecurityWordcUser);
         EditText editApartment = view.findViewById(R.id.editApartmentInformation);
-        TextView txtChangePhoto = view.findViewById(R.id.txtChangePhoto);
+        TextView txtChangePhoto = view.findViewById(R.id.txtChangePhotoCreateUser);
 
         imgProfile = view.findViewById(R.id.imgProfile);
 
@@ -74,17 +76,16 @@ public class CreateUserDialogFragment extends DialogFragment {
             String pass1 = editPassword.getText().toString();
             String pass2 = editRePassword.getText().toString();
             String apt = editApartment.getText().toString();
-            String securityWord = editSecurityWord.getText().toString();
             String role = "Resident";
 
-            if (!validateForm(name, email, pass1, pass2, apt, securityWord)) return;
+            if (!validateForm(name, email, pass1, pass2, apt)) return;
 
             ProgressDialog progressDialog = new ProgressDialog(getContext());
             progressDialog.setMessage("Creating user...");
             progressDialog.show();
 
             try {
-                JSONObject jsonBody = createUserJson(name, email, pass1, apt, securityWord, role);
+                JSONObject jsonBody = createUserJson(name, email, pass1, apt, role, imageBase64);
 
                 JsonObjectRequest request = new JsonObjectRequest(
                         Request.Method.POST,
@@ -139,9 +140,9 @@ public class CreateUserDialogFragment extends DialogFragment {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    private Boolean validateForm(String name, String email, String pass1, String pass2, String apt, String securityWord){
+    private Boolean validateForm(String name, String email, String pass1, String pass2, String apt){
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(pass1)
-                || TextUtils.isEmpty(pass2) || TextUtils.isEmpty(securityWord) || TextUtils.isEmpty(apt)) {
+                || TextUtils.isEmpty(pass2) || TextUtils.isEmpty(apt)) {
              showToast("Please fill all fields.");
             return false;
         }
@@ -160,13 +161,13 @@ public class CreateUserDialogFragment extends DialogFragment {
         return true;
     }
 
-    private JSONObject createUserJson(String name, String email, String pass1, String apt, String securityWord, String role) throws Exception {
+    private JSONObject createUserJson(String name, String email, String pass1, String apt, String role, String imageBase64) throws Exception {
         JSONObject json = new JSONObject();
         json.put("residentName", name);
         json.put("email", email);
         json.put("password", pass1);
         json.put("apartmentInformation", apt);
-        json.put("securityWord", securityWord);
+        json.put("imageBase64", imageBase64);
         json.put("role", role);
         return json;
     }
@@ -210,13 +211,24 @@ public class CreateUserDialogFragment extends DialogFragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             Uri imageUri = data.getData();
             try {
-                Bitmap selectedImageBitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
-                imgProfile.setImageBitmap(selectedImageBitmap);
+                Bitmap originalBitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
+
+                Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 340, 200, true);
+
+                imgProfile.setImageBitmap(resizedBitmap);
+
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                byte[] imageBytes = outputStream.toByteArray();
+                imageBase64 = "data:image/jpeg;base64," + Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+
             } catch (IOException e) {
                 e.printStackTrace();
+                Toast.makeText(getContext(), "Error loading image", Toast.LENGTH_SHORT).show();
             }
         }
     }

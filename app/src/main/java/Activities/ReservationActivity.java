@@ -579,6 +579,7 @@ public class ReservationActivity extends RoleRuleActivity {
                     try {
                         reservationList.clear();
                         JSONArray dataArray = response.getJSONArray("data");
+
                         for (int c = 0; c < dataArray.length(); c++) {
                             JSONObject reservationJson = dataArray.getJSONObject(c);
                             Reservation reservation = gson.fromJson(reservationJson.toString(), Reservation.class);
@@ -599,8 +600,7 @@ public class ReservationActivity extends RoleRuleActivity {
                     }
                 },
                 error -> {
-                    Log.e(LOG_TAG, "Error with request: " + error.toString());
-                    Toast.makeText(ReservationActivity.this, "Failed to retrieve data", Toast.LENGTH_LONG).show();
+                    showServerErrorMessage(error);
                     pDialog.dismiss();
                 }
         );
@@ -613,8 +613,28 @@ public class ReservationActivity extends RoleRuleActivity {
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
                 )
         );
-
         requestQueues.add(newRequest);
+    }
+
+    private void showServerErrorMessage(com.android.volley.VolleyError error) {
+        String errorMessage = "Unexpected error";
+        try {
+            if (error.networkResponse != null && error.networkResponse.data != null) {
+                String body = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                Log.e(LOG_TAG, "Server response: " + body);
+
+                JSONObject jsonError = new JSONObject(body);
+                if (jsonError.has("message")) {
+                    errorMessage = jsonError.getString("message");
+                }
+            } else {
+                errorMessage = "No response from server.";
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Error parsing server response: " + e.getMessage());
+            errorMessage = "Failed to interpret server error.";
+        }
+        Toast.makeText(ReservationActivity.this, errorMessage, Toast.LENGTH_LONG).show();
     }
 
     @Override

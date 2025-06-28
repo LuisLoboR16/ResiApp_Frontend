@@ -66,12 +66,17 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
         List<Space> spaceList = ReservationAdapter.spaceList;
 
         holder.tvReservationNumber.setText(holder.itemView.getContext().getString(R.string.reservation_number) + " " + reservation.getId());
-        holder.tvImage.setImageResource(R.drawable.ic_resiapp_under_construction);
+        Space matchedSpace = null;
+        for (Space s : spaceList) {
+            if (s.getId() == reservation.getSpace().getId()) {
+                matchedSpace = s;
+                break;
+            }
+        }
 
-        String base64Image = reservation.getSpace().getImage();
-        if (base64Image != null && base64Image.startsWith("data:image")) {
+        if (matchedSpace != null && matchedSpace.getImage() != null && matchedSpace.getImage().startsWith("data:image")) {
             try {
-                String encoded = base64Image.split(",")[1];
+                String encoded = matchedSpace.getImage().split(",")[1];
                 byte[] imageBytes = Base64.decode(encoded, Base64.DEFAULT);
                 Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                 holder.tvImage.setImageBitmap(bitmap);
@@ -79,6 +84,8 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
                 holder.tvImage.setImageResource(R.drawable.ic_resiapp_under_construction);
                 Log.e(LOG_TAG, "Error decoding image: " + e.getMessage());
             }
+        } else {
+            holder.tvImage.setImageResource(R.drawable.ic_resiapp_under_construction);
         }
 
         if (reservation.getStartTime() != null && reservation.getEndTime() != null) {
@@ -87,6 +94,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
 
             holder.tvStartTime.setText(startTimeFormatted+ " - " + endTimeFormatted);
             holder.tvEndTime.setText(DATE_FORMAT_CUSTOM.format(reservation.getStartTime()));
+
         } else {
             holder.tvEndTime.setText(R.string.date_unavailable);
         }
@@ -104,9 +112,6 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             holder.btnUpdate.setVisibility(View.GONE);
             holder.btnDelete.setVisibility(View.GONE);
         }
-
-        Log.d(LOG_TAG, "Space image: " + base64Image);
-
 
         holder.btnUpdate.setOnClickListener(v -> listener.onUpdate(reservation,userList,spaceList));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(reservation));
