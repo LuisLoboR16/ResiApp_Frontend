@@ -27,4 +27,5 @@ public class Constants {
     public static final String DATE_FORMAT_SHORTEST = "hh:mm a";
     public static final SimpleDateFormat DATE_FORMAT_CUSTOM =  new SimpleDateFormat("dd MMMM yy", Locale.ENGLISH);
     public static final SimpleDateFormat DATE_FORMAT_HOURS_CUSTOM =  new SimpleDateFormat("HH:mm", Locale.ENGLISH);
+    public static final String REGEX_EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
 }
