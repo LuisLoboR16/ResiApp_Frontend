@@ -85,7 +85,7 @@ public class ReservationActivity extends RoleRuleActivity {
         btnCreateReservation.setOnClickListener(v -> {
             CreateReservationDialogFragment dialog = new CreateReservationDialogFragment();
             dialog.setSpaceList(spaceList);
-            dialog.setOnReservationCreated(() -> createReservationRequest(URL + GET));
+            dialog.setOnReservationCreated(() -> createReservationRequest(getReservationUrlByRole()));
             dialog.show(getSupportFragmentManager(), "CreateReservationDialogFragment");
         });
 

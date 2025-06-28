@@ -278,8 +278,8 @@ public class CreateReservationDialogFragment extends DialogFragment {
         this.currentUser = currentUser;
     }
 
-    public void setOnReservationCreated(Runnable onReviewCreated) {
-        this.onReservationCreated = onReviewCreated;
+    public void setOnReservationCreated(Runnable onReservationCreated) {
+        this.onReservationCreated = onReservationCreated;
     }
 
     @NonNull
