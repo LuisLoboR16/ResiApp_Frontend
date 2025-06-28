@@ -25,7 +25,7 @@
                 android:layout_height="200dp"
                 android:scaleType="centerCrop"
                 android:adjustViewBounds="true"
-                android:contentDescription="Space photo"
+                android:contentDescription="@string/spaces"
                 android:layout_margin="0dp"/>
         </androidx.cardview.widget.CardView>
 

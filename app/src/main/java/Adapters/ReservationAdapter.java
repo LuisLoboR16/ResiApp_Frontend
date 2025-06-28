@@ -1,13 +1,19 @@
 package Adapters;
 
-import static API.Constants.DATE_FORMAT;
+import static API.Constants.DATE_FORMAT_CUSTOM;
+import static API.Constants.DATE_FORMAT_HOURS_CUSTOM;
+import static API.Constants.LOG_TAG;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -59,18 +65,30 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
         List<User> userList = ReservationAdapter.userList;
         List<Space> spaceList = ReservationAdapter.spaceList;
 
-        holder.tvReservationNumber.setText("Reservation #" + reservation.getId());
+        holder.tvReservationNumber.setText(holder.itemView.getContext().getString(R.string.reservation_number) + " " + reservation.getId());
+        holder.tvImage.setImageResource(R.drawable.ic_resiapp_under_construction);
 
-        if (reservation.getStartTime() != null) {
-            holder.tvStartTime.setText(Html.fromHtml("<b>From:</b> " + DATE_FORMAT.format(reservation.getStartTime())));
-        } else {
-            holder.tvStartTime.setText("Date unavailable");
+        String base64Image = reservation.getSpace().getImage();
+        if (base64Image != null && base64Image.startsWith("data:image")) {
+            try {
+                String encoded = base64Image.split(",")[1];
+                byte[] imageBytes = Base64.decode(encoded, Base64.DEFAULT);
+                Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                holder.tvImage.setImageBitmap(bitmap);
+            } catch (Exception e) {
+                holder.tvImage.setImageResource(R.drawable.ic_resiapp_under_construction);
+                Log.e(LOG_TAG, "Error decoding image: " + e.getMessage());
+            }
         }
 
-        if (reservation.getEndTime() != null) {
-            holder.tvEndTime.setText(Html.fromHtml("<b>To:</b> " + DATE_FORMAT.format(reservation.getEndTime())));
+        if (reservation.getStartTime() != null && reservation.getEndTime() != null) {
+            String startTimeFormatted = DATE_FORMAT_HOURS_CUSTOM.format(reservation.getStartTime());
+            String endTimeFormatted = DATE_FORMAT_HOURS_CUSTOM.format(reservation.getEndTime());
+
+            holder.tvStartTime.setText(startTimeFormatted+ " - " + endTimeFormatted);
+            holder.tvEndTime.setText(DATE_FORMAT_CUSTOM.format(reservation.getStartTime()));
         } else {
-            holder.tvEndTime.setText("Date unavailable");
+            holder.tvEndTime.setText(R.string.date_unavailable);
         }
 
         holder.tvUser.setText(Html.fromHtml("<b>Resident:</b> " + reservation.getUser().getResidentName()));
@@ -87,6 +105,9 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             holder.btnDelete.setVisibility(View.GONE);
         }
 
+        Log.d(LOG_TAG, "Space image: " + base64Image);
+
+
         holder.btnUpdate.setOnClickListener(v -> listener.onUpdate(reservation,userList,spaceList));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(reservation));
     }
@@ -98,6 +119,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
 
     public static class ReservationViewHolder extends RecyclerView.ViewHolder {
         TextView tvReservationNumber, tvStartTime, tvEndTime, tvUser,tvSpace;
+        ImageView tvImage;
         Button btnUpdate, btnDelete;
 
         public ReservationViewHolder(@androidx.annotation.NonNull View itemView) {
@@ -108,6 +130,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             tvEndTime= itemView.findViewById(R.id.tvEndTime);
             tvUser = itemView.findViewById(R.id.tvResidentReservation);
             tvSpace = itemView.findViewById(R.id.tvSpaceReservation);
+            tvImage = itemView.findViewById(R.id.imgSpacePhotoReservations);
 
             btnUpdate = itemView.findViewById(R.id.btnUpdateReservations);
             btnDelete = itemView.findViewById(R.id.btnDeleteReservations);

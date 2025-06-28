@@ -67,7 +67,6 @@ public class ReservationActivity extends RoleRuleActivity {
     private List<Reservation> reservationList;
     private List<Space> spaceList;
     private List<User> userList;
-    private User currentUser;
     private ReservationAdapter adapter;
 
     String formattedStartTimeDate = "";
@@ -85,7 +84,6 @@ public class ReservationActivity extends RoleRuleActivity {
         FloatingActionButton btnCreateReservation = findViewById(R.id.btnCreatecReservation);
         btnCreateReservation.setOnClickListener(v -> {
             CreateReservationDialogFragment dialog = new CreateReservationDialogFragment();
-            dialog.setUser(currentUser);
             dialog.setSpaceList(spaceList);
             dialog.setOnReservationCreated(() -> createReservationRequest(URL + GET));
             dialog.show(getSupportFragmentManager(), "CreateReservationDialogFragment");
@@ -95,11 +93,13 @@ public class ReservationActivity extends RoleRuleActivity {
         reservationList = new ArrayList<>();
         spaceList = new ArrayList<>();
         gson = new GsonBuilder().setDateFormat(DATE_FORMAT_LONG).create();
+
         SingleVolley volley = SingleVolley.getInstance(getApplicationContext());
         requestQueues = volley.getRequestQueue();
 
         createSpaceRequest(URL + GET_SPACE);
         createUserRequest(URL + GET_USERS);
+
         adapter = new ReservationAdapter(reservationList,userList,spaceList,new ReservationAdapter.onReservationActionListener() {
 
             @Override
@@ -293,12 +293,18 @@ public class ReservationActivity extends RoleRuleActivity {
 
                 btnTimeBoard.setOnClickListener(v -> {
                             String selectedDate = editDate.getText().toString().trim();
+
                             if (selectedDate.isEmpty()) {
                                 Toast.makeText(ReservationActivity.this, "Select a date first", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
                     int selectedIndex = editSpace.getSelectedItemPosition();
+                    if (selectedIndex < 0 || selectedIndex >= spaceList.size()) {
+                        Toast.makeText(ReservationActivity.this, "Please select a valid space", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     Space selectedSpace = spaceList.get(selectedIndex);
                     int spaceId = selectedSpace.getId();
 
@@ -489,9 +495,12 @@ public class ReservationActivity extends RoleRuleActivity {
                     try {
                         spaceList.clear();
                         for (int i = 0; i < response.length(); i++) {
-                            JSONObject ruleJson = response.getJSONObject(i);
-                            Space spaceName = gson.fromJson(ruleJson.toString(), Space.class);
-                            spaceList.add(spaceName);
+                            JSONObject spaceJson = response.getJSONObject(i);
+                            Space space = gson.fromJson(spaceJson.toString(), Space.class);
+
+                            if(space.isAvailability()){
+                                spaceList.add(space);
+                            }
                         }
                         Log.d(LOG_TAG, "Space loaded: " + spaceList.size());
 
