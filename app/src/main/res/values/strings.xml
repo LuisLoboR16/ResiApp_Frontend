@@ -82,6 +82,7 @@
     <string name="update_reservation">Update Reservation</string>
     <string name="add_spacerule">Add SpaceRule</string>
     <string name="messages">Messages</string>
+    <string name="send_to_all_users">Send to all users</string>
     <string-array name="roles_array">
         <item>Resident</item>
         <item>Admin</item>
