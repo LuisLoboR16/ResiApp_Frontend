@@ -38,8 +38,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import API.Constants;
+import Utils.Constants;
 import API.SingleVolley;
+import Utils.TokenValidator;
 import Models.Space;
 import Models.User;
 
@@ -55,26 +56,21 @@ public class CreateReservationDialogFragment extends DialogFragment {
     private RequestQueue requestQueues;
     private User currentUser;
     private List<Space> spaceList = new ArrayList<>();
-
-    public void setSpaceList(List<Space> spaceList) {
-        this.spaceList = spaceList;
-    }
-    public void setUser(User currentUser) {
-        this.currentUser = currentUser;
-    }
+    private Runnable onReservationCreated;
 
     String formattedStartTimeDate = "";
     String formattedEndTimeDate = "";
+    EditText editStartTime,editEndTime,editDate,editUser;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_create_reservation, null);
 
-        EditText editStartTime = view.findViewById(R.id.editStartTimecReservation);
-        EditText editEndTime = view.findViewById(R.id.editEndTimecReservation);
-        EditText editDate = view.findViewById(R.id.editDateReservation);
-        EditText editUser = view.findViewById(R.id.editUsercReservation);
+        editStartTime = view.findViewById(R.id.editStartTimecReservation);
+        editEndTime = view.findViewById(R.id.editEndTimecReservation);
+        editDate = view.findViewById(R.id.editDateReservation);
+        editUser = view.findViewById(R.id.editUsercReservation);
 
         Spinner editSpace = view.findViewById(R.id.editSpinnerSpacecReservation);
 
@@ -107,6 +103,8 @@ public class CreateReservationDialogFragment extends DialogFragment {
                         SimpleDateFormat sdf = new SimpleDateFormat(DATE_INVERTED_FORMAT, Locale.getDefault());
                         String formattedDate = sdf.format(calendar.getTime());
                         editDate.setText(formattedDate);
+
+                        cleanFields();
                     },
                     year, month, day
             );
@@ -136,20 +134,23 @@ public class CreateReservationDialogFragment extends DialogFragment {
         editSpace.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view1, int position, long id) {
-                formattedStartTimeDate = "";
-                formattedEndTimeDate = "";
-                editStartTime.setText("");
-                editEndTime.setText("");
+                cleanFields();
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
 
         btnTimeBoard.setOnClickListener(v -> {
             String selectedDate = editDate.getText().toString().trim();
             if (selectedDate.isEmpty()) {
                 Toast.makeText(getContext(), "Select a date first", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (spaceList.isEmpty()) {
+                Toast.makeText(getContext(), "Please select a valid space first", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -263,10 +264,23 @@ public class CreateReservationDialogFragment extends DialogFragment {
                 .create();
     }
 
-    private Runnable onReservationCreated;
+    public void cleanFields(){
+        formattedStartTimeDate = "";
+        formattedEndTimeDate = "";
+        editStartTime.setText("");
+        editEndTime.setText("");
+    }
 
-    public void setOnReservationCreated(Runnable onReviewCreated) {
-        this.onReservationCreated = onReviewCreated;
+    public void setSpaceList(List<Space> spaceList) {
+        this.spaceList = spaceList;
+    }
+
+    public void setUser(User currentUser) {
+        this.currentUser = currentUser;
+    }
+
+    public void setOnReservationCreated(Runnable onReservationCreated) {
+        this.onReservationCreated = onReservationCreated;
     }
 
     @NonNull
@@ -325,5 +339,10 @@ public class CreateReservationDialogFragment extends DialogFragment {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
         return request;
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(requireContext());
     }
 }

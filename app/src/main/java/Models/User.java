@@ -28,9 +28,9 @@ public class User {
     @Expose
     private String apartmentInformation;
 
-    @SerializedName("securityWord")
+    @SerializedName("imageBase64")
     @Expose
-    private String securityWord;
+    private String image;
 
     @SerializedName("role")
     @Expose
@@ -76,12 +76,12 @@ public class User {
         this.apartmentInformation = apartmentInformation;
     }
 
-    public String getSecurityWord() {
-        return securityWord;
+    public String getImageBase64() {
+        return image;
     }
 
-    public void setSecurityWord(String securityWord) {
-        this.securityWord = securityWord;
+    public void setImageBase64(String imageBase64) {
+        this.image = imageBase64;
     }
 
     public String getRole() {

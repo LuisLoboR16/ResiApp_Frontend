@@ -45,12 +45,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import API.Constants;
+import Utils.Constants;
 import API.SingleVolley;
 import Adapters.SpaceAdapter;
 import Fragments.CreateSpaceDialogFragment;
 import Models.Space;
 import Models.SpaceRule;
+import Utils.TokenValidator;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SpaceActivity extends AppCompatActivity {
@@ -457,5 +458,10 @@ public class SpaceActivity extends AppCompatActivity {
 
     interface OnImageSelected {
         void onSelected(Bitmap image);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(this);
     }
 }

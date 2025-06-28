@@ -32,8 +32,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import API.Constants;
+import Utils.Constants;
 import API.SingleVolley;
+import Utils.TokenValidator;
 
 public class NotificationDialogFragment extends DialogFragment {
     static final String LOG_TAG = Constants.LOG_TAG;
@@ -197,5 +198,10 @@ public class NotificationDialogFragment extends DialogFragment {
     private String getEmailFromPrefs() {
         SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", MODE_PRIVATE);
         return prefs.getString("resident_email","");
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(requireContext());
     }
 }

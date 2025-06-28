@@ -31,8 +31,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import API.Constants;
+import Utils.Constants;
 import API.SingleVolley;
+import Utils.TokenValidator;
 import Models.Space;
 import Models.User;
 
@@ -192,5 +193,10 @@ public class CreateReviewDialogFragment extends DialogFragment {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
         return request;
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(requireContext());
     }
 }

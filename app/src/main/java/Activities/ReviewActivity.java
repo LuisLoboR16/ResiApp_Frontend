@@ -33,14 +33,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import API.SingleVolley;
-import API.Constants;
+import Utils.Constants;
 import Adapters.ReviewAdapter;
 import Fragments.CreateReviewDialogFragment;
 import Models.Review;
 import Models.Space;
 import Models.User;
+import Utils.RoleRule;
+import Utils.TokenValidator;
 
-public class ReviewActivity extends RoleRuleActivity {
+public class ReviewActivity extends RoleRule {
     static final String URL = Constants.URL;
     static final String GET = Constants.REVIEWS_ENDPOINT;
     static final String DELETE = Constants.REVIEWS_ENDPOINT+"/";
@@ -377,5 +379,10 @@ public class ReviewActivity extends RoleRuleActivity {
             requestQueues.cancelAll(LOG_TAG);
         }
         Log.i(LOG_TAG, "onStop() - Requests canceled");
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(this);
     }
 }

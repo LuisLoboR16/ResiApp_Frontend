@@ -24,7 +24,7 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
-import API.Constants;
+import Utils.Constants;
 
 public class ForgotPasswordDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
@@ -39,9 +39,6 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_forgot_password, null);
 
          editEmail = view.findViewById(R.id.etEmailForgot);
-         editSecurityWord = view.findViewById(R.id.etSecurityWord);
-         editPassword = view.findViewById(R.id.etPassForgot);
-         editRePassword = view.findViewById(R.id.etPass2Forgot);
 
         Button btnUpdate = view.findViewById(R.id.btnUpdateForgot);
         Button btnCancel = view.findViewById(R.id.btnCancelForgot);
@@ -56,17 +53,9 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
 
     private void updateUser() {
         String email = editEmail.getText().toString();
-        String securityWord = editSecurityWord.getText().toString();
-        String pass = editPassword.getText().toString();
-        String pass2 = editRePassword.getText().toString();
 
-        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pass) || TextUtils.isEmpty(pass2) || TextUtils.isEmpty(securityWord)) {
+        if (TextUtils.isEmpty(email)) {
             Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (!pass.equals(pass2)) {
-            Toast.makeText(getContext(), "Passwords do not match", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -77,8 +66,6 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
         try {
             JSONObject json = new JSONObject();
             json.put("email",email);
-            json.put("newPassword", pass);
-            json.put("securityWord",securityWord);
 
             JsonObjectRequest request = new JsonObjectRequest(
                     Request.Method.POST,

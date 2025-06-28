@@ -39,8 +39,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import API.Constants;
+import Utils.Constants;
 import API.SingleVolley;
+import Utils.TokenValidator;
 import Models.SpaceRule;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -217,5 +218,10 @@ public class CreateSpaceDialogFragment extends DialogFragment {
                 Toast.makeText(getContext(), "Error loading image", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(requireContext());
     }
 }

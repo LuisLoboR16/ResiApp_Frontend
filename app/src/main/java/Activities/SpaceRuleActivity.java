@@ -31,11 +31,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import API.Constants;
+import Utils.Constants;
 import API.SingleVolley;
 import Adapters.SpaceRuleAdapter;
 import Fragments.CreateSpaceRuleDialogFragment;
 import Models.SpaceRule;
+import Utils.TokenValidator;
 
 public class SpaceRuleActivity extends AppCompatActivity {
     static final String URL = Constants.URL;
@@ -283,5 +284,10 @@ public class SpaceRuleActivity extends AppCompatActivity {
             requestQueues.cancelAll(LOG_TAG);
         }
         Log.i(LOG_TAG, "onStop() - Requests canceled");
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(this);
     }
 }

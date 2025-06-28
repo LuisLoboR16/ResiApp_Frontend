@@ -1,4 +1,4 @@
-package Activities;
+package Utils;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public abstract class RoleRuleActivity extends AppCompatActivity {
+public abstract class RoleRule extends AppCompatActivity {
     protected String userRole;
 
     @Override

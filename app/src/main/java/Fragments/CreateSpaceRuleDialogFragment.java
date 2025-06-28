@@ -24,8 +24,9 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
-import API.Constants;
+import Utils.Constants;
 import API.SingleVolley;
+import Utils.TokenValidator;
 
 public class CreateSpaceRuleDialogFragment extends DialogFragment {
     static final String URL = Constants.URL;
@@ -121,5 +122,10 @@ public class CreateSpaceRuleDialogFragment extends DialogFragment {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
         return request;
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(requireContext());
     }
 }

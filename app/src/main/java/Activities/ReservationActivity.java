@@ -44,14 +44,16 @@ import java.util.Locale;
 import java.util.Objects;
 
 import API.SingleVolley;
-import API.Constants;
+import Utils.Constants;
 import Adapters.ReservationAdapter;
 import Fragments.CreateReservationDialogFragment;
 import Models.Reservation;
 import Models.Space;
 import Models.User;
+import Utils.RoleRule;
+import Utils.TokenValidator;
 
-public class ReservationActivity extends RoleRuleActivity {
+public class ReservationActivity extends RoleRule {
     static final String URL = Constants.URL;
     static final String GET = Constants.RESERVATIONS_ENDPOINT;
     static final String DELETE = Constants.RESERVATIONS_ENDPOINT+"/";
@@ -67,7 +69,6 @@ public class ReservationActivity extends RoleRuleActivity {
     private List<Reservation> reservationList;
     private List<Space> spaceList;
     private List<User> userList;
-    private User currentUser;
     private ReservationAdapter adapter;
 
     String formattedStartTimeDate = "";
@@ -85,9 +86,8 @@ public class ReservationActivity extends RoleRuleActivity {
         FloatingActionButton btnCreateReservation = findViewById(R.id.btnCreatecReservation);
         btnCreateReservation.setOnClickListener(v -> {
             CreateReservationDialogFragment dialog = new CreateReservationDialogFragment();
-            dialog.setUser(currentUser);
             dialog.setSpaceList(spaceList);
-            dialog.setOnReservationCreated(() -> createReservationRequest(URL + GET));
+            dialog.setOnReservationCreated(() -> createReservationRequest(getReservationUrlByRole()));
             dialog.show(getSupportFragmentManager(), "CreateReservationDialogFragment");
         });
 
@@ -95,11 +95,13 @@ public class ReservationActivity extends RoleRuleActivity {
         reservationList = new ArrayList<>();
         spaceList = new ArrayList<>();
         gson = new GsonBuilder().setDateFormat(DATE_FORMAT_LONG).create();
+
         SingleVolley volley = SingleVolley.getInstance(getApplicationContext());
         requestQueues = volley.getRequestQueue();
 
         createSpaceRequest(URL + GET_SPACE);
         createUserRequest(URL + GET_USERS);
+
         adapter = new ReservationAdapter(reservationList,userList,spaceList,new ReservationAdapter.onReservationActionListener() {
 
             @Override
@@ -293,12 +295,18 @@ public class ReservationActivity extends RoleRuleActivity {
 
                 btnTimeBoard.setOnClickListener(v -> {
                             String selectedDate = editDate.getText().toString().trim();
+
                             if (selectedDate.isEmpty()) {
                                 Toast.makeText(ReservationActivity.this, "Select a date first", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
                     int selectedIndex = editSpace.getSelectedItemPosition();
+                    if (selectedIndex < 0 || selectedIndex >= spaceList.size()) {
+                        Toast.makeText(ReservationActivity.this, "Please select a valid space", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     Space selectedSpace = spaceList.get(selectedIndex);
                     int spaceId = selectedSpace.getId();
 
@@ -489,9 +497,12 @@ public class ReservationActivity extends RoleRuleActivity {
                     try {
                         spaceList.clear();
                         for (int i = 0; i < response.length(); i++) {
-                            JSONObject ruleJson = response.getJSONObject(i);
-                            Space spaceName = gson.fromJson(ruleJson.toString(), Space.class);
-                            spaceList.add(spaceName);
+                            JSONObject spaceJson = response.getJSONObject(i);
+                            Space space = gson.fromJson(spaceJson.toString(), Space.class);
+
+                            if(space.isAvailability()){
+                                spaceList.add(space);
+                            }
                         }
                         Log.d(LOG_TAG, "Space loaded: " + spaceList.size());
 
@@ -570,6 +581,7 @@ public class ReservationActivity extends RoleRuleActivity {
                     try {
                         reservationList.clear();
                         JSONArray dataArray = response.getJSONArray("data");
+
                         for (int c = 0; c < dataArray.length(); c++) {
                             JSONObject reservationJson = dataArray.getJSONObject(c);
                             Reservation reservation = gson.fromJson(reservationJson.toString(), Reservation.class);
@@ -590,8 +602,7 @@ public class ReservationActivity extends RoleRuleActivity {
                     }
                 },
                 error -> {
-                    Log.e(LOG_TAG, "Error with request: " + error.toString());
-                    Toast.makeText(ReservationActivity.this, "Failed to retrieve data", Toast.LENGTH_LONG).show();
+                    showServerErrorMessage(error);
                     pDialog.dismiss();
                 }
         );
@@ -604,8 +615,28 @@ public class ReservationActivity extends RoleRuleActivity {
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
                 )
         );
-
         requestQueues.add(newRequest);
+    }
+
+    private void showServerErrorMessage(com.android.volley.VolleyError error) {
+        String errorMessage = "Unexpected error";
+        try {
+            if (error.networkResponse != null && error.networkResponse.data != null) {
+                String body = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                Log.e(LOG_TAG, "Server response: " + body);
+
+                JSONObject jsonError = new JSONObject(body);
+                if (jsonError.has("message")) {
+                    errorMessage = jsonError.getString("message");
+                }
+            } else {
+                errorMessage = "No response from server.";
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Error parsing server response: " + e.getMessage());
+            errorMessage = "Failed to interpret server error.";
+        }
+        Toast.makeText(ReservationActivity.this, errorMessage, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -615,5 +646,11 @@ public class ReservationActivity extends RoleRuleActivity {
             requestQueues.cancelAll(LOG_TAG);
         }
         Log.i(LOG_TAG, "onStop() - Requests canceled");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TokenValidator.validateToken(this);
     }
 }
