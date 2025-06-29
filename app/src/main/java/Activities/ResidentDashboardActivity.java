@@ -3,6 +3,8 @@ package Activities;
 
 import static com.android.volley.toolbox.Volley.newRequestQueue;
 
+import static Utils.Constants.*;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -32,17 +34,11 @@ import com.example.resiapp.R;
 
 import org.json.JSONObject;
 
-import Utils.Constants;
 import Fragments.NotificationDialogFragment;
 import Fragments.UpdateConfigurationsDialogFragment;
 import Utils.TokenValidator;
 
 public class ResidentDashboardActivity extends AppCompatActivity {
-    static final String URL = Constants.URL;
-    static final String FIND_BY_USER_ID = Constants.FIND_BY_USER_ID_ENDPOINT;
-    static final String LOGOUT = Constants.AUTH_LOGOUT_ENDPOINT;
-
-
     LinearLayout layoutNotifications, layoutConfigurations, layoutReviews, layoutReservations;
     TextView txtNotifications, txtConfigurations, txtReviews, txtReservations;
     ImageView imgNotifications, imgConfigurations, imgReviews, imgReservations, imgProfileDashboard;
@@ -151,7 +147,7 @@ public class ResidentDashboardActivity extends AppCompatActivity {
 
             StringRequest request = new com.android.volley.toolbox.StringRequest(
                     com.android.volley.Request.Method.POST,
-                    URL + LOGOUT,
+                    URL + AUTH_LOGOUT_ENDPOINT,
                     response -> {
                         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
                         logoutManually(dialog);
@@ -192,7 +188,7 @@ public class ResidentDashboardActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int userId = prefs.getInt("user_id", -1);
 
-        String url = URL + FIND_BY_USER_ID + userId;
+        String url = URL + FIND_BY_USER_ID_ENDPOINT + userId;
 
         RequestQueue queue = newRequestQueue(this);
 

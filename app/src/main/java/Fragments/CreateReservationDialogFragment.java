@@ -62,17 +62,17 @@ public class CreateReservationDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_create_reservation, null);
 
+        initVolley();
         initViews(view);
-        extractUserData();
-        populateSpaceSpinner();
+        loadUserPreferences();
+        setupSpaceSpinner();
         setupDatePicker();
 
-        requestQueues = SingleVolley.getInstance(requireContext()).getRequestQueue();
+        return new AlertDialog.Builder(requireContext()).setView(view).setCancelable(false).create();
+    }
 
-        return new AlertDialog.Builder(requireContext())
-                .setView(view)
-                .setCancelable(false)
-                .create();
+    private void initVolley() {
+        requestQueues = SingleVolley.getInstance(requireContext()).getRequestQueue();
     }
 
     public void initViews(View view){
@@ -96,12 +96,12 @@ public class CreateReservationDialogFragment extends DialogFragment {
         btnTimeBoard.setOnClickListener(v -> findAvailableTimeSlots());
     }
 
-    public void extractUserData(){
+    public void loadUserPreferences(){
         SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         residentName = prefs.getString("resident_name", null);
         userId = prefs.getInt("user_id", -1);
         role = prefs.getString("role","Resident");
-        email = prefs.getString("email", ADMIN_EMAIL);
+        email = prefs.getString("resident_email", ADMIN_EMAIL);
 
         if (residentName != null && userId != -1) {
             currentUser = new User();
@@ -113,8 +113,7 @@ public class CreateReservationDialogFragment extends DialogFragment {
         }
     }
 
-
-    public void populateSpaceSpinner(){
+    public void setupSpaceSpinner(){
         List<String> spaceNames = new ArrayList<>();
         for (Space name : spaceList) {
             spaceNames.add(name.getSpaceName());
@@ -129,10 +128,8 @@ public class CreateReservationDialogFragment extends DialogFragment {
             public void onItemSelected(AdapterView<?> parent, View view1, int position, long id) {
                 cleanFields();
             }
-
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
 
@@ -231,6 +228,14 @@ public class CreateReservationDialogFragment extends DialogFragment {
         editEndTime.setText("");
     }
 
+    private ProgressDialog showProgress(String message) {
+        ProgressDialog dialog = new ProgressDialog(requireContext());
+        dialog.setMessage(message);
+        dialog.setCancelable(false);
+        dialog.show();
+        return dialog;
+    }
+
     public void setSpaceList(List<Space> spaceList) {
         this.spaceList = spaceList;
     }
@@ -258,10 +263,7 @@ public class CreateReservationDialogFragment extends DialogFragment {
             return;
         }
 
-        ProgressDialog progressDialog = new ProgressDialog(getContext());
-        progressDialog.setMessage("Creating reservation...");
-        progressDialog.show();
-
+        ProgressDialog progressDialog = showProgress("Creating reservation...");
         try {
             JSONObject json = new JSONObject();
             json.put("startTime", formattedStartTimeDate);
@@ -281,15 +283,12 @@ public class CreateReservationDialogFragment extends DialogFragment {
 
     @NonNull
     private JsonObjectRequest getJsonObjectRequest(JSONObject jsonBody, ProgressDialog progressDialog) {
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.POST,
-                URL + RESERVATIONS_ENDPOINT,
-                jsonBody,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, URL + RESERVATIONS_ENDPOINT, jsonBody,
                 response -> {
                     Toast.makeText(getContext(), "Reservation created successfully", Toast.LENGTH_SHORT).show();
 
                     String spaceName = spaceList.get(editSpace.getSelectedItemPosition()).getSpaceName();
-                    sendConfirmationEmail(currentUser.getEmail(), spaceName, editStartTime.getText().toString(), editEndTime.getText().toString());
+                    sendConfirmationEmail(spaceName, editStartTime.getText().toString(), editEndTime.getText().toString());
 
                     progressDialog.dismiss();
                     dismiss();
@@ -305,11 +304,6 @@ public class CreateReservationDialogFragment extends DialogFragment {
 
                     if (error.networkResponse != null) {
                         statusCode = error.networkResponse.statusCode;
-
-                        if (error.networkResponse.data != null) {
-                            errorBody = new String(error.networkResponse.data);
-                            Log.e(LOG_TAG, "Error body: " + errorBody);
-                        }
                         Log.e(LOG_TAG, "Status code: " + statusCode);
                     }
                     try {
@@ -319,7 +313,6 @@ public class CreateReservationDialogFragment extends DialogFragment {
                             Log.e(LOG_TAG, obj.getString("message"));
                             Toast.makeText(getContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
                         }
-
                     } catch (Exception e) {
                         Log.e(LOG_TAG, "Error parsing error body: " + e.getMessage());
                     }
@@ -331,19 +324,14 @@ public class CreateReservationDialogFragment extends DialogFragment {
             }
         };
 
-        request.setRetryPolicy(new DefaultRetryPolicy(
-                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
-                3,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-        ));
+        request.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         return request;
     }
 
-    private void sendConfirmationEmail(String userEmail, String spaceName, String startTime, String endTime) {
+    private void sendConfirmationEmail(String spaceName, String startTime, String endTime) {
         try {
-
             JSONArray toArray = new JSONArray();
-            toArray.put("rosymontano771@gmail.com");
+            toArray.put(currentUser.getEmail());
 
             JSONObject json = new JSONObject();
             json.put("to", toArray);
@@ -351,10 +339,7 @@ public class CreateReservationDialogFragment extends DialogFragment {
             json.put("body", BODY_RESERVATIONS.replace("spaceName", spaceName).replace("startTime",startTime).replace("endTime",endTime).replace("currentUser.getResidentName()",currentUser.getResidentName()));
             json.put("role", currentUser.getRole());
 
-            JsonObjectRequest emailRequest = new JsonObjectRequest(
-                    Request.Method.POST,
-                    URL + SEND_EMAIL,
-                    json,
+            JsonObjectRequest emailRequest = new JsonObjectRequest(Request.Method.POST, URL + SEND_EMAIL, json,
                     response -> Log.d(LOG_TAG, "Email sent successfully"),
                     error -> {
                         if (error.networkResponse != null && error.networkResponse.data != null) {
@@ -370,9 +355,7 @@ public class CreateReservationDialogFragment extends DialogFragment {
                     return "application/json; charset=utf-8";
                 }
             };
-
             requestQueues.add(emailRequest);
-
         } catch (Exception e) {
             Log.e(LOG_TAG, "Error preparing email: " + e.getMessage());
         }

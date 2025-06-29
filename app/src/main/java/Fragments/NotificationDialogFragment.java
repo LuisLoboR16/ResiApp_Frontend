@@ -2,11 +2,12 @@ package Fragments;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import static Utils.Constants.*;
+
 import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -37,24 +38,33 @@ import API.SingleVolley;
 import Utils.TokenValidator;
 
 public class NotificationDialogFragment extends DialogFragment {
-    static final String LOG_TAG = Constants.LOG_TAG;
-    static final String adminEmail = Constants.ADMIN_EMAIL;
-    static final String SEND_EMAIL_ENDPOINT = Constants.SEND_EMAIL;
     static String email = "";
 
-    EditText edtEmail, edtSubject, edtComments;
+    String role, subject, body, emailCC,invokedClass;
+    List<String> allUserEmails = new ArrayList<>();
+
     TextView txtSelectUser;
     Spinner spinnerUser;
     CheckBox checkSendToAll;
-    List<String> allUserEmails = new ArrayList<>();
+    Button btnSend,btnCancel;
+    EditText edtEmail, edtSubject, edtComments;
+
+    JSONObject jsonBody;
+    JSONArray toArray, ccArrayResident;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_notification, null);
+        invokedClass = requireActivity().getClass().getSimpleName();
 
-        String invokedClass = requireActivity().getClass().getSimpleName();
+        initViews(view);
+        validateActivity();
 
+        return new AlertDialog.Builder(requireContext()).setView(view).create();
+    }
+
+    public void initViews(View view){
         edtEmail = view.findViewById(R.id.editToEmailNotification);
         edtSubject = view.findViewById(R.id.editSubject);
         edtComments = view.findViewById(R.id.editComment);
@@ -62,17 +72,22 @@ public class NotificationDialogFragment extends DialogFragment {
         spinnerUser = view.findViewById(R.id.editSpinnerUser);
         checkSendToAll = view.findViewById(R.id.checkSendToAll);
 
-        Button btnSend = view.findViewById(R.id.btnSend);
-        Button btnCancel = view.findViewById(R.id.btnCancel);
+        btnSend = view.findViewById(R.id.btnSend);
+        btnCancel = view.findViewById(R.id.btnCancel);
 
+        btnSend.setOnClickListener(v -> {sendEmail();});
+        btnCancel.setOnClickListener(v -> dismiss());
+    }
+
+    public void validateActivity(){
         if (invokedClass.trim().equals("ResidentDashboardActivity")) {
-            edtEmail.setText(adminEmail);
+            edtEmail.setText(ADMIN_EMAIL);
             edtEmail.setEnabled(false);
             txtSelectUser.setVisibility(View.GONE);
             spinnerUser.setVisibility(View.GONE);
             checkSendToAll.setVisibility(View.GONE);
 
-            email = adminEmail;
+            email = ADMIN_EMAIL;
 
         } else {
             edtEmail.setVisibility(View.GONE);
@@ -82,88 +97,11 @@ public class NotificationDialogFragment extends DialogFragment {
 
             loadUserEmails();
         }
-
-        btnSend.setOnClickListener(v -> {
-            String subject = edtSubject.getText().toString().trim();
-            String body = edtComments.getText().toString().trim();
-
-            if (!invokedClass.equals("ResidentDashboardActivity")) {
-                email = spinnerUser.getSelectedItem() != null ? spinnerUser.getSelectedItem().toString() : "";
-            }
-
-            if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(subject) && !TextUtils.isEmpty(body)) {
-                try {
-                    JSONObject jsonBody = new JSONObject();
-
-                    JSONArray toArray = new JSONArray();
-                    toArray.put(email);
-
-                    String role = getUserRoleFromPrefs();
-                    String emailCC = getEmailFromPrefs();
-
-                    JSONArray ccArrayResident = new JSONArray();
-                    ccArrayResident.put(emailCC);
-
-                    if(role.equals("Resident")){
-                        jsonBody.put("to", toArray);
-                        jsonBody.put("subject", subject);
-                        jsonBody.put("body", body);
-                        jsonBody.put("role", role);
-                        jsonBody.put("cc", ccArrayResident);
-
-                    } else {
-
-                        if (checkSendToAll.isChecked() && !allUserEmails.isEmpty()) {
-                            for (String ccEmail : allUserEmails) {
-                                if (!ccEmail.equals(email)) {
-                                    toArray.put(ccEmail);
-                                }
-                            }
-                        }
-
-                        jsonBody.put("to", toArray);
-                        jsonBody.put("subject", subject);
-                        jsonBody.put("body", body);
-                        jsonBody.put("role", role);
-                    }
-
-                    Log.d(LOG_TAG, "Payload final: " + jsonBody);
-
-                    JsonObjectRequest request = new JsonObjectRequest(
-                            Request.Method.POST,
-                            Constants.URL + SEND_EMAIL_ENDPOINT,
-                            jsonBody,
-                            response -> {
-                                Toast.makeText(getContext(), "Email sent successfully", Toast.LENGTH_SHORT).show();
-                                dismiss();
-                            },
-                            error -> {
-                                Toast.makeText(getContext(), "Error sending email", Toast.LENGTH_LONG).show();
-                            }
-                    );
-                    SingleVolley.getInstance(requireContext()).getRequestQueue().add(request);
-                } catch (Exception e) {
-                    Toast.makeText(getContext(), "Unexpected error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            } else {
-                Toast.makeText(getContext(), "Please fill all fields.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        btnCancel.setOnClickListener(v -> dismiss());
-
-        return new AlertDialog.Builder(requireContext())
-                .setView(view)
-                .create();
     }
 
     private void loadUserEmails() {
-        String url = Constants.URL + Constants.USERS_ENDPOINT;
-
         JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.GET,
-                url,
-                null,
+                Request.Method.GET, URL + USERS_ENDPOINT, null,
                 response -> {
                     try {
                         JSONArray jsonArray = response.getJSONArray("data");
@@ -189,6 +127,66 @@ public class NotificationDialogFragment extends DialogFragment {
         SingleVolley.getInstance(requireContext()).getRequestQueue().add(request);
     }
 
+    public void sendEmail(){
+        subject = edtSubject.getText().toString().trim();
+        body = edtComments.getText().toString().trim();
+
+        if (!invokedClass.equals("ResidentDashboardActivity")) {
+            email = spinnerUser.getSelectedItem() != null ? spinnerUser.getSelectedItem().toString() : "";
+        }
+
+        if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(subject) && !TextUtils.isEmpty(body)) {
+            try {
+                jsonBody = new JSONObject();
+                toArray = new JSONArray();
+                toArray.put(email);
+
+                role = getUserRoleFromPrefs();
+                emailCC = getEmailFromPrefs();
+
+                ccArrayResident = new JSONArray();
+                ccArrayResident.put(emailCC);
+
+                if(role.equals("Resident")){
+                    jsonBody.put("to", toArray);
+                    jsonBody.put("subject", subject);
+                    jsonBody.put("body", body);
+                    jsonBody.put("role", role);
+                    jsonBody.put("cc", ccArrayResident);
+
+                } else {
+                    if (checkSendToAll.isChecked() && !allUserEmails.isEmpty()) {
+                        for (String ccEmail : allUserEmails) {
+                            if (!ccEmail.equals(email)) {
+                                toArray.put(ccEmail);
+                            }
+                        }
+                    }
+
+                    jsonBody.put("to", toArray);
+                    jsonBody.put("subject", subject);
+                    jsonBody.put("body", body);
+                    jsonBody.put("role", role);
+                }
+
+                JsonObjectRequest request = new JsonObjectRequest(
+                        Request.Method.POST, Constants.URL + SEND_EMAIL, jsonBody,
+                        response -> {
+                            Toast.makeText(getContext(), "Email sent successfully", Toast.LENGTH_SHORT).show();
+                            dismiss();
+                        },
+                        error -> {
+                            Toast.makeText(getContext(), "Error sending email", Toast.LENGTH_LONG).show();
+                        }
+                );
+                SingleVolley.getInstance(requireContext()).getRequestQueue().add(request);
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "Unexpected error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "Please fill all fields.", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private String getUserRoleFromPrefs() {
         SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", MODE_PRIVATE);

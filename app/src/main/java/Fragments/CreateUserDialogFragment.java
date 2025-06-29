@@ -1,5 +1,7 @@
 package Fragments;
 
+import static Utils.Constants.*;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -11,7 +13,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -36,100 +37,47 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import Utils.Constants;
 import API.SingleVolley;
-import Utils.TokenValidator;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CreateUserDialogFragment extends DialogFragment {
-    static final String URL = Constants.URL;
-    static final String CREATE = Constants.USERS_ENDPOINT;
-    static final String REGEX_EMAIL = Constants.REGEX_EMAIL;
-    static final String LOG_TAG = Constants.LOG_TAG;
     private static final int PICK_IMAGE_REQUEST = 1;
 
     private CircleImageView imgProfile;
     private String imageBase64 = "";
+
+    String name, email, pass1, pass2, apt, role;
+    EditText editName,editEmail,editPassword,editRePassword,editApartment;
+    Button btnCreate, btnCancel;
+    TextView txtChangePhoto;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_create_user, null);
 
-        EditText editName = view.findViewById(R.id.editName);
-        EditText editEmail = view.findViewById(R.id.editEmail);
-        EditText editPassword = view.findViewById(R.id.editPassword);
-        EditText editRePassword = view.findViewById(R.id.editRePassword);
-        EditText editApartment = view.findViewById(R.id.editApartmentInformation);
-        TextView txtChangePhoto = view.findViewById(R.id.txtChangePhotoCreateUser);
+        initViews(view);
+
+        return new AlertDialog.Builder(requireContext()).setView(view).setCancelable(false).create();
+    }
+
+    private void initViews(View view){
+        editName = view.findViewById(R.id.editName);
+        editEmail = view.findViewById(R.id.editEmail);
+        editPassword = view.findViewById(R.id.editPassword);
+        editRePassword = view.findViewById(R.id.editRePassword);
+        editApartment = view.findViewById(R.id.editApartmentInformation);
+        txtChangePhoto = view.findViewById(R.id.txtChangePhotoCreateUser);
 
         imgProfile = view.findViewById(R.id.imgProfile);
 
-        Button btnCreate = view.findViewById(R.id.btnCreate);
-        Button btnCancel = view.findViewById(R.id.btnCancel);
+        btnCreate = view.findViewById(R.id.btnCreateUser);
+        btnCancel = view.findViewById(R.id.btnCancelUser);
 
         imgProfile.setOnClickListener(v -> openGallery());
         txtChangePhoto.setOnClickListener(v -> openGallery());
-
-        btnCreate.setOnClickListener(v -> {
-            String name = editName.getText().toString();
-            String email = editEmail.getText().toString();
-            String pass1 = editPassword.getText().toString();
-            String pass2 = editRePassword.getText().toString();
-            String apt = editApartment.getText().toString();
-            String role = "Resident";
-
-            if (!validateForm(name, email, pass1, pass2, apt)) return;
-
-            ProgressDialog progressDialog = new ProgressDialog(getContext());
-            progressDialog.setMessage("Creating user...");
-            progressDialog.show();
-
-            try {
-                JSONObject jsonBody = createUserJson(name, email, pass1, apt, role, imageBase64);
-
-                JsonObjectRequest request = new JsonObjectRequest(
-                        Request.Method.POST,
-                        URL + CREATE,
-                        jsonBody,
-                        response -> {
-                            Toast.makeText(getContext(), "User created successfully", Toast.LENGTH_SHORT).show();
-                            progressDialog.dismiss();
-                            dismiss();
-                        },
-                        error -> {
-                            progressDialog.dismiss();
-                            handleServerError(error);
-                        }
-                )
-                {
-                    @Override
-                    public String getBodyContentType() {
-                        return "application/json; charset=utf-8";
-                    }
-                };
-
-                request.setRetryPolicy(new DefaultRetryPolicy(
-                        DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
-                        3,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-                ));
-
-                SingleVolley.getInstance(requireContext()).getRequestQueue().add(request);
-
-            } catch (Exception e) {
-                progressDialog.dismiss();
-                Log.e(LOG_TAG, "JSON exception: " + e.getMessage());
-                Toast.makeText(getContext(), "Error preparing request", Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        btnCreate.setOnClickListener(v -> {createUser();});
         btnCancel.setOnClickListener(v -> dismiss());
-
-        return new AlertDialog.Builder(requireContext())
-                .setView(view)
-                .setCancelable(false)
-                .create();
     }
 
     private void openGallery() {
@@ -142,8 +90,7 @@ public class CreateUserDialogFragment extends DialogFragment {
     }
 
     private Boolean validateForm(String name, String email, String pass1, String pass2, String apt){
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(pass1)
-                || TextUtils.isEmpty(pass2) || TextUtils.isEmpty(apt)) {
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(email) || TextUtils.isEmpty(pass1) || TextUtils.isEmpty(pass2) || TextUtils.isEmpty(apt)) {
              showToast("Please fill all fields.");
             return false;
         }
@@ -173,13 +120,55 @@ public class CreateUserDialogFragment extends DialogFragment {
         return json;
     }
 
+    public void createUser(){
+        name = editName.getText().toString().trim();
+        email = editEmail.getText().toString().trim();
+        pass1 = editPassword.getText().toString().trim();
+        pass2 = editRePassword.getText().toString().trim();
+        apt = editApartment.getText().toString().trim();
+        role = "Resident";
+
+        if (!validateForm(name, email, pass1, pass2, apt)) return;
+
+        ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Creating user...");
+        progressDialog.show();
+
+        try {
+            JSONObject jsonBody = createUserJson(name, email, pass1, apt, role, imageBase64);
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, URL + USERS_ENDPOINT, jsonBody,
+                    response -> {
+                        Toast.makeText(getContext(), "User created successfully", Toast.LENGTH_SHORT).show();
+                        progressDialog.dismiss();
+                        dismiss();
+                    },
+                    error -> {
+                        progressDialog.dismiss();
+                        handleServerError(error);
+                    }
+            )
+            {
+                @Override
+                public String getBodyContentType() {
+                    return "application/json; charset=utf-8";
+                }
+            };
+
+            request.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            SingleVolley.getInstance(requireContext()).getRequestQueue().add(request);
+
+        } catch (Exception e) {
+            progressDialog.dismiss();
+            Toast.makeText(getContext(), "Error preparing request", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void handleServerError(com.android.volley.VolleyError error) {
         String errorMessage = "Unexpected error";
 
         try {
             if (error.networkResponse != null && error.networkResponse.data != null) {
                 String body = new String(error.networkResponse.data, StandardCharsets.UTF_8);
-                Log.e(LOG_TAG, "Server response: " + body);
 
                 JSONObject jsonError = new JSONObject(body);
 
@@ -204,7 +193,6 @@ public class CreateUserDialogFragment extends DialogFragment {
                 errorMessage = "No response from server.";
             }
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Error parsing error response: " + e.getMessage());
             errorMessage = "Failed to parse server response.";
         }
         showToast(errorMessage);
@@ -217,7 +205,6 @@ public class CreateUserDialogFragment extends DialogFragment {
             Uri imageUri = data.getData();
             try {
                 Bitmap originalBitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
-
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 340, 200, true);
 
                 imgProfile.setImageBitmap(resizedBitmap);
@@ -232,10 +219,5 @@ public class CreateUserDialogFragment extends DialogFragment {
                 Toast.makeText(getContext(), "Error loading image", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-    @Override
-    public void onResume() {
-        super.onResume();
-        TokenValidator.validateToken(requireContext());
     }
 }
