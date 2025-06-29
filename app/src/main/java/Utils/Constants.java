@@ -30,4 +30,6 @@ public class Constants {
     public static final SimpleDateFormat DATE_FORMAT_CUSTOM =  new SimpleDateFormat("dd MMMM yy", Locale.ENGLISH);
     public static final SimpleDateFormat DATE_FORMAT_HOURS_CUSTOM =  new SimpleDateFormat("HH:mm", Locale.ENGLISH);
     public static final String REGEX_EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+    public static final String SUBJECT_RESERVATIONS = "Your reservation for spaceName has been confirmed – ResiApp";
+    public static final String BODY_RESERVATIONS = "<html> <body style='font-family: Arial, sans-serif; line-height: 1.6;'> <p>Hello <strong> currentUser.getResidentName()</strong>,</p> <p>Your reservation has been <strong>successfully confirmed</strong>.</p> <p> <strong>Space:</strong>  spaceName <br> <strong>Start time:</strong> startTime <br> <strong>End time:</strong> endTime <br> <br> Thanks you for using our app.<br> <strong>ResiApp team.</strong></p> </body> </html>";
 }
