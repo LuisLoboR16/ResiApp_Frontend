@@ -1,5 +1,7 @@
 package Activities;
 
+import static Utils.Constants.*;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -33,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import API.SingleVolley;
-import Utils.Constants;
 import Adapters.ReviewAdapter;
 import Fragments.CreateReviewDialogFragment;
 import Models.Review;
@@ -43,13 +44,6 @@ import Utils.RoleRule;
 import Utils.TokenValidator;
 
 public class ReviewActivity extends RoleRule {
-    static final String URL = Constants.URL;
-    static final String GET = Constants.REVIEWS_ENDPOINT;
-    static final String DELETE = Constants.REVIEWS_ENDPOINT+"/";
-    static final String UPDATE = Constants.REVIEWS_ENDPOINT+"/";
-    static final String GET_SPACE = Constants.SPACES_ENDPOINT;
-    static final String LOG_TAG = Constants.LOG_TAG;
-
     private RequestQueue requestQueues;
     private ReviewAdapter adapter;
     private List<Review> reviewList;
@@ -65,24 +59,32 @@ public class ReviewActivity extends RoleRule {
 
         roleRules(findViewById(android.R.id.content));
 
-        FloatingActionButton btnCreateSpace = findViewById(R.id.btnCreateReview);
-        btnCreateSpace.setOnClickListener(v -> {
-            CreateReviewDialogFragment dialog = new CreateReviewDialogFragment();
-            dialog.setUser(currentUser);
-            dialog.setSpaceList(spaceList);
-            dialog.setOnReviewCreated(() -> createReviewRequest(URL + GET));
-            dialog.show(getSupportFragmentManager(), "CreateReviewDialog");
-        });
+        initVolley();
+        setupRecyclerView();
+        createReviewDialog();
 
+        createSpaceRequest(URL + SPACES_ENDPOINT);
+        createReviewRequest(URL + REVIEWS_ENDPOINT);
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+    }
+
+    private void initVolley() {
+        requestQueues = SingleVolley.getInstance(getApplicationContext()).getRequestQueue();
+    }
+
+    private void setupRecyclerView(){
         RecyclerView recyclerView = findViewById(R.id.recyclerReviews);
+
         reviewList = new ArrayList<>();
         spaceList = new ArrayList<>();
+        userList = new ArrayList<>();
         gson = new Gson();
 
-        SingleVolley volley = SingleVolley.getInstance(getApplicationContext());
-        requestQueues = volley.getRequestQueue();
-
-        createSpaceRequest(URL + GET_SPACE);
         adapter = new ReviewAdapter(reviewList,userList,spaceList,new ReviewAdapter.onReviewActionListener() {
 
             @Override
@@ -92,146 +94,137 @@ public class ReviewActivity extends RoleRule {
 
             @Override
             public void onDelete(Review review) {
-                View dialogView = LayoutInflater.from(ReviewActivity.this)
-                        .inflate(R.layout.activity_delete_review, null);
-
-                Button btnDelete = dialogView.findViewById(R.id.btnDeleteReview);
-                Button btnCancel = dialogView.findViewById(R.id.btnCancelDeleteReview);
-
-                AlertDialog dialog = new AlertDialog.Builder(ReviewActivity.this)
-                        .setView(dialogView)
-                        .create();
-
-                btnDelete.setOnClickListener(v -> {
-                    deleteReview(review);
-                    dialog.dismiss();
-                });
-
-                btnCancel.setOnClickListener(v -> dialog.dismiss());
-
-                dialog.show();
-            }
-
-            public void deleteReview(Review review) {
-                String urlDelete = URL + DELETE + review.getId();
-                ProgressDialog progressDialog = new ProgressDialog(ReviewActivity.this);
-                progressDialog.setMessage("Deleting review...");
-                progressDialog.show();
-
-                StringRequest deleteRequest = new StringRequest(
-                        Request.Method.DELETE,
-                        urlDelete,
-                        response -> {
-                            Toast.makeText(ReviewActivity.this, "Review deleted successfully", Toast.LENGTH_SHORT).show();
-                            reviewList.remove(review);
-                            adapter.notifyDataSetChanged();
-                            progressDialog.dismiss();
-                        },
-                        error -> {
-                            Toast.makeText(ReviewActivity.this, "Error deleting review: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                            progressDialog.dismiss();
-                        }
-                );
-
-                deleteRequest.setRetryPolicy(new DefaultRetryPolicy(
-                        DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
-                        3,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-                ));
-
-                requestQueues.add(deleteRequest);
-            }
-
-            private void showUpdateForm(Review review, List<Space> spaceList) {
-                View dialogView = getLayoutInflater().inflate(R.layout.activity_update_review, null);
-                Spinner spinnerUpdateRating = dialogView.findViewById(R.id.editUpdateSpinnerRating);
-                EditText editComment = dialogView.findViewById(R.id.editComment);
-                Spinner spinnerSpaces = dialogView.findViewById(R.id.spinnerSpaces);
-
-                Button btnUpdate = dialogView.findViewById(R.id.btnUpdate);
-                Button btnCancel = dialogView.findViewById(R.id.btnCancel);
-
-                List<String> ratings = new ArrayList<>();
-                for (int i = 1; i <= 5; i++) {
-                    ratings.add(String.valueOf(i));
-                }
-
-                ArrayAdapter<String> ratingAdapter = new ArrayAdapter<>(
-                        ReviewActivity.this,
-                        android.R.layout.simple_spinner_item,
-                        ratings
-                );
-                ratingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinnerUpdateRating.setAdapter(ratingAdapter);
-
-                spinnerUpdateRating.setSelection(review.getRating() - 1);
-
-                editComment.setText(review.getComment());
-
-                List<String> spaceNames = new ArrayList<>();
-                for (Space spaces: spaceList){
-                    spaceNames.add(spaces.getSpaceName());
-                }
-
-                ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
-                        ReviewActivity.this,
-                        android.R.layout.simple_spinner_item,
-                        spaceNames
-                );
-                spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinnerSpaces.setAdapter(spinnerAdapter);
-
-                int selectedIndex = 0;
-                int currentSpaceId = review.getSpace().getId();
-                for (int i = 0; i < spaceList.size(); i++) {
-                    if (spaceList.get(i).getId() == currentSpaceId) {
-                        selectedIndex = i;
-                        break;
-                    }
-                }
-                spinnerSpaces.setSelection(selectedIndex);
-
-                AlertDialog dialog = new AlertDialog.Builder(ReviewActivity.this)
-                        .setView(dialogView)
-                        .create();
-
-                btnUpdate.setOnClickListener(view -> {
-                    review.setComment(editComment.getText().toString());
-
-                    int selectedPosition = spinnerSpaces.getSelectedItemPosition();
-                    Space selectedSpace = spaceList.get(selectedPosition);
-                    review.setSpace(selectedSpace);
-
-                    int selectedRating = Integer.parseInt(spinnerUpdateRating.getSelectedItem().toString());
-                    review.setRating(selectedRating);
-
-                    updateReview(review);
-                    dialog.dismiss();
-                });
-
-                btnCancel.setOnClickListener(view -> dialog.dismiss());
-                dialog.show();
-                roleRules(dialogView);
+                showDeleteDialog(review);
             }
         });
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+    }
 
-        createReviewRequest(URL + GET);
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+    private void createReviewDialog(){
+        FloatingActionButton btnCreateSpace = findViewById(R.id.btnCreateReview);
+        btnCreateSpace.setOnClickListener(v -> {
+            CreateReviewDialogFragment dialog = new CreateReviewDialogFragment();
+            dialog.setUser(currentUser);
+            dialog.setSpaceList(spaceList);
+            dialog.setOnReviewCreated(() -> createReviewRequest(URL + REVIEWS_ENDPOINT));
+            dialog.show(getSupportFragmentManager(), "CreateReviewDialog");
         });
     }
 
+    private void setupRatingSpinner(Spinner spinner, Review review){
+        List<String> ratings = new ArrayList<>();
+        for (int i = 1; i <= 5; i++) {ratings.add(String.valueOf(i));}
+
+        ArrayAdapter<String> ratingAdapter = new ArrayAdapter<>(ReviewActivity.this, android.R.layout.simple_spinner_item, ratings);
+        ratingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(ratingAdapter);
+        spinner.setSelection(review.getRating() - 1);
+    }
+
+    private void setupSpaceSpinner(Spinner spinner, List<Space> spaceList, Review review){
+        List<String> spaceNames = new ArrayList<>();
+        for (Space spaces: spaceList){spaceNames.add(spaces.getSpaceName());}
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(ReviewActivity.this, android.R.layout.simple_spinner_item, spaceNames);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
+
+        int selectedIndex = 0;
+        int currentSpaceId = review.getSpace().getId();
+        for (int i = 0; i < spaceList.size(); i++) {
+            if (spaceList.get(i).getId() == currentSpaceId) {
+                selectedIndex = i;
+                break;
+            }
+        }
+        spinner.setSelection(selectedIndex);
+    }
+
+    private void showDeleteDialog(Review review){
+        View dialogView = LayoutInflater.from(ReviewActivity.this).inflate(R.layout.activity_delete_review, null);
+
+        Button btnDelete = dialogView.findViewById(R.id.btnDeleteReview);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancelDeleteReview);
+
+        AlertDialog dialog = new AlertDialog.Builder(ReviewActivity.this).setView(dialogView).create();
+
+        btnDelete.setOnClickListener(v -> {deleteReview(review);dialog.dismiss();});
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private void showUpdateForm(Review review, List<Space> spaceList) {
+        View dialogView = getLayoutInflater().inflate(R.layout.activity_update_review, null);
+
+        Spinner spinnerUpdateRating = dialogView.findViewById(R.id.editUpdateSpinnerRating);
+        EditText editComment = dialogView.findViewById(R.id.editComment);
+        Spinner spinnerSpaces = dialogView.findViewById(R.id.spinnerSpaces);
+
+        Button btnUpdate = dialogView.findViewById(R.id.btnUpdate);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+
+        setupRatingSpinner(spinnerUpdateRating, review);
+        setupSpaceSpinner(spinnerSpaces, spaceList, review);
+
+        editComment.setText(review.getComment());
+
+        AlertDialog dialog = new AlertDialog.Builder(ReviewActivity.this).setView(dialogView).create();
+
+        btnUpdate.setOnClickListener(view -> {
+            review.setComment(editComment.getText().toString());
+
+            int selectedPosition = spinnerSpaces.getSelectedItemPosition();
+            Space selectedSpace = spaceList.get(selectedPosition);
+            review.setSpace(selectedSpace);
+
+            int selectedRating = Integer.parseInt(spinnerUpdateRating.getSelectedItem().toString());
+            review.setRating(selectedRating);
+
+            updateReview(review);
+            dialog.dismiss();
+        });
+
+        btnCancel.setOnClickListener(view -> dialog.dismiss());
+        dialog.show();
+        roleRules(dialogView);
+    }
+
+    private ProgressDialog showProgress(String message){
+        ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage(message);
+        dialog.show();
+        return dialog;
+    }
+
+    public void deleteReview(Review review) {
+        String urlDelete = URL + REVIEWS_ENDPOINT+"/" + review.getId();
+        ProgressDialog progressDialog = showProgress("Deleting review...");
+
+
+        StringRequest deleteRequest = new StringRequest(
+                Request.Method.DELETE,
+                urlDelete,
+                response -> {
+                    Toast.makeText(ReviewActivity.this, "Review deleted successfully", Toast.LENGTH_SHORT).show();
+                    reviewList.remove(review);
+                    adapter.notifyDataSetChanged();
+                    progressDialog.dismiss();
+                },
+                error -> {
+                    Toast.makeText(ReviewActivity.this, "Error deleting review: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                    progressDialog.dismiss();
+                }
+        );
+
+        deleteRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        requestQueues.add(deleteRequest);
+    }
+
     public void updateReview(Review review) {
-        String urlUpdate = URL + UPDATE + review.getId();
-        ProgressDialog progressDialog = new ProgressDialog(ReviewActivity.this);
-        progressDialog.setMessage("Updating review...");
-        progressDialog.show();
+        String urlUpdate = URL + REVIEWS_ENDPOINT+"/" + review.getId();
+        ProgressDialog progressDialog = showProgress("Updating review...");
 
         try {
             JSONObject json = new JSONObject();
@@ -245,7 +238,7 @@ public class ReviewActivity extends RoleRule {
                     urlUpdate,
                     response -> {
                         Toast.makeText(this, "Review updated successfully", Toast.LENGTH_SHORT).show();
-                        createReviewRequest(URL + GET);
+                        createReviewRequest(URL + REVIEWS_ENDPOINT);
                         progressDialog.dismiss();
                     },
                     error -> {
@@ -272,12 +265,7 @@ public class ReviewActivity extends RoleRule {
                 }
             };
 
-            request.setRetryPolicy(new DefaultRetryPolicy(
-                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
-                    3,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-            ));
-
+            request.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueues.add(request);
 
         } catch (Exception e) {
@@ -287,10 +275,7 @@ public class ReviewActivity extends RoleRule {
     }
 
     public void createSpaceRequest(String urlRequest) {
-        JsonArrayRequest rulesRequest = new JsonArrayRequest(
-                Request.Method.GET,
-                urlRequest,
-                null,
+        JsonArrayRequest rulesRequest = new JsonArrayRequest(Request.Method.GET, urlRequest, null,
                 response -> {
                     try {
                         spaceList.clear();
@@ -310,44 +295,26 @@ public class ReviewActivity extends RoleRule {
                     Toast.makeText(this, "Failed to load rules", Toast.LENGTH_SHORT).show();
                 }
         );
-
         rulesRequest.setTag(LOG_TAG);
-        rulesRequest.setRetryPolicy(new DefaultRetryPolicy(
-                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
-                3,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-        ));
-
+        rulesRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueues.add(rulesRequest);
     }
 
     public void createReviewRequest(String urlRequest) {
-        ProgressDialog pDialog = new ProgressDialog(this);
-        pDialog.setMessage("Loading reviews...");
-        pDialog.show();
+        ProgressDialog pDialog = showProgress("Loading reviews...");
 
-        JsonArrayRequest newRequest = new JsonArrayRequest(
-                Request.Method.GET,
-                urlRequest,
-                null,
+        JsonArrayRequest newRequest = new JsonArrayRequest(Request.Method.GET, urlRequest, null,
                 response -> {
                     try {
-
                         reviewList.clear();
                         for (int c = 0; c < response.length(); c++) {
                             JSONObject userJson = response.getJSONObject(c);
                             Review review = gson.fromJson(userJson.toString(), Review.class);
-
-                            if (review.getUser() == null) {
-                                Log.e(LOG_TAG, "¡Review con ID " + review.getId() + " no tiene usuario!");
-                            }
-
                             reviewList.add(review);
                         }
-                        Log.d(LOG_TAG, "Reviews loaded: " + reviewList.size());
                         adapter.notifyDataSetChanged();
+
                     } catch (Exception e) {
-                        Log.e(LOG_TAG, "Error processing response: " + e.getMessage());
                         Toast.makeText(ReviewActivity.this, "Error loading data", Toast.LENGTH_SHORT).show();
                     } finally {
                         pDialog.dismiss();
@@ -359,16 +326,8 @@ public class ReviewActivity extends RoleRule {
                     pDialog.dismiss();
                 }
         );
-
         newRequest.setTag(LOG_TAG);
-        newRequest.setRetryPolicy(
-                new DefaultRetryPolicy(
-                        DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
-                        3,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-                )
-        );
-
+        newRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueues.add(newRequest);
     }
 

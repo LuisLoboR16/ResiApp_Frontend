@@ -1,8 +1,6 @@
 package Adapters;
 
-import static Utils.Constants.DATE_FORMAT_CUSTOM;
-import static Utils.Constants.DATE_FORMAT_HOURS_CUSTOM;
-import static Utils.Constants.LOG_TAG;
+import static Utils.Constants.*;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -28,11 +26,13 @@ import java.util.List;
 
 import Models.Reservation;
 import Models.Space;
+import Models.SpaceRule;
 import Models.User;
 
 public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.ReservationViewHolder> {
     private static List<Reservation> reservationList = Collections.emptyList();
     private static List<Space> spaceList = Collections.emptyList();
+    private static List<SpaceRule> ruleList = Collections.emptyList();
     private static List<User> userList = Collections.emptyList();
 
     public void setUserList(List<User> userList) {
@@ -99,8 +99,14 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             holder.tvEndTime.setText(R.string.date_unavailable);
         }
 
+        List<SpaceRule> rules = (matchedSpace != null) ? matchedSpace.getSpaceRule() : Collections.emptyList();
+        String ruleText = (!rules.isEmpty()) ? rules.get(0).getRule() : "N/A";
+
         holder.tvUser.setText(Html.fromHtml("<b>Resident:</b> " + reservation.getUser().getResidentName()));
         holder.tvSpace.setText(Html.fromHtml("<b>In:</b> " + reservation.getSpace().getSpaceName()));
+        holder.tvSpaceRule.setText(Html.fromHtml("<b>Rule:</b> " + ruleText));
+
+
 
         SharedPreferences prefs = holder.itemView.getContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         String role = prefs.getString("role", "Resident");
@@ -123,7 +129,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
     }
 
     public static class ReservationViewHolder extends RecyclerView.ViewHolder {
-        TextView tvReservationNumber, tvStartTime, tvEndTime, tvUser,tvSpace;
+        TextView tvReservationNumber, tvStartTime, tvEndTime, tvUser,tvSpace, tvSpaceRule;
         ImageView tvImage;
         Button btnUpdate, btnDelete;
 
@@ -135,6 +141,7 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             tvEndTime= itemView.findViewById(R.id.tvEndTime);
             tvUser = itemView.findViewById(R.id.tvResidentReservation);
             tvSpace = itemView.findViewById(R.id.tvSpaceReservation);
+            tvSpaceRule = itemView.findViewById(R.id.tvSpaceRuleReservation);
             tvImage = itemView.findViewById(R.id.imgSpacePhotoReservations);
 
             btnUpdate = itemView.findViewById(R.id.btnUpdateReservations);

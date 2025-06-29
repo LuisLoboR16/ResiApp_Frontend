@@ -2,6 +2,8 @@ package Fragments;
 
 import static android.app.Activity.RESULT_OK;
 
+import static Utils.Constants.*;
+
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -29,6 +31,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.resiapp.R;
@@ -40,16 +43,11 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import Utils.Constants;
 import Utils.TokenValidator;
 import Models.User;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UpdateConfigurationsDialogFragment extends DialogFragment {
-    static final String URL = Constants.URL;
-    static final String GET = URL + Constants.FIND_BY_USER_ID_ENDPOINT;
-    static final String UPDATE = URL + Constants.USERS_ENDPOINT + "/";
-    static final String LOG_TAG = Constants.LOG_TAG;
     private static final int PICK_IMAGE_REQUEST = 1;
 
     private User currentUser;
@@ -65,14 +63,13 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_configurations, null);
+
         initializeViews(view);
         setupUserData();
         setupListeners(view);
         loadUserData();
 
-        return new AlertDialog.Builder(requireContext())
-                .setView(view)
-                .create();
+        return new AlertDialog.Builder(requireContext()).setView(view).create();
     }
 
     private void initializeViews(View view) {
@@ -101,6 +98,7 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
 
         Button btnCancel = view.findViewById(R.id.btnCancelConfig);
         Button btnUpdate = view.findViewById(R.id.btnUpdateConfig);
+
         btnCancel.setOnClickListener(v -> dismiss());
         btnUpdate.setOnClickListener(v -> updateUser());
     }
@@ -131,10 +129,7 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
             json.put("apartmentInformation", aptInfo);
             json.put("imageBase64", imageBase64);
 
-            JsonObjectRequest request = new JsonObjectRequest(
-                    Request.Method.PUT,
-                    UPDATE + currentUser.getId(),
-                    json,
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, URL + USERS_ENDPOINT + "/" + currentUser.getId(), json,
                     response -> {
                         showToast("User updated successfully");
                         progressDialog.dismiss();
@@ -157,7 +152,7 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
     }
 
     private void loadUserData() {
-        String url = GET + currentUser.getId();
+        String url = URL + FIND_BY_USER_ID_ENDPOINT + currentUser.getId();
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
@@ -188,7 +183,7 @@ public class UpdateConfigurationsDialogFragment extends DialogFragment {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    private void showServerError(com.android.volley.VolleyError error) {
+    private void showServerError(VolleyError error) {
         StringBuilder errorMessage = new StringBuilder();
 
         if (error.networkResponse != null && error.networkResponse.data != null) {

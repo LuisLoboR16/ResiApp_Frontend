@@ -1,11 +1,12 @@
 package Fragments;
 
+import static Utils.Constants.*;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -27,35 +28,35 @@ import org.json.JSONObject;
 import Utils.Constants;
 
 public class ForgotPasswordDialogFragment extends DialogFragment {
-    static final String URL = Constants.URL;
     static final String UPDATE = URL + Constants.FORGOT_PASSWORD_ENDPOINT;
-    static final String LOG_TAG = Constants.LOG_TAG;
 
-    EditText editEmail,editSecurityWord,editPassword,editRePassword;
+    EditText editEmail;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState){
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_forgot_password, null);
 
-         editEmail = view.findViewById(R.id.etEmailForgot);
+        initViews(view);
+
+        return new AlertDialog.Builder(requireContext()).setView(view).create();
+    }
+
+    public void initViews(View view){
+        editEmail = view.findViewById(R.id.etEmailForgot);
 
         Button btnUpdate = view.findViewById(R.id.btnUpdateForgot);
         Button btnCancel = view.findViewById(R.id.btnCancelForgot);
 
         btnUpdate.setOnClickListener(v ->updateUser());
         btnCancel.setOnClickListener(v -> dismiss());
-
-        return new AlertDialog.Builder(requireContext())
-                .setView(view)
-                .create();
     }
 
     private void updateUser() {
         String email = editEmail.getText().toString();
 
         if (TextUtils.isEmpty(email)) {
-            Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Please fill email", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -67,48 +68,14 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
             JSONObject json = new JSONObject();
             json.put("email",email);
 
-            JsonObjectRequest request = new JsonObjectRequest(
-                    Request.Method.POST,
-                    UPDATE,
-                    json,
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, UPDATE, json,
                     response -> {
                         Toast.makeText(getContext(), "Password updated successfully", Toast.LENGTH_SHORT).show();
                         progressDialog.dismiss();
                         dismiss();
                     },
                     error -> {
-                        Log.e(LOG_TAG, "Error: " + error.toString());
-                        if (error.networkResponse != null) {
-                            int statusCode = error.networkResponse.statusCode;
-                            Log.e(LOG_TAG, "Status code: " + statusCode);
-
-                            if (error.networkResponse.data != null) {
-                                String errorBody = new String(error.networkResponse.data);
-                                Log.e(LOG_TAG, "Error body: " + errorBody);
-                            }
-                            switch (statusCode) {
-                                case 400:
-                                    Toast.makeText(getContext(), "Security word is incorrect", Toast.LENGTH_LONG).show();
-                                    break;
-                                case 401:
-                                    Toast.makeText(getContext(), "Unauthorized request", Toast.LENGTH_LONG).show();
-                                    break;
-                                case 403:
-                                    Toast.makeText(getContext(), "Access denied", Toast.LENGTH_LONG).show();
-                                    break;
-                                case 404:
-                                    Toast.makeText(getContext(), "Resource not found", Toast.LENGTH_LONG).show();
-                                    break;
-                                case 500:
-                                    Toast.makeText(getContext(), "Server error. Please try again later", Toast.LENGTH_LONG).show();
-                                    break;
-                                default:
-                                    Toast.makeText(getContext(), "Unexpected error occurred: " + statusCode, Toast.LENGTH_LONG).show();
-                                    break;
-                            }
-                        } else {
                             Toast.makeText(getContext(), "No response from server. Check your connection.", Toast.LENGTH_LONG).show();
-                        }
                         progressDialog.dismiss();
                     }
             ) {
@@ -118,16 +85,10 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
                 }
             };
 
-            request.setRetryPolicy(new DefaultRetryPolicy(
-                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
-                    3,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-            ));
-
+            request.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             Volley.newRequestQueue(requireContext()).add(request);
 
         } catch (Exception e) {
-            Log.e(LOG_TAG, "Execption JSON: " + e.getMessage());
             progressDialog.dismiss();
         }
     }

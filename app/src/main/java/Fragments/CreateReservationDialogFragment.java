@@ -1,5 +1,7 @@
 package Fragments;
 
+import static Utils.Constants.*;
+
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -30,6 +32,7 @@ import com.example.resiapp.R;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -38,41 +41,47 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import Utils.Constants;
 import API.SingleVolley;
 import Utils.TokenValidator;
 import Models.Space;
 import Models.User;
 
 public class CreateReservationDialogFragment extends DialogFragment {
-    static final String URL = Constants.URL;
-    static final String CREATE = Constants.RESERVATIONS_ENDPOINT;
-    static final String DATE_FORMAT_LONG = Constants.DATE_FORMAT_LONG;
-    static final String DATE_TIME_FORMAT = Constants.DATE_TIME_FORMAT;
-    static final String DATE_INVERTED_FORMAT = Constants.DATE_INVERTED_FORMAT;
-    static final String DATE_FORMAT_SHORTEST = Constants.DATE_FORMAT_SHORTEST;
-    static final String LOG_TAG = Constants.LOG_TAG;
-
     private RequestQueue requestQueues;
     private User currentUser;
     private List<Space> spaceList = new ArrayList<>();
     private Runnable onReservationCreated;
 
-    String formattedStartTimeDate = "";
-    String formattedEndTimeDate = "";
+    int userId;
+    String formattedStartTimeDate = "", formattedEndTimeDate = "", residentName, role, email;
     EditText editStartTime,editEndTime,editDate,editUser;
+    Spinner editSpace;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.activity_create_reservation, null);
 
+        initVolley();
+        initViews(view);
+        loadUserPreferences();
+        setupSpaceSpinner();
+        setupDatePicker();
+
+        return new AlertDialog.Builder(requireContext()).setView(view).setCancelable(false).create();
+    }
+
+    private void initVolley() {
+        requestQueues = SingleVolley.getInstance(requireContext()).getRequestQueue();
+    }
+
+    public void initViews(View view){
         editStartTime = view.findViewById(R.id.editStartTimecReservation);
         editEndTime = view.findViewById(R.id.editEndTimecReservation);
         editDate = view.findViewById(R.id.editDateReservation);
         editUser = view.findViewById(R.id.editUsercReservation);
 
-        Spinner editSpace = view.findViewById(R.id.editSpinnerSpacecReservation);
+        editSpace = view.findViewById(R.id.editSpinnerSpacecReservation);
 
         Button btnCreate = view.findViewById(R.id.btnCreatecReservation);
         Button btnTimeBoard = view.findViewById(R.id.btnTimeBoardcReservation);
@@ -82,45 +91,29 @@ public class CreateReservationDialogFragment extends DialogFragment {
         editEndTime.setEnabled(false);
         editUser.setEnabled(false);
 
+        btnCreate.setOnClickListener(v -> createReservation());
+        btnCancel.setOnClickListener(v -> dismiss());
+        btnTimeBoard.setOnClickListener(v -> findAvailableTimeSlots());
+    }
+
+    public void loadUserPreferences(){
         SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-        String residentName = prefs.getString("resident_name", null);
-        int userId = prefs.getInt("user_id", -1);
-
-        editDate.setFocusable(false);
-        editDate.setOnClickListener(v -> {
-            final Calendar calendar = Calendar.getInstance();
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-            DatePickerDialog datePickerDialog = new DatePickerDialog(
-                    requireContext(),
-                    (view2, selectedYear, selectedMonth, selectedDay) -> {
-                        calendar.set(Calendar.YEAR, selectedYear);
-                        calendar.set(Calendar.MONTH, selectedMonth);
-                        calendar.set(Calendar.DAY_OF_MONTH, selectedDay);
-
-                        SimpleDateFormat sdf = new SimpleDateFormat(DATE_INVERTED_FORMAT, Locale.getDefault());
-                        String formattedDate = sdf.format(calendar.getTime());
-                        editDate.setText(formattedDate);
-
-                        cleanFields();
-                    },
-                    year, month, day
-            );
-            datePickerDialog.show();
-        });
+        residentName = prefs.getString("resident_name", null);
+        userId = prefs.getInt("user_id", -1);
+        role = prefs.getString("role","Resident");
+        email = prefs.getString("resident_email", ADMIN_EMAIL);
 
         if (residentName != null && userId != -1) {
             currentUser = new User();
             currentUser.setId(userId);
             currentUser.setResidentName(residentName);
-        }
-
-        if (currentUser != null && currentUser.getResidentName() != null) {
+            currentUser.setRole(role);
+            currentUser.setEmail(email);
             editUser.setText(currentUser.getResidentName());
         }
+    }
 
+    public void setupSpaceSpinner(){
         List<String> spaceNames = new ArrayList<>();
         for (Space name : spaceList) {
             spaceNames.add(name.getSpaceName());
@@ -130,138 +123,102 @@ public class CreateReservationDialogFragment extends DialogFragment {
                 requireContext(), android.R.layout.simple_spinner_item, spaceNames);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         editSpace.setAdapter(spinnerAdapter);
-
         editSpace.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view1, int position, long id) {
                 cleanFields();
             }
-
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
+    }
 
-        btnTimeBoard.setOnClickListener(v -> {
-            String selectedDate = editDate.getText().toString().trim();
-            if (selectedDate.isEmpty()) {
-                Toast.makeText(getContext(), "Select a date first", Toast.LENGTH_SHORT).show();
-                return;
-            }
+    public void setupDatePicker(){
+        editDate.setFocusable(false);
+        editDate.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            DatePickerDialog dialog = new DatePickerDialog(requireContext(), (view, y, m, d) -> {
+                calendar.set(y, m, d);
+                editDate.setText(new SimpleDateFormat(DATE_INVERTED_FORMAT, Locale.getDefault()).format(calendar.getTime()));
+                cleanFields();
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+            dialog.show();
+        });
+    }
 
-            if (spaceList.isEmpty()) {
-                Toast.makeText(getContext(), "Please select a valid space first", Toast.LENGTH_SHORT).show();
-                return;
-            }
+    public void findAvailableTimeSlots(){
+        String selectedDate = editDate.getText().toString().trim();
+        if (selectedDate.isEmpty()) {
+            Toast.makeText(getContext(), "Select a date first", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            int selectedIndex = editSpace.getSelectedItemPosition();
-            Space selectedSpace = spaceList.get(selectedIndex);
-            int spaceId = selectedSpace.getId();
+        if (spaceList.isEmpty()) {
+            Toast.makeText(getContext(), "Please select a valid space first", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            String url = URL + Constants.FIND_RESERVATIONS_BY_AVAILABLE_SLOTS + spaceId + Constants.DATE_SLOTS + selectedDate + Constants.SLOT_MINUTES_SLOTS;
+        int selectedIndex = editSpace.getSelectedItemPosition();
+        Space selectedSpace = spaceList.get(selectedIndex);
+        int spaceId = selectedSpace.getId();
 
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
-                    response -> {
-                        try {
-                            JSONArray data = response.getJSONArray("data");
-                            if (data.length() == 0) {
-                                Toast.makeText(getContext(), "No available time slots", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
+        String url = URL + FIND_RESERVATIONS_BY_AVAILABLE_SLOTS + spaceId + DATE_SLOTS + selectedDate + SLOT_MINUTES_SLOTS;
 
-                            List<String> labels = new ArrayList<>();
-                            List<String> startList = new ArrayList<>();
-                            List<String> endList = new ArrayList<>();
-
-                            SimpleDateFormat inFmt = new SimpleDateFormat(DATE_FORMAT_LONG, Locale.getDefault());
-                            SimpleDateFormat outFmt = new SimpleDateFormat(DATE_FORMAT_SHORTEST, Locale.getDefault());
-
-                            for (int i = 0; i < data.length(); i++) {
-                                JSONObject obj = data.getJSONObject(i);
-                                String startTime = obj.getString("startTime");
-                                String endTime = obj.getString("endTime");
-
-                                Date start = inFmt.parse(startTime);
-                                Date end = inFmt.parse(endTime);
-
-                                assert start != null;
-                                assert end != null;
-                                labels.add(outFmt.format(start) + " - " + outFmt.format(end));
-                                startList.add(startTime);
-                                endList.add(endTime);
-                            }
-
-                            new AlertDialog.Builder(getContext())
-                                    .setTitle("Select available time slot")
-                                    .setItems(labels.toArray(new String[0]), (dialog, which) -> {
-                                        formattedStartTimeDate = startList.get(which);
-                                        formattedEndTimeDate = endList.get(which);
-
-                                        try {
-                                            SimpleDateFormat display = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.getDefault());
-                                            editStartTime.setText(display.format(Objects.requireNonNull(inFmt.parse(formattedStartTimeDate))));
-                                            editEndTime.setText(display.format(Objects.requireNonNull(inFmt.parse(formattedEndTimeDate))));
-
-                                        } catch (Exception e) {
-                                            Log.e(LOG_TAG, "Date parsing error: " + e.getMessage());
-                                        }
-                                    })
-                                    .show();
-
-                        } catch (Exception e) {
-                            Toast.makeText(getContext(), "Error processing response", Toast.LENGTH_SHORT).show();
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                response -> {
+                    try {
+                        JSONArray data = response.getJSONArray("data");
+                        if (data.length() == 0) {
+                            Toast.makeText(getContext(), "No available time slots", Toast.LENGTH_SHORT).show();
+                            return;
                         }
-                    },
-                    error -> Toast.makeText(getContext(), "You can't select a previous date from today.", Toast.LENGTH_SHORT).show()
-            );
 
-            requestQueues.add(request);
-        });
+                        List<String> labels = new ArrayList<>();
+                        List<String> startList = new ArrayList<>();
+                        List<String> endList = new ArrayList<>();
 
-        btnCreate.setOnClickListener(view1 -> {
-            String startTime = editStartTime.getText().toString().trim();
-            String endTime = editEndTime.getText().toString().trim();
+                        SimpleDateFormat inFmt = new SimpleDateFormat(DATE_FORMAT_LONG, Locale.getDefault());
+                        SimpleDateFormat outFmt = new SimpleDateFormat(DATE_FORMAT_SHORTEST, Locale.getDefault());
 
-            int selectedIndex = editSpace.getSelectedItemPosition();
-            if (selectedIndex < 0 || selectedIndex >= spaceList.size()) {
-                Toast.makeText(getContext(), "Please select a valid space", Toast.LENGTH_SHORT).show();
-                return;
-            }
+                        for (int i = 0; i < data.length(); i++) {
+                            JSONObject obj = data.getJSONObject(i);
+                            String startTime = obj.getString("startTime");
+                            String endTime = obj.getString("endTime");
 
-            if (startTime.isEmpty() || endTime.isEmpty()) {
-                Toast.makeText(getContext(), "Please select a range of time", Toast.LENGTH_SHORT).show();
-                return;
-            }
+                            Date start = inFmt.parse(startTime);
+                            Date end = inFmt.parse(endTime);
 
-            ProgressDialog progressDialog = new ProgressDialog(getContext());
-            progressDialog.setMessage("Creating reservation...");
-            progressDialog.show();
+                            assert start != null;
+                            assert end != null;
+                            labels.add(outFmt.format(start) + " - " + outFmt.format(end));
+                            startList.add(startTime);
+                            endList.add(endTime);
+                        }
 
-            try {
-                JSONObject json = new JSONObject();
-                json.put("startTime", formattedStartTimeDate);
-                json.put("endTime", formattedEndTimeDate);
-                json.put("residentId", currentUser.getId());
-                json.put("spaceId", spaceList.get(selectedIndex).getId());
+                        new AlertDialog.Builder(getContext())
+                                .setTitle("Select available time slot")
+                                .setItems(labels.toArray(new String[0]), (dialog, which) -> {
+                                    formattedStartTimeDate = startList.get(which);
+                                    formattedEndTimeDate = endList.get(which);
 
-                JsonObjectRequest request = getJsonObjectRequest(json, progressDialog);
-                SingleVolley.getInstance(requireContext()).getRequestQueue().add(request);
+                                    try {
+                                        SimpleDateFormat display = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.getDefault());
+                                        editStartTime.setText(display.format(Objects.requireNonNull(inFmt.parse(formattedStartTimeDate))));
+                                        editEndTime.setText(display.format(Objects.requireNonNull(inFmt.parse(formattedEndTimeDate))));
 
-            } catch (Exception e) {
-                progressDialog.dismiss();
-                Log.e(LOG_TAG, "JSON exception: " + e.getMessage());
-                Toast.makeText(getContext(), "Error preparing request", Toast.LENGTH_SHORT).show();
-            }
-        });
+                                    } catch (Exception e) {
+                                        Log.e(LOG_TAG, "Date parsing error: " + e.getMessage());
+                                    }
+                                })
+                                .show();
 
-        btnCancel.setOnClickListener(v -> dismiss());
-
-        requestQueues = SingleVolley.getInstance(requireContext()).getRequestQueue();
-
-        return new AlertDialog.Builder(requireContext())
-                .setView(view)
-                .setCancelable(false)
-                .create();
+                    } catch (Exception e) {
+                        Toast.makeText(getContext(), "Error processing response", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> Toast.makeText(getContext(), "You can't select a previous date from today.", Toast.LENGTH_SHORT).show()
+        );
+        requestQueues.add(request);
     }
 
     public void cleanFields(){
@@ -269,6 +226,14 @@ public class CreateReservationDialogFragment extends DialogFragment {
         formattedEndTimeDate = "";
         editStartTime.setText("");
         editEndTime.setText("");
+    }
+
+    private ProgressDialog showProgress(String message) {
+        ProgressDialog dialog = new ProgressDialog(requireContext());
+        dialog.setMessage(message);
+        dialog.setCancelable(false);
+        dialog.show();
+        return dialog;
     }
 
     public void setSpaceList(List<Space> spaceList) {
@@ -283,14 +248,48 @@ public class CreateReservationDialogFragment extends DialogFragment {
         this.onReservationCreated = onReservationCreated;
     }
 
+    public void createReservation(){
+        String startTime = editStartTime.getText().toString().trim();
+        String endTime = editEndTime.getText().toString().trim();
+
+        int selectedIndex = editSpace.getSelectedItemPosition();
+        if (selectedIndex < 0 || selectedIndex >= spaceList.size()) {
+            Toast.makeText(getContext(), "Please select a valid space", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (startTime.isEmpty() || endTime.isEmpty()) {
+            Toast.makeText(getContext(), "Please select a range of time", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ProgressDialog progressDialog = showProgress("Creating reservation...");
+        try {
+            JSONObject json = new JSONObject();
+            json.put("startTime", formattedStartTimeDate);
+            json.put("endTime", formattedEndTimeDate);
+            json.put("residentId", currentUser.getId());
+            json.put("spaceId", spaceList.get(selectedIndex).getId());
+
+            JsonObjectRequest request = getJsonObjectRequest(json, progressDialog);
+            SingleVolley.getInstance(requireContext()).getRequestQueue().add(request);
+
+        } catch (Exception e) {
+            progressDialog.dismiss();
+            Log.e(LOG_TAG, "JSON exception: " + e.getMessage());
+            Toast.makeText(getContext(), "Error preparing request", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @NonNull
     private JsonObjectRequest getJsonObjectRequest(JSONObject jsonBody, ProgressDialog progressDialog) {
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.POST,
-                URL + CREATE,
-                jsonBody,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, URL + RESERVATIONS_ENDPOINT, jsonBody,
                 response -> {
                     Toast.makeText(getContext(), "Reservation created successfully", Toast.LENGTH_SHORT).show();
+
+                    String spaceName = spaceList.get(editSpace.getSelectedItemPosition()).getSpaceName();
+                    sendConfirmationEmail(spaceName, editStartTime.getText().toString(), editEndTime.getText().toString());
+
                     progressDialog.dismiss();
                     dismiss();
                     if (onReservationCreated != null) {
@@ -305,23 +304,15 @@ public class CreateReservationDialogFragment extends DialogFragment {
 
                     if (error.networkResponse != null) {
                         statusCode = error.networkResponse.statusCode;
-
-                        if (error.networkResponse.data != null) {
-                            errorBody = new String(error.networkResponse.data);
-                            Log.e(LOG_TAG, "Error body: " + errorBody);
-
-                        }
                         Log.e(LOG_TAG, "Status code: " + statusCode);
                     }
                     try {
-
                         JSONObject obj = new JSONObject(errorBody);
 
                         if (obj.has("message")) {
                             Log.e(LOG_TAG, obj.getString("message"));
                             Toast.makeText(getContext(), obj.getString("message"), Toast.LENGTH_LONG).show();
                         }
-
                     } catch (Exception e) {
                         Log.e(LOG_TAG, "Error parsing error body: " + e.getMessage());
                     }
@@ -333,13 +324,43 @@ public class CreateReservationDialogFragment extends DialogFragment {
             }
         };
 
-        request.setRetryPolicy(new DefaultRetryPolicy(
-                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
-                3,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
-        ));
+        request.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         return request;
     }
+
+    private void sendConfirmationEmail(String spaceName, String startTime, String endTime) {
+        try {
+            JSONArray toArray = new JSONArray();
+            toArray.put(currentUser.getEmail());
+
+            JSONObject json = new JSONObject();
+            json.put("to", toArray);
+            json.put("subject", SUBJECT_RESERVATIONS.replace("spaceName", spaceName));
+            json.put("body", BODY_RESERVATIONS.replace("spaceName", spaceName).replace("startTime",startTime).replace("endTime",endTime).replace("currentUser.getResidentName()",currentUser.getResidentName()));
+            json.put("role", currentUser.getRole());
+
+            JsonObjectRequest emailRequest = new JsonObjectRequest(Request.Method.POST, URL + SEND_EMAIL, json,
+                    response -> Log.d(LOG_TAG, "Email sent successfully"),
+                    error -> {
+                        if (error.networkResponse != null && error.networkResponse.data != null) {
+                            String errorBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                            Log.e(LOG_TAG, "Error to send email: " + errorBody);
+                        } else {
+                            Log.e(LOG_TAG, "Error to send email: " + error);
+                        }
+                    }
+            ) {
+                @Override
+                public String getBodyContentType() {
+                    return "application/json; charset=utf-8";
+                }
+            };
+            requestQueues.add(emailRequest);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Error preparing email: " + e.getMessage());
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
